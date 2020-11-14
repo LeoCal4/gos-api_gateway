@@ -1,9 +1,7 @@
 from flask import Blueprint, render_template, request
 from flask_login import (login_required, current_user)
 
-from gooutsafe.dao.restaurant_rating_manager import RestaurantRatingManager
 from gooutsafe.forms.review import ReviewForm
-from gooutsafe.models.restaurant_rating import RestaurantRating
 
 review = Blueprint('review', __name__)
 

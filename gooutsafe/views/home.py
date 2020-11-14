@@ -3,7 +3,6 @@ import json
 from flask import Blueprint, render_template, request, flash
 from flask_login import current_user
 
-from gooutsafe.dao.restaurant_manager import RestaurantManager
 from gooutsafe.forms.restaurant_search import RestaurantSearchForm
 
 home = Blueprint('home', __name__)

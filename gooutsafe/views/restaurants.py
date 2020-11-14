@@ -1,21 +1,11 @@
 from flask import Blueprint, redirect, render_template, request, url_for, flash, abort
 from flask_login import (login_required, current_user)
 
-from gooutsafe.dao.like_manager import LikeManager
-from gooutsafe.dao.restaurant_availability_manager import RestaurantAvailabilityManager
-from gooutsafe.dao.restaurant_manager import RestaurantManager
-from gooutsafe.dao.restaurant_rating_manager import RestaurantRatingManager
-from gooutsafe.dao.table_manager import TableManager
 from gooutsafe.forms.add_measure import MeasureForm
 from gooutsafe.forms.add_stay_time import StayTimeForm
 from gooutsafe.forms.add_table import TableForm
 from gooutsafe.forms.add_times import TimesForm
 from gooutsafe.forms.restaurant import RestaurantForm
-from gooutsafe.models.restaurant import Restaurant
-from gooutsafe.models.restaurant import geolocator
-from gooutsafe.models.restaurant_availability import RestaurantAvailability
-from gooutsafe.models.restaurant_rating import RestaurantRating
-from gooutsafe.models.table import Table
 
 restaurants = Blueprint('restaurants', __name__)
 

@@ -1,12 +1,8 @@
 from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import (login_user, login_required, current_user)
 
-from gooutsafe.dao.restaurant_manager import RestaurantManager
-from gooutsafe.dao.user_manager import UserManager
 from gooutsafe.forms import UserForm, LoginForm
 from gooutsafe.forms.update_customer import UpdateCustomerForm, AddSocialNumberForm
-from gooutsafe.models.customer import Customer
-from gooutsafe.models.operator import Operator
 
 users = Blueprint('users', __name__)
 

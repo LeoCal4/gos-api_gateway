@@ -17,7 +17,7 @@
 <body>
 
 {% block navbar %}
-    {% if current_user.is_authenticated %}
+    {# {% if current_user.is_authenticated %} 
         {% if current_user.is_customer() %}
             {% include "components/navbar/customer_navbar.html" %}
         {% elif current_user.is_rest_operator() %}
@@ -28,6 +28,7 @@
     {% else %}
         {% include "components/navbar/anonymous_navbar.html" %}
     {% endif %}
+    #}
 {% endblock %}
 
 <main role="main" class="container">
@@ -55,10 +56,6 @@
 </main>
 
 {% block scripts %}
-    <!--
-    <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
-    <script src="{{bootstrap_find_resource('js/bootstrap.js', cdn='bootstrap')}}"></script>
-    -->
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
             integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"

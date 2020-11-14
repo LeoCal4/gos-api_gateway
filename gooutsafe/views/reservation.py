@@ -6,15 +6,8 @@ from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import current_user
 from flask_login import login_required
 
-from gooutsafe.dao.customer_manager import CustomerManager
-from gooutsafe.dao.reservation_manager import ReservationManager
-from gooutsafe.dao.restaurant_manager import RestaurantManager
-from gooutsafe.dao.table_manager import TableManager
 from gooutsafe.forms.filter_form import FilterForm
 from gooutsafe.forms.reservation import ReservationForm
-from gooutsafe.models.reservation import Reservation
-from gooutsafe.models.restaurant import Restaurant
-from gooutsafe.models.table import Table
 
 reservation = Blueprint('reservation', __name__)
 

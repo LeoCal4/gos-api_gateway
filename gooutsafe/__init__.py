@@ -43,8 +43,8 @@ def create_app():
     register_handlers(app)
 
     # loading login manager
-    import gooutsafe.auth as auth
-    login = auth.init_login_manager(app)
+    #import gooutsafe.auth as auth
+    #login = auth.init_login_manager(app)
 
     if flask_env == 'testing' or flask_env == 'development':
         register_test_blueprints(app)
