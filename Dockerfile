@@ -14,7 +14,7 @@ WORKDIR /app
 COPY . /app
 
 # installing all requirements
-RUN ["pip", "install", "-r", "prod_requirements.txt"]
+RUN ["pip", "install", "-r", "requirements.prod.txt"]
 
 # removing gcc
 RUN apt-get autoremove -y gcc

@@ -44,6 +44,9 @@ and now you can run the application
 
 `flask run`
 
+**WARNING**: the static contents are inside the directory nginx/static,
+so if you want to run application without nginx you have to copy
+the static directory inside gooutsafe folder.
 
 #### Application Environments
 
@@ -72,3 +75,8 @@ In case you also want to see the overall coverage of the tests, execute the foll
 In order to know what are the lines of codes which are not covered by the tests, execute the command:
 
 `python -m pytest --cov-report term-missing`
+
+### Nginx and Gunicorn
+
+Nginx will serve static contents directly and will use gunicorn
+to serve app pages.
