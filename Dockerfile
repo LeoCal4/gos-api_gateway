@@ -2,7 +2,7 @@
 # Docker file for GoOutSafe S4 v1.0
 #
 FROM python:rc-buster
-LABEL maintainer="GoOutSafe Squad 4"
+LABEL maintainer="GoOutSafe Squad 4 API Gateway"
 LABEL version="1.0"
 LABEL description="Go Out Safe Application Squad 4"
 

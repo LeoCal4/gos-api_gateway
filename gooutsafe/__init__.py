@@ -2,9 +2,7 @@ import os
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
-from flask_datepicker import datepicker
 from flask_environments import Environments
-from flask_sqlalchemy import SQLAlchemy
 
 __version__ = '0.1'
 
@@ -71,7 +69,6 @@ def register_extensions(app):
 
     # adding bootstrap and date picker
     Bootstrap(app)
-    datepicker(app)
 
 
 def register_blueprints(app):
