@@ -9,6 +9,7 @@ from gooutsafe.forms.filter_form import FilterForm
 from gooutsafe.forms.reservation import ReservationForm
 from gooutsafe.forms.update_customer import AddSocialNumberForm
 
+
 auth = Blueprint('auth', __name__)
 
 
@@ -30,7 +31,6 @@ def login(re=False):
                             json={'email': email, 'password':password})
 
         user = response.json()
-        print(user)
         if response.status_code != 200:
             flash('The user does not exist!')
             return render_template('login.html', form=form, re_login=re)
@@ -78,7 +78,6 @@ def profile(id):
 
 
 @auth.route('/operator/<int:id>', methods=['GET', 'POST'])
-@login_required
 def operator(id):
     """This method allows the operator to access the page of its personal info
 
@@ -88,18 +87,17 @@ def operator(id):
     Returns:
         Redirects the view to personal page of the operator
     """
-    if current_user.id == id:
-        filter_form = FilterForm()
-        restaurant = Restaurant.query.filter_by(owner_id=id).first()
-        return render_template('operator_profile.html',
-                               restaurant=restaurant, filter_form=filter_form)
+    """
+    filter_form = FilterForm()
+    restaurant = Restaurant.query.filter_by(owner_id=id).first()
+    return render_template('operator_profile.html',
+                    restaurant=restaurant, filter_form=filter_form)"""
 
     return redirect(url_for('home.index'))
 
 
 
 @auth.route('/authority/<int:id>/<int:positive_id>', methods=['GET', 'POST'])
-@login_required
 def authority(id, positive_id):
     """This method allows the Health Authority to see its personal page.
 
@@ -122,7 +120,6 @@ def authority(id, positive_id):
 
 
 @auth.route('/logout')
-@login_required
 def logout():
     """This method allows the users to log out of the system
 

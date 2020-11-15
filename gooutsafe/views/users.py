@@ -3,6 +3,9 @@ from flask_login import (login_user, login_required, current_user)
 
 from gooutsafe.forms import UserForm, LoginForm
 from gooutsafe.forms.update_customer import UpdateCustomerForm, AddSocialNumberForm
+from werkzeug.security import generate_password_hash, check_password_hash
+import requests
+import datetime
 
 users = Blueprint('users', __name__)
 
@@ -21,34 +24,53 @@ def create_user_type(type_):
     form = LoginForm()
     if type_ == "customer":
         form = UserForm()
-        user = Customer()
-    else:
-        user = Operator()
 
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            email = form.data['email']
-            searched_user = UserManager.retrieve_by_email(email)
-            if searched_user is not None:
-                flash("Data already present in the database.")
-                return render_template('create_user.html', form=form)
-
-            form.populate_obj(user)
-            user.set_password(form.password.data)
-
-            UserManager.create_user(user)
-
-            login_user(user)
-            user.authenticated = True
-
-            if user.type == 'operator':
-                return redirect(url_for('auth.operator', id=user.id))
-            else:
-                return redirect(url_for('auth.profile', id=user.id))
+    if form.is_submitted():
+        email = form.data['email']
+        password = generate_password_hash(form.data['password'])
+        
+        if type_ == "operator":
+            url = "http://127.0.0.1:5001/create_user/operator"
+            response = requests.post(url, 
+                                json={
+                                    'type': 'operator',
+                                    'email': email, 
+                                    'password': password
+                                })
         else:
-            for fieldName, errorMessages in form.errors.items():
-                for errorMessage in errorMessages:
-                    flash('The field %s is incorrect: %s' % (fieldName, errorMessage))
+            social_number = form.data['social_number']
+            firstname = form.data['firstname']
+            lastname = form.data['lastname']
+            birthdate = form.data['birthdate']
+            date = birthdate.strftime('%m/%d/%Y')
+            phone = form.data['phone']           
+            url = "http://127.0.0.1:5001/create_user/customer"
+            response = requests.post(url,
+                                json={
+                                    'type': 'customer',
+                                    'email': email, 
+                                    'password': password,
+                                    'social_number': social_number,
+                                    'firstname': firstname,
+                                    'lastname': lastname,
+                                    'birthdate': date,
+                                    'phone': phone
+                                })
+
+        user = response.json()
+        print(user)
+        if user["status"] == "success":
+            if user["type"] == "operator":
+                return redirect(url_for('auth.operator', id=user["id"]))
+            else:
+                return redirect(url_for('auth.profile', id=user["id"]))
+        else:
+            flash("User already present in the database")
+            return render_template('create_user.html', form=form, user_type=type_)
+    else:
+        for fieldName, errorMessages in form.errors.items():
+            for errorMessage in errorMessages:
+                flash('The field %s is incorrect: %s' % (fieldName, errorMessage))
 
     return render_template('create_user.html', form=form, user_type=type_)
 

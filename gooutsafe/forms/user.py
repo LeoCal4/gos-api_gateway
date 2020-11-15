@@ -12,7 +12,8 @@ class UserForm(FlaskForm):
     """
 
     social_number = f.StringField(
-        'Social Number'
+        'Social Number',
+        default=""
     )
 
     email = EmailField(
