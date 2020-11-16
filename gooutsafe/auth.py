@@ -1,6 +1,5 @@
 from flask_login import LoginManager
-
-from gooutsafe.models.user import User
+from gooutsafe.rao.user_manager import UserManager
 
 
 def init_login_manager(app):
@@ -10,9 +9,15 @@ def init_login_manager(app):
 
     @login_manager.user_loader
     def load_user(user_id):
-        user = User.query.get(user_id)
-        if user is not None:
-            user._authenticated = True
-        return user
+        """
+        We need to connect to users endpoint and load the user.
+        Here we can implement the redis caching
+
+        :param user_id: user id
+        :return: the user object
+        """
+        return UserManager.get_user_by_id(user_id)
 
     return login_manager
+
+

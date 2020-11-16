@@ -13,7 +13,7 @@ class TestReservationForm(FormTest):
         cls.reservation_form = ReservationForm
         # from models.test_customer import TestCustomer
         # cls.test_customer = TestCustomer
-        # from gooutsafe.dao import customer_manager
+        # from gooutsafe.rao import customer_manager
         # cls.customer_manager = customer_manager.CustomerManager
     
     def test_correct_validate_on_submit(self):
