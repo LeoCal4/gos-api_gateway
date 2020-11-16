@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, flash, url_for, request
 from flask_login import (logout_user, login_user, login_required)
-import requests
 
 from flask_login import current_user
 from gooutsafe.forms import LoginForm
 from gooutsafe.forms.authority import AuthorityForm
+from gooutsafe.rao.user_manager import UserManager
 from gooutsafe.forms.filter_form import FilterForm
 from gooutsafe.forms.reservation import ReservationForm
 from gooutsafe.forms.update_customer import AddSocialNumberForm
@@ -27,26 +27,21 @@ def login(re=False):
 
     if form.is_submitted():
         email, password = form.data['email'], form.data['password']
-        response = requests.post("http://127.0.0.1:5001/login",
-                                 json={'email': email, 'password': password})
-        json_payload = response.json()
+        user = UserManager.authenticate_user(email, password)
 
-        if response.status_code == 401:
+        if user is None:
             # user is not authenticated
             flash('Invalid credentials')
-        elif response.status_code == 200:
+        else:
             # user is authenticated
-            user = json_payload['current_user']
             login_user(user)
 
-            if user["type"] == 'operator':
-                return redirect('/operator/%d' % user["user_id"])
-            elif user["type"] == 'customer':
-                return redirect('/profile/%d' % user["user_id"])
+            if user.type == 'operator':
+                return redirect('/operator/%d' % user.id)
+            elif user.type == 'customer':
+                return redirect('/profile/%d' % user.id)
             else:
-                return redirect('/authority/%d/0' % user["user_id"])
-        else:
-            flash('Server error %s' % response.status_code)
+                return redirect('/authority/%d/0' % user.id)
 
     return render_template('login.html', form=form, re_login=re)
 

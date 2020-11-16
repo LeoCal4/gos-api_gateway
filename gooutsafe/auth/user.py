@@ -1,4 +1,7 @@
-class User(object):
+from flask_login import UserMixin
+
+
+class User(UserMixin):
     """
     This class represents an authenticated user.
     It is not a model, it is only a lightweight class used
@@ -15,8 +18,8 @@ class User(object):
 
     @staticmethod
     def build_from_json(json: dict):
-        kw = {key: json[key] for key in ['id','email', 'is_active', 'authenticated', 'is_anonymous', 'type']}
-        extra = json
+        kw = {key: json[key] for key in ['id', 'email', 'is_active', 'authenticated', 'is_anonymous', 'type']}
+        extra = json.copy()
         all(map(extra.pop, kw))
         kw['extra'] = extra
 
@@ -31,6 +34,9 @@ class User(object):
         self.authenticated = kw["authenticated"]
         self.is_anonymous = kw["is_anonymous"]
         self.type = kw["type"]
+
+    def get_id(self):
+        return self.id
 
     def is_authenticated(self):
         return self.authenticated

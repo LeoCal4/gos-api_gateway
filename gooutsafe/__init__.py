@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from flask_environments import Environments
 
@@ -9,6 +10,7 @@ __version__ = '0.1'
 login = None
 debug_toolbar = None
 celery = None
+app = None
 
 
 def create_app():
@@ -36,15 +38,13 @@ def create_app():
     env = Environments(app)
     env.from_object(config_object)
 
-    # requiring the list of models
-
     register_extensions(app)
     register_blueprints(app)
     register_handlers(app)
 
     # loading login manager
-    #import gooutsafe.auth as auth
-    #login = auth.init_login_manager(app)
+    import gooutsafe.auth.login_manager as lm
+    login = lm.init_login_manager(app)
 
     if flask_env == 'testing' or flask_env == 'development':
         register_test_blueprints(app)
