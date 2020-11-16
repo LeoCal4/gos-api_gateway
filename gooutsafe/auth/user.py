@@ -15,7 +15,7 @@ class User(object):
 
     @staticmethod
     def build_from_json(json: dict):
-        kw = {key: json[key] for key in ['id', 'email', 'is_active', 'authenticated', 'is_anonymous', 'type']}
+        kw = {key: json[key] for key in ['id','email', 'is_active', 'authenticated', 'is_anonymous', 'type']}
         extra = json
         all(map(extra.pop, kw))
         kw['extra'] = extra
@@ -25,8 +25,12 @@ class User(object):
     def __init__(self, **kw):
         if kw is None:
             raise RuntimeError('You can\'t build the user with none dict')
-        for (key, value) in kw:
-            self[key] = value
+        self.id = kw["id"]
+        self.email = kw["email"]
+        self.is_active = kw["is_active"]
+        self.authenticated = kw["authenticated"]
+        self.is_anonymous = kw["is_anonymous"]
+        self.type = kw["type"]
 
     def is_authenticated(self):
         return self.authenticated

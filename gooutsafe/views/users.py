@@ -3,6 +3,7 @@ from flask_login import (login_user, login_required, current_user)
 
 from gooutsafe.forms import UserForm, LoginForm
 from gooutsafe.forms.update_customer import UpdateCustomerForm, AddSocialNumberForm
+from gooutsafe.auth.user import User
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 import datetime
@@ -56,15 +57,16 @@ def create_user_type(type_):
                                     'birthdate': date,
                                     'phone': phone
                                 })
-
         user = response.json()
         print(user)
-        login_user(user["user"])
+        print(user["user"])
         if user["status"] == "success":
-            if user["type"] == "operator":
-                return redirect(url_for('auth.operator', id=user["id"]))
+            to_login = User.build_from_json(user["user"])
+            login_user(to_login)
+            if to_login.type == "operator":
+                return redirect(url_for('auth.operator', id=to_login.id))
             else:
-                return redirect(url_for('auth.profile', id=user["id"]))
+                return redirect(url_for('auth.profile', id=to_login.id))
         else:
             flash("User already present in the database")
             return render_template('create_user.html', form=form, user_type=type_)
