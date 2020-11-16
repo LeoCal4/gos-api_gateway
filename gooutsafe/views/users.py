@@ -28,7 +28,7 @@ def create_user_type(type_):
 
     if form.is_submitted():
         email = form.data['email']
-        password = generate_password_hash(form.data['password'])
+        password = form.data['password']
         
         if type_ == "operator":
             url = "http://127.0.0.1:5001/operator"
@@ -58,8 +58,6 @@ def create_user_type(type_):
                                     'phone': phone
                                 })
         user = response.json()
-        print(user)
-        print(user["user"])
         if user["status"] == "success":
             to_login = User.build_from_json(user["user"])
             login_user(to_login)

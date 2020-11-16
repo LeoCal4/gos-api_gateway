@@ -11,13 +11,13 @@ class Config(object):
     # users microservice
     USERS_MS_PROTO = os.getenv('USERS_MS_PROTO', 'http')
     USERS_MS_HOST = os.getenv('USERS_MS_HOST', 'localhost')
-    USERS_MS_PORT = os.getenv('USERS_MS_PORT', 5000)
+    USERS_MS_PORT = os.getenv('USERS_MS_PORT', 5001)
     USERS_MS_URL = '%s://%s:%s' % (USERS_MS_PROTO, USERS_MS_HOST, USERS_MS_PORT)
 
     # restaurants
     RESTA_MS_PROTO = os.getenv('RESTA_MS_PROTO', 'http')
     RESTA_MS_HOST = os.getenv('RESTA_MS_HOST', 'localhost')
-    RESTA_MS_PORT = os.getenv('RESTA_MS_PORT', 5000)
+    RESTA_MS_PORT = os.getenv('RESTA_MS_PORT', 5002)
     RESTA_MS_URL = '%s://%s:%s' % (RESTA_MS_PROTO, RESTA_MS_HOST, RESTA_MS_PORT)
 
 
