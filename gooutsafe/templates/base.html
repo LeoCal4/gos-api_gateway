@@ -17,7 +17,7 @@
 <body>
 
 {% block navbar %}
-    {# {% if current_user.is_authenticated %} 
+     {% if current_user.is_authenticated %} 
         {% if current_user.is_customer() %}
             {% include "components/navbar/customer_navbar.html" %}
         {% elif current_user.is_rest_operator() %}
@@ -28,7 +28,6 @@
     {% else %}
         {% include "components/navbar/anonymous_navbar.html" %}
     {% endif %}
-    #}
 {% endblock %}
 
 <main role="main" class="container">
