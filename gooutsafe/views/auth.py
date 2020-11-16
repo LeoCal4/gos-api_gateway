@@ -31,6 +31,7 @@ def login(re=False):
                             json={'email': email, 'password':password})
 
         user = response.json()
+        login_user(user)
         if response.status_code != 200:
             flash('The user does not exist!')
             return render_template('login.html', form=form, re_login=re)
@@ -127,7 +128,7 @@ def logout():
         Redirects the view to the home page
     """
     logout_user()
-    return redirect('/')
+    return redirect(url_for('home.index'))
 
 
 @auth.route('/notifications', methods=['GET'])

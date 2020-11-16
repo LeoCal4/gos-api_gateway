@@ -30,7 +30,7 @@ def create_user_type(type_):
         password = generate_password_hash(form.data['password'])
         
         if type_ == "operator":
-            url = "http://127.0.0.1:5001/create_user/operator"
+            url = "http://127.0.0.1:5001/operator"
             response = requests.post(url, 
                                 json={
                                     'type': 'operator',
@@ -42,9 +42,9 @@ def create_user_type(type_):
             firstname = form.data['firstname']
             lastname = form.data['lastname']
             birthdate = form.data['birthdate']
-            date = birthdate.strftime('%m/%d/%Y')
+            date = birthdate.strftime('%Y-%m-%d')
             phone = form.data['phone']           
-            url = "http://127.0.0.1:5001/create_user/customer"
+            url = "http://127.0.0.1:5001/customer"
             response = requests.post(url,
                                 json={
                                     'type': 'customer',
@@ -59,6 +59,7 @@ def create_user_type(type_):
 
         user = response.json()
         print(user)
+        login_user(user["user"])
         if user["status"] == "success":
             if user["type"] == "operator":
                 return redirect(url_for('auth.operator', id=user["id"]))
