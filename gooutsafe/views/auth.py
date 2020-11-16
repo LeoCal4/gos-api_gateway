@@ -9,7 +9,6 @@ from gooutsafe.forms.filter_form import FilterForm
 from gooutsafe.forms.reservation import ReservationForm
 from gooutsafe.forms.update_customer import AddSocialNumberForm
 
-
 auth = Blueprint('auth', __name__)
 
 
@@ -25,23 +24,29 @@ def login(re=False):
         Redirects the view to the personal page of the user
     """
     form = LoginForm()
+
     if form.is_submitted():
         email, password = form.data['email'], form.data['password']
-        response = requests.post("http://127.0.0.1:5001/login", 
-                            json={'email': email, 'password':password})
+        response = requests.post("http://127.0.0.1:5001/login",
+                                 json={'email': email, 'password': password})
+        json_payload = response.json()
 
-        user = response.json()
-        login_user(user)
-        if response.status_code != 200:
-            flash('The user does not exist!')
-            return render_template('login.html', form=form, re_login=re)
-        
-        if user["type"] == 'operator':
-            return redirect('/operator/%d' % user["user_id"])
-        elif user["type"] == 'customer':
-            return redirect('/profile/%d' % user["user_id"])
+        if response.status_code == 401:
+            # user is not authenticated
+            flash('Invalid credentials')
+        elif response.status_code == 200:
+            # user is authenticated
+            user = json_payload['current_user']
+            login_user(user)
+
+            if user["type"] == 'operator':
+                return redirect('/operator/%d' % user["user_id"])
+            elif user["type"] == 'customer':
+                return redirect('/profile/%d' % user["user_id"])
+            else:
+                return redirect('/authority/%d/0' % user["user_id"])
         else:
-            return redirect('/authority/%d/0' % user["user_id"])
+            flash('Server error %s' % response.status_code)
 
     return render_template('login.html', form=form, re_login=re)
 
@@ -97,7 +102,6 @@ def operator(id):
     return redirect(url_for('home.index'))
 
 
-
 @auth.route('/authority/<int:id>/<int:positive_id>', methods=['GET', 'POST'])
 def authority(id, positive_id):
     """This method allows the Health Authority to see its personal page.
@@ -115,7 +119,7 @@ def authority(id, positive_id):
         pos_customers = CustomerManager.retrieve_all_positive()
         search_customer = CustomerManager.retrieve_by_id(positive_id)
         return render_template('authority_profile.html', current_user=authority,
-                               form=ha_form, pos_customers=pos_customers, 
+                               form=ha_form, pos_customers=pos_customers,
                                search_customer=search_customer)
     return redirect(url_for('home.index'))
 
@@ -145,9 +149,10 @@ def notifications():
         for notification in notifications:
             restaurant_name = RestaurantManager.retrieve_by_id(notification.contagion_restaurant_id).name
             processed_notification_info.append({"timestamp": notification.timestamp,
-                                                 "contagion_datetime": notification.contagion_datetime,
-                                                 "contagion_restaurant_name": restaurant_name})
-        return render_template('customer_notifications.html', current_user=current_user, notifications=processed_notification_info)
+                                                "contagion_datetime": notification.contagion_datetime,
+                                                "contagion_restaurant_name": restaurant_name})
+        return render_template('customer_notifications.html', current_user=current_user,
+                               notifications=processed_notification_info)
     elif current_user.type == "operator":
         for notification in notifications:
             info = {"timestamp": notification.timestamp,
@@ -158,4 +163,5 @@ def notifications():
                 customer_phone_number = UserManager.retrieve_by_id(notification.positive_customer_id).phone
                 info['customer_phone_number'] = customer_phone_number
             processed_notification_info.append(info)
-        return render_template('operator_notifications.html', current_user=current_user, notifications=processed_notification_info)
+        return render_template('operator_notifications.html', current_user=current_user,
+                               notifications=processed_notification_info)
