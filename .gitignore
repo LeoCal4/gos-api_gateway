@@ -177,7 +177,4 @@ Temporary Items
 profile_default/
 ipython_config.py
 
-# Static folder inside app directory
-gooutsafe/templates
-gooutsafe/static
 # Remove previous ipynb_checkpoints

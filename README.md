@@ -131,3 +131,8 @@ The complete command to run this service with docker is the following:
 
 `docker-compose --env-file <your-env-file> up`
 
+### Nginx orchestrator
+
+We have created a specific documentation file for 
+[nginx-orchestrator](./nginx-orchestrator/README.md)
+
