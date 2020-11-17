@@ -25,7 +25,7 @@
                                 <a type="button" data-dismiss="modal">
                                     Close
                                 </a>
-                                <a href="{{ url_for('users.delete_user',id_=current_user.id ) }}">
+                                <a href="{{ url_for('users.delete_user',id=current_user.id ) }}">
                                     Delete
                                 </a>
                             </div>
@@ -49,12 +49,14 @@
                             <td>{{ current_user.email }}</td>
                         </tr>
                         <tr>
+                            <!--
                             <th>Restaurant Registered</th>
                             {% if restaurant == None %}
                                 <td class="text-warning">No</td>
                             {% else %}
                                 <td class="text-success">Yes</td>
                             {% endif %}
+                            -->
                         </tr>
                     </table>
                 </div>
@@ -62,9 +64,10 @@
                     <p class="lead">Operations</p>
                     <div class="btn-group-vertical btn-group-lg">
                         <a class="btn btn-primary"
-                           href="{{ url_for('users.update_user', id=current_user.id) }}">
+                           href="{{ url_for('users.update_operator', id=current_user.id) }}">
                             Edit Info
                         </a>
+                        <!--
                         {% if restaurant == None %}
                             <a class="btn btn-success"
                                href="{{ url_for('restaurants.add', id_op=current_user.id) }}">
@@ -72,11 +75,11 @@
                             </a>
                         {% else %}
                             <a class="btn btn-warning"
-                               href="{{ url_for('restaurants.edit_restaurant',
-                        id_op=current_user.id, rest_id=restaurant.id) }}">
+                               href="">
                                 Edit Restaurant
                             </a>
                         {% endif %}
+                        -->
                     </div>
                 </div>
             </div>
@@ -95,5 +98,6 @@
         </div>
     {% endif %}
 {% endblock %}
+
 {% block footer %}
 {% endblock %}

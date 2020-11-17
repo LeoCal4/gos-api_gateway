@@ -12,8 +12,12 @@ from gooutsafe.rao.reservation_manager import ReservationManager
 from gooutsafe.forms.filter_form import FilterForm
 from gooutsafe.forms.reservation import ReservationForm
 from gooutsafe.forms.update_customer import AddSocialNumberForm
+from gooutsafe import app
+import requests
 
 auth = Blueprint('auth', __name__)
+
+USERS_ENDPOINT = app.config['USERS_MS_URL']
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -41,9 +45,9 @@ def login(re=False):
             login_user(user)
 
             if user.type == 'operator':
-                return redirect('/operator/%d' % user.id)
+                return redirect(url_for('auth.operator', id=user.id))
             elif user.type == 'customer':
-                return redirect('/profile/%d' % user.id)
+                return redirect(url_for('auth.profile', id=user.id))
             else:
                 return redirect('/authority/%d/0' % user.id)
 
@@ -70,13 +74,14 @@ def profile(id):
     """
 
     if current_user.id == id:
-        reservations = ReservationManager.retrieve_by_customer_id(id)
         form = ReservationForm()
         social_form = AddSocialNumberForm()
-        customer = UserManager.get_user_by_id(id)
-        restaurants = RestaurantManager.get_all()
-        return render_template('customer_profile.html', customer=customer,
-                               reservations=reservations, restaurants=restaurants, 
+
+        # restaurants = RestaurantManager.retrieve_all()
+        # reservations = ReservationManager.retrieve_by_customer_id(id)
+
+        return render_template('customer_profile.html',
+                               # reservations=reservations, restaurants=restaurants,
                                form=form, social_form=social_form)
 
     return redirect(url_for('home.index'))
@@ -92,11 +97,11 @@ def operator(id):
     Returns:
         Redirects the view to personal page of the operator
     """
-    """
-    filter_form = FilterForm()
-    restaurant = Restaurant.query.filter_by(owner_id=id).first()
-    return render_template('operator_profile.html',
-                    restaurant=restaurant, filter_form=filter_form)"""
+    if current_user.id == id:
+        filter_form = FilterForm()
+        # restaurant = Restaurant.query.filter_by(owner_id=id).first()
+        return render_template('operator_profile.html', filter_form=filter_form)
+        # restaurant=restaurant)
 
     return redirect(url_for('home.index'))
 

@@ -34,6 +34,7 @@ class User(UserMixin):
         self.authenticated = kw["authenticated"]
         self.is_anonymous = kw["is_anonymous"]
         self.type = kw["type"]
+        self.extra_data = kw['extra']
 
     def get_id(self):
         return self.id
@@ -51,7 +52,7 @@ class User(UserMixin):
         return self.type == 'customer'
 
     def __getattr__(self, item):
-        if item in self:
+        if item in User.__dict__:
             return self[item]
         elif item in self.extra_data:
             return self.extra_data[item]
