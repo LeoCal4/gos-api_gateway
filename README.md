@@ -31,7 +31,7 @@ inside the project's root.
 
 `source venv/bin/activate`
 
-`pip install -r requirements.txt`
+`pip install -r requirements.dev.txt`
 
 ### Run the project
 
@@ -60,7 +60,35 @@ The available environments are:
 If you want to run the application with development environment
 you can run the `run.sh` script.
 
+#### Python dotenv
 
+Each time you start a new terminal session, you have to
+set up all environment variables that projects requires.
+When variable number increases the procedures to run
+project become uncomfortable. 
+
+To solve this problem we have introduced the python-dotenv dependency,
+but only for development purposes.
+You can create a file called `.env` that will be interpreted each time
+that you run the python project.
+Inside `.env` file you can store all variables that project requires.
+The `.env` file **MUST NOT** be added to repository and must kept
+local. You can find an example with `.env-example` file.
+
+### Dependencies splitting
+
+Each environment requires its dependency. For example
+`production` env does not require the testing frameworks.
+Also to keep the docker image clean and thin we have
+to split the requirements in 2 files.
+
+- `requirements.txt` is the base file.
+- `requirements.dev.txt` extends base file and it contains all development requirements,
+for example pytest.
+- `requirements.prod.txt` extends base file and it contains the production requirements,
+for example gunicorn and psycopg2.
+
+**IMPORTANT:** the Docker image uses the only the production requirements.
 ### Run tests
 
 To run all the tests, execute the following command:
