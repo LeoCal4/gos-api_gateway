@@ -4,7 +4,11 @@ from flask_login import (logout_user, login_user, login_required)
 from flask_login import current_user
 from gooutsafe.forms import LoginForm
 from gooutsafe.forms.authority import AuthorityForm
+
 from gooutsafe.rao.user_manager import UserManager
+from gooutsafe.rao.restaurant_manager import RestaurantManager
+from gooutsafe.rao.reservation_manager import ReservationManager
+
 from gooutsafe.forms.filter_form import FilterForm
 from gooutsafe.forms.reservation import ReservationForm
 from gooutsafe.forms.update_customer import AddSocialNumberForm
@@ -65,15 +69,15 @@ def profile(id):
         Redirects the view to personal page of the customer
     """
 
-    """ if current_user.id == id:
+    if current_user.id == id:
         reservations = ReservationManager.retrieve_by_customer_id(id)
         form = ReservationForm()
         social_form = AddSocialNumberForm()
-        customer = CustomerManager.retrieve_by_id(id)
-        restaurants = RestaurantManager.retrieve_all()
+        customer = UserManager.get_user_by_id(id)
+        restaurants = RestaurantManager.get_all()
         return render_template('customer_profile.html', customer=customer,
                                reservations=reservations, restaurants=restaurants, 
-                               form=form, social_form=social_form)"""
+                               form=form, social_form=social_form)
 
     return redirect(url_for('home.index'))
 

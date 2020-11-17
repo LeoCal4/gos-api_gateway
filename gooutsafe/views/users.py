@@ -4,9 +4,7 @@ from flask_login import (login_user, login_required, current_user)
 from gooutsafe.forms import UserForm, LoginForm
 from gooutsafe.forms.update_customer import UpdateCustomerForm, AddSocialNumberForm
 from gooutsafe.auth.user import User
-from werkzeug.security import generate_password_hash, check_password_hash
 import requests
-import datetime
 
 users = Blueprint('users', __name__)
 
