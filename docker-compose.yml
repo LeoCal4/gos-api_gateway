@@ -1,20 +1,47 @@
 version: "3"
 services:
   api_gateway:
-    container_name: api_gateway
+    #
+    # WARNING:
+    # container_name: api_gateway
+    # do not set a name to allow the replication
+    #
     restart: always
     build: .
+    volumes:
+    - static_contents:/static
     env_file:
       - env_file
-    ports:
-      - "8000:8000"
-    command: gunicorn --config gunicorn.conf.py wsgi:app
+    labels:
+      - gooutsafe.api_gateway_worker
+    #
+    # WARNING:
+    # do not map ports to local machine
+    # to allow replication
+    #
+
+  nginx-orchestrator:
+    container_name: nginx_orchestrator
+    restart: always
+    build: ./nginx-orchestrator
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock # WARNING: with Winzozz it does not work, but we need it!
+    - nginx_conf:/etc/nginx/conf.d
 
   nginx:
     container_name: nginx
     restart: always
     build: ./nginx
+    labels:
+      - gooutsafe.nginx_lb
+    volumes:
+    - nginx_conf:/etc/nginx/conf.d
+    - static_contents:/static
     ports:
       - "80:80"
     depends_on:
       - api_gateway
+
+volumes:
+  nginx_conf:
+  static_contents:

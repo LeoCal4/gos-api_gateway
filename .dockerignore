@@ -1,4 +1,6 @@
-# nginx folder will be the root
-# of another docker image,
-# so we have to exclude it.
+#
+# nginx and nginx-orchestrator folder will be the root
+# of another docker image, so we have to exclude it.
+#
 nginx/
+nginx-orchestrator/

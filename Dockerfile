@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y libpq-dev gcc
 
 # creating the environment
 COPY . /app
+# moving the static contents
+RUN ["mv", "/app/gooutsafe/static", "/static"]
+# setting the workdir
 WORKDIR /app
 
 # installing all requirements
@@ -23,4 +26,4 @@ RUN apt-get autoremove -y gcc
 EXPOSE 5000/tcp
 
 # Main command
-CMD ["gunicorn", "--config", "gunicorn-config.py", "wsgi:app"]
+CMD ["gunicorn", "--config", "gunicorn.conf.py", "wsgi:app"]
