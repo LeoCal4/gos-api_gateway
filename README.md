@@ -107,4 +107,27 @@ In order to know what are the lines of codes which are not covered by the tests,
 ### Nginx and Gunicorn
 
 Nginx will serve static contents directly and will use gunicorn
-to serve app pages.
+to serve app pages from flask wsgi.
+You can start gunicorn locally with the command
+
+`gunicorn --config gunicorn.conf.py wsgi:app`
+
+**WARNING** gunicorn it's not able to read
+the .env files, so you have to export the variable, for
+example by issuing the command `source .env`.
+
+
+### Docker compose
+
+To run services with `docker-compose up`, first you
+have to configure the environment variables
+inside the env_file, and specify it with the parameter `--env-file`.
+An example of env_file is added to repository and it's called
+env_file_example.
+
+**WARNING:** please do not track your env_file!
+
+The complete command to run this service with docker is the following:
+
+`docker-compose --env-file <your-env-file> up`
+

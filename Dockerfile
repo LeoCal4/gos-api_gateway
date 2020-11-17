@@ -10,8 +10,8 @@ LABEL description="Go Out Safe Application Squad 4"
 RUN apt-get update && apt-get install -y libpq-dev gcc
 
 # creating the environment
-WORKDIR /app
 COPY . /app
+WORKDIR /app
 
 # installing all requirements
 RUN ["pip", "install", "-r", "requirements.prod.txt"]
@@ -23,4 +23,4 @@ RUN apt-get autoremove -y gcc
 EXPOSE 5000/tcp
 
 # Main command
-CMD ["flask", "run"]
+CMD ["gunicorn", "--config", "gunicorn-config.py", "wsgi:app"]

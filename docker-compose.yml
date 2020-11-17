@@ -4,9 +4,11 @@ services:
     container_name: api_gateway
     restart: always
     build: .
+    env_file:
+      - env_file
     ports:
       - "8000:8000"
-    command: gunicorn -w 1 -b :8000 app
+    command: gunicorn --config gunicorn.conf.py wsgi:app
 
   nginx:
     container_name: nginx
