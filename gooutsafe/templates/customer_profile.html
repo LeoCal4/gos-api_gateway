@@ -4,7 +4,7 @@
 {% block content %}
     <div class="row">
         <div class="col-md-12">
-            <h1 class="display-3">Hi, {{ customer.firstname }}!</h1>
+            <h4 class="display-3">Hi {{ current_user.firstname }}!</h4>
         </div>
     </div>
     <div class="row" style="margin-top:50px">
@@ -86,7 +86,7 @@
                         </div>
                     </div>     
 
-                    <a href="{{ url_for('users.update_user', id=current_user.id) }}" 
+                    <a href="{{ url_for('users.update_customer', id=current_user.id) }}" 
                         class="btn btn-primary">
                         Edit Info
                     </a> 
@@ -98,6 +98,7 @@
     <br>
     <h3>Your reservations</h3><br>
     <br>
+    <!--
     <table class="table">
         {% for r in reservations %}
             <tr>
@@ -116,9 +117,9 @@
                             data-target="#editReservation">
                         Edit
                     </button>
-
+    -->
                     <!-- Modal -->
-                    <div class="modal fade" id="editReservation" tabindex="-1"
+    <!--                <div class="modal fade" id="editReservation" tabindex="-1"
                          aria-labelledby="editReservation" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -156,7 +157,7 @@
                     </div>
                     </div>
                 </td>
-
+    -->
                 <td>
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-light" data-toggle="modal"
@@ -165,7 +166,7 @@
                     </button>
 
                     <!-- Modal -->
-                    <div class="modal fade" id="deleteReservation" tabindex="-1"
+    <!--               <div class="modal fade" id="deleteReservation" tabindex="-1"
                          aria-labelledby="deleteReservation" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -197,10 +198,11 @@
             </tr>
         {% endfor %}
     </table>
+    -->
     <div class="row">
         <div class="col-md-12">
             <h3 class="text-danger">Danger Zone</h3>
-            {% if customer.health_status %}
+            {% if current_user.health_status %}
                 <button type="button" class="btn btn-danger disabled" data-toggle="modal">
                     Delete account
                 </button>
@@ -233,7 +235,7 @@
                         <a type="button" data-dismiss="modal">
                             Close
                         </a>
-                        <a href="{{ url_for('users.delete_user',id_=current_user.id ) }}">
+                        <a href="{{ url_for('users.delete_user',id=current_user.id ) }}">
                             Delete
                         </a>
                     </div>
