@@ -122,6 +122,9 @@ def details(id_op):
     url = "%s/restaurants/details/%s" % (RESTA_MS_URL, id_op)
     res = requests.get(url)
     payload = res.json()
+    print(payload)
+    if res.status_code != 200:
+        return redirect(url_for('restaurants.add', id_op=id_op))
     json_data = payload['details']
     list_measures = json_data['list_measure'].split(',')[1:]
 
