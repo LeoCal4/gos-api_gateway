@@ -62,7 +62,7 @@ def create_user_type(type_):
             to_login = User.build_from_json(user["user"])
             login_user(to_login)
             if to_login.type == "operator":
-                return redirect(url_for('auth.operator', id=to_login.id))
+                return redirect(url_for('auth.operator', op_id=to_login.id))
             else:
                 return redirect(url_for('auth.profile', id=to_login.id))
         else:
@@ -136,7 +136,7 @@ def update_user(id):
 
             elif user.type == "operator":
                 UserManager.update_user(user)
-                return redirect(url_for('auth.operator', id=user.id))
+                return redirect(url_for('auth.operator', op_id=user.id))
 
     return render_template('update_customer.html', form=form)
 

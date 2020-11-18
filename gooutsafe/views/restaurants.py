@@ -2,7 +2,7 @@ import requests
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    url_for)
 from flask_login import current_user, login_required
-from gooutsafe.app.config import RESTA_MS_URL
+from gooutsafe import app
 from gooutsafe.forms.add_measure import MeasureForm
 from gooutsafe.forms.add_stay_time import StayTimeForm
 from gooutsafe.forms.add_table import TableForm
@@ -10,7 +10,7 @@ from gooutsafe.forms.add_times import TimesForm
 from gooutsafe.forms.restaurant import RestaurantForm
 
 restaurants = Blueprint('restaurants', __name__)
-
+RESTA_MS_URL = app.config['RESTA_MS_URL']
 
 @restaurants.route('/my_restaurant', methods=['GET'])
 @login_required
@@ -99,7 +99,7 @@ def add(id_op):
                 print(res.json()['message'])
                 flash('Something went wrong with the creation of the restaurant, sorry!')
             else:
-                return redirect(url_for('auth.operator', id=id_op))
+                return redirect(url_for('auth.operator', op_id=id_op))
     return render_template('create_restaurant.html', form=form)
 
 
@@ -123,6 +123,7 @@ def details(id_op):
     res = requests.get(url)
     payload = res.json()
     json_data = payload['details']
+    list_measures = json_data['list_measure'].split(',')[1:]
 
     if res.status_code != 200:
         print(payload['message'])
@@ -133,7 +134,7 @@ def details(id_op):
                            table_form=table_form, time_form=time_form,
                            times=json_data['times'], measure_form=measure_form,
                            avg_time_form=avg_time_form, avg_stay=json_data['avg_stay'],
-                           list_measure=json_data['list_measure'])
+                           list_measure=list_measures)
 
 
 @restaurants.route('/restaurants/save/<int:id_op>/<int:rest_id>', methods=['GET', 'POST'])
@@ -182,12 +183,12 @@ def save_time(id_op, rest_id):
             start_time = time_form.data['start_time']
             end_time = time_form.data['end_time']
             json_data_to_send = {'day': day,
-                                    'start_time': start_time,
-                                    'end_time': end_time}
+                                    'start_time': str(start_time),
+                                    'end_time': str(end_time)}
             url = "%s/restaurants/save_time/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
             res = requests.post(url, json=json_data_to_send)
             if res.status_code != 200:
-                print(res['message'])
+                print(res.json()['message'])
                 flash('Error in saving the availability')
 
     return redirect(url_for('restaurants.details', id_op=id_op))
@@ -271,6 +272,6 @@ def edit_restaurant(id_op, rest_id):
                 print(res['message'])
                 flash('Error in saving the average stay time')
             else:
-                return redirect(url_for('auth.operator', id=id_op))
+                return redirect(url_for('auth.operator', op_id=id_op))
 
     return render_template('update_restaurant.html', form=form)
