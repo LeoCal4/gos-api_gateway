@@ -58,6 +58,7 @@ def re_login():
 
 
 @auth.route('/profile/<int:id>', methods=['GET', 'POST'])
+@login_required
 def profile(id):
     """This method allows the customer to see its personal page
 
@@ -83,6 +84,7 @@ def profile(id):
 
 
 @auth.route('/operator/<int:op_id>', methods=['GET', 'POST'])
+@login_required
 def operator(op_id):
     """This method allows the operator to access the page of its personal info
 
@@ -92,21 +94,24 @@ def operator(op_id):
     Returns:
         Redirects the view to personal page of the operator
     """
-    filter_form = FilterForm()
+    if current_user.id ==id:
+        filter_form = FilterForm()
 
-    url = "%s/restaurants/details/%s" % (RESTA_MS_URL, op_id)
-    res = requests.get(url)
-    json_data = res.json()
-    if res.status_code != 200:
-        print(json_data['message'])
-        restaurant = None
-    else:
-        restaurant = json_data['details']['restaurant']
-    return render_template('operator_profile.html',
-                    restaurant=restaurant, filter_form=filter_form)
+        url = "%s/restaurants/details/%s" % (RESTA_MS_URL, op_id)
+        res = requests.get(url)
+        json_data = res.json()
+        if res.status_code != 200:
+            print(json_data['message'])
+            restaurant = None
+        else:
+            restaurant = json_data['details']['restaurant']
+        return render_template('operator_profile.html',
+                        restaurant=restaurant, filter_form=filter_form)
+    return redirect(url_for('home.index'))
 
 
 @auth.route('/authority/<int:id>/<int:positive_id>', methods=['GET', 'POST'])
+@login_required
 def authority(id, positive_id):
     """This method allows the Health Authority to see its personal page.
 
@@ -118,17 +123,22 @@ def authority(id, positive_id):
         Redirects to the page of the Health Authority
     """
     if current_user.id == id:
-        authority = AuthorityManager.retrieve_by_id(id)
         ha_form = AuthorityForm()
-        pos_customers = CustomerManager.retrieve_all_positive()
-        search_customer = CustomerManager.retrieve_by_id(positive_id)
-        return render_template('authority_profile.html', current_user=authority,
+        #TODO implement retrieving of all positive in rao and user microservice
+        #pos_customers = CustomerManager.retrieve_all_positive()
+        pos_customers = None
+        if positive_id != 0:
+            search_customer = UserManager.get_user_by_id(positive_id)
+        else: #authority clicks on "Profile"
+            search_customer = None
+        return render_template('authority_profile.html',
                                form=ha_form, pos_customers=pos_customers,
                                search_customer=search_customer)
     return redirect(url_for('home.index'))
 
 
 @auth.route('/logout')
+@login_required
 def logout():
     """This method allows the users to log out of the system
 
