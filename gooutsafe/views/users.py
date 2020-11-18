@@ -88,9 +88,9 @@ def delete_user(id):
     Returns:
         Redirects the view to the home page
     """
-    logout_user()
-    url = "%s/delete/%d" % (USERS_ENDPOINT, id)
-    response = requests.get(url)
+
+    url = "%s/user/%d" % (USERS_ENDPOINT, id)
+    response = requests.delete(url)
 
     if response.status_code != 200:
         flash("Error while deleting the user")
@@ -116,22 +116,23 @@ def update_customer(id):
         email = form.data['email']
         search_url = "%s/user_email/%s" % (USERS_ENDPOINT, email)
         response = requests.get(search_url).json()
-        searched_user = User.build_from_json(response)
-        if searched_user is not None and id != searched_user.id:
-            flash("Email already present in the database.")
-            return render_template('update_customer.html', form=form)
+        if response["status"] == "User present" :
+            searched_user = User.build_from_json(response)
+            if id != searched_user.id:
+                flash("Email already present in the database.")
+                return render_template('update_customer.html', form=form)
 
         password = form.data['password']
         phone = form.data['phone']
-        url = "%s/update_customer/%d" % (USERS_ENDPOINT, id)
-        response = requests.post(url,
+        url = "%s/customer/%d" % (USERS_ENDPOINT, id)
+        response = requests.put(url,
                                 json={
                                     'email': email,
                                     'password': password,
                                     'phone': phone
                                 })
 
-        if response.status_code != 200:
+        if response.status_code != 204:
             flash("Error while updating the user")
         
         return redirect(url_for('auth.profile', id=id))
@@ -150,28 +151,27 @@ def update_operator(id):
     Returns:
         Redirects the view to the personal page of the operator
     """
-    url = "%s/user/%d" % (USERS_ENDPOINT, id)
-    response = requests.get(url).json()
-    user = User.build_from_json(response)
 
     form = LoginForm()
     if form.is_submitted():
         email = form.data['email']
         search_url = "%s/user_email/%s" % (USERS_ENDPOINT, email)
-        response = requests.get(url).json()
-        searched_user = User.build_from_json(response)
-        if searched_user is not None and id != searched_user.id:
-            flash("Email already present in the database.")
-            return render_template('update_customer.html', form=form)
-        
+        response = requests.get(search_url).json()
+        if response["status"] == "User present" :
+            searched_user = User.build_from_json(response)
+            if id != searched_user.id:
+                flash("Email already present in the database.")
+                return render_template('update_customer.html', form=form)
+
         password = form.data['password']
-        url = "%s/update_operator/%d" % (USERS_ENDPOINT, id)
-        response = requests.post(url,
+        url = "%s/operator/%d" % (USERS_ENDPOINT, id)
+        response = requests.put(url,
                                 json={
                                     'email': email,
                                     'password': password
                                 })
-        if response.status_code != 200:
+
+        if response.status_code != 204:
             flash("Error while updating the user")
         
         return redirect(url_for('auth.operator', op_id=id))
@@ -194,14 +194,13 @@ def add_social_number(id):
     social_form = AddSocialNumberForm()    
     if social_form.is_submitted():
         social_number = social_form.data['social_number']
-        url = "%s/add_social_number/%d" % (USERS_ENDPOINT, id)
+        url = "%s/social_number/%d" % (USERS_ENDPOINT, id)
 
-        response = requests.post(url,
+        response = requests.put(url,
                             json={
                                 'social_number': social_number
                             })
-
-        if response.status_code != 200:
-            flash("Error while adding the social number")
+        if response.status_code != 204:
+            flash("Error while updating the user")
 
     return redirect(url_for('auth.profile', id=id))
