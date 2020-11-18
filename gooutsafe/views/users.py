@@ -174,7 +174,7 @@ def update_operator(id):
         if response.status_code != 200:
             flash("Error while updating the user")
         
-        return redirect(url_for('auth.operator', id=id))
+        return redirect(url_for('auth.operator', op_id=id))
 
     return render_template('update_customer.html', form=form)
 

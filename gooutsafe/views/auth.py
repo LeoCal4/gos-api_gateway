@@ -40,7 +40,7 @@ def login(re=False):
             login_user(user)
 
             if user.type == 'operator':
-                return redirect(url_for('auth.operator', id=user.id))
+                return redirect(url_for('auth.operator', op_id=user.id))
             elif user.type == 'customer':
                 return redirect(url_for('auth.profile', id=user.id))
             else:

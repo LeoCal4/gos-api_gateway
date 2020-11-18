@@ -158,7 +158,7 @@ def save_details(id_op, rest_id):
             url = "%s/restaurants/add_tables/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
             res = requests.post(url, json={'number': num_tables, 'max_capacity': capacity})
             if res.status_code != 200:
-                print(res['message'])
+                print(res.json()['message'])
                 flash('Error in saving the tables')
 
     return redirect(url_for('restaurants.details', id_op=id_op))
@@ -185,7 +185,7 @@ def save_time(id_op, rest_id):
             json_data_to_send = {'day': day,
                                     'start_time': str(start_time),
                                     'end_time': str(end_time)}
-            url = "%s/restaurants/save_time/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
+            url = "%s/restaurants/add_time/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
             res = requests.post(url, json=json_data_to_send)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -213,10 +213,10 @@ def save_measure(id_op, rest_id):
         if measure_form.is_submitted():
             measure = measure_form.data['measure']
             json_data_to_send = {'measure': measure}
-            url = "%s/restaurants/save_measure/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
+            url = "%s/restaurants/add_measure/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
             res = requests.post(url, json=json_data_to_send)
             if res.status_code != 200:
-                print(res['message'])
+                print(res.json()['message'])
                 flash('Error in saving the measure')
     return redirect(url_for('restaurants.details', id_op=id_op))
 
@@ -232,10 +232,10 @@ def save_avg_stay(id_op, rest_id):
             minute = avg_time_form.data['minutes']
             json_data_to_send = {'hours': hours,
                                     'minutes': minute}
-            url = "%s/restaurants/save_avg_time/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
+            url = "%s/restaurants/add_avg_stay/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
             res = requests.post(url, json=json_data_to_send)
             if res.status_code != 200:
-                print(res['message'])
+                print(res.json()['message'])
                 flash('Error in saving the average stay time')
 
     return redirect(url_for('restaurants.details', id_op=id_op))
@@ -269,7 +269,7 @@ def edit_restaurant(id_op, rest_id):
             url = "%s/edit_restaurant/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
             res = requests.post(url, json=json_data_to_send)
             if res.status_code != 200:
-                print(res['message'])
+                print(res.json()['message'])
                 flash('Error in saving the average stay time')
             else:
                 return redirect(url_for('auth.operator', op_id=id_op))
