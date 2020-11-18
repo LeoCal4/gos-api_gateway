@@ -1,16 +1,19 @@
-from flask import Blueprint, render_template, redirect, flash, url_for, request
-from flask_login import (logout_user, login_user, login_required)
-
-from flask_login import current_user
+import requests
+from flask import Blueprint, flash, redirect, render_template, request, url_for, abort
+from flask_login import current_user, login_required, login_user, logout_user
+from gooutsafe import app
 from gooutsafe.forms import LoginForm
 from gooutsafe.forms.authority import AuthorityForm
-from gooutsafe.rao.user_manager import UserManager
 from gooutsafe.forms.filter_form import FilterForm
 from gooutsafe.forms.reservation import ReservationForm
 from gooutsafe.forms.update_customer import AddSocialNumberForm
+from gooutsafe.rao.user_manager import UserManager
+from gooutsafe.rao.restaurant_manager import RestaurantManager
+from gooutsafe.rao.reservation_manager import ReservationManager
 
 auth = Blueprint('auth', __name__)
-
+RESTA_MS_URL = app.config['RESTA_MS_URL']
+USERS_ENDPOINT = app.config['USERS_MS_URL']
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login(re=False):
@@ -37,9 +40,9 @@ def login(re=False):
             login_user(user)
 
             if user.type == 'operator':
-                return redirect('/operator/%d' % user.id)
+                return redirect(url_for('auth.operator', op_id=user.id))
             elif user.type == 'customer':
-                return redirect('/profile/%d' % user.id)
+                return redirect(url_for('auth.profile', id=user.id))
             else:
                 return redirect('/authority/%d/0' % user.id)
 
@@ -65,21 +68,22 @@ def profile(id):
         Redirects the view to personal page of the customer
     """
 
-    """ if current_user.id == id:
-        reservations = ReservationManager.retrieve_by_customer_id(id)
+    if current_user.id == id:
         form = ReservationForm()
         social_form = AddSocialNumberForm()
-        customer = CustomerManager.retrieve_by_id(id)
-        restaurants = RestaurantManager.retrieve_all()
-        return render_template('customer_profile.html', customer=customer,
-                               reservations=reservations, restaurants=restaurants, 
-                               form=form, social_form=social_form)"""
+
+        # restaurants = RestaurantManager.retrieve_all()
+        # reservations = ReservationManager.retrieve_by_customer_id(id)
+
+        return render_template('customer_profile.html',
+                               # reservations=reservations, restaurants=restaurants,
+                               form=form, social_form=social_form)
 
     return redirect(url_for('home.index'))
 
 
-@auth.route('/operator/<int:id>', methods=['GET', 'POST'])
-def operator(id):
+@auth.route('/operator/<int:op_id>', methods=['GET', 'POST'])
+def operator(op_id):
     """This method allows the operator to access the page of its personal info
 
     Args:
@@ -88,13 +92,18 @@ def operator(id):
     Returns:
         Redirects the view to personal page of the operator
     """
-    """
     filter_form = FilterForm()
-    restaurant = Restaurant.query.filter_by(owner_id=id).first()
-    return render_template('operator_profile.html',
-                    restaurant=restaurant, filter_form=filter_form)"""
 
-    return redirect(url_for('home.index'))
+    url = "%s/restaurants/details/%s" % (RESTA_MS_URL, op_id)
+    res = requests.get(url)
+    json_data = res.json()
+    if res.status_code != 200:
+        print(json_data['message'])
+        restaurant = None
+    else:
+        restaurant = json_data['details']['restaurant']
+    return render_template('operator_profile.html',
+                    restaurant=restaurant, filter_form=filter_form)
 
 
 @auth.route('/authority/<int:id>/<int:positive_id>', methods=['GET', 'POST'])

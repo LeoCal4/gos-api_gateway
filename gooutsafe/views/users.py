@@ -1,14 +1,15 @@
 from flask import Blueprint, redirect, render_template, request, url_for, flash
-from flask_login import (login_user, login_required, current_user)
+from flask_login import (login_user, login_required, current_user, logout_user)
 
 from gooutsafe.forms import UserForm, LoginForm
 from gooutsafe.forms.update_customer import UpdateCustomerForm, AddSocialNumberForm
 from gooutsafe.auth.user import User
-from werkzeug.security import generate_password_hash, check_password_hash
 import requests
-import datetime
+from gooutsafe import app
 
 users = Blueprint('users', __name__)
+
+USERS_ENDPOINT = app.config['USERS_MS_URL']
 
 
 @users.route('/create_user/<string:type_>', methods=['GET', 'POST'])
@@ -31,7 +32,7 @@ def create_user_type(type_):
         password = form.data['password']
         
         if type_ == "operator":
-            url = "http://127.0.0.1:5001/operator"
+            url = "%s/operator" % (USERS_ENDPOINT)
             response = requests.post(url, 
                                 json={
                                     'type': 'operator',
@@ -44,8 +45,8 @@ def create_user_type(type_):
             lastname = form.data['lastname']
             birthdate = form.data['birthdate']
             date = birthdate.strftime('%Y-%m-%d')
-            phone = form.data['phone']           
-            url = "http://127.0.0.1:5001/customer"
+            phone = form.data['phone']
+            url = "%s/customer" % (USERS_ENDPOINT)
             response = requests.post(url,
                                 json={
                                     'type': 'customer',
@@ -62,11 +63,11 @@ def create_user_type(type_):
             to_login = User.build_from_json(user["user"])
             login_user(to_login)
             if to_login.type == "operator":
-                return redirect(url_for('auth.operator', id=to_login.id))
+                return redirect(url_for('auth.operator', op_id=to_login.id))
             else:
                 return redirect(url_for('auth.profile', id=to_login.id))
         else:
-            flash("User already present in the database")
+            flash("Invalid credentials")
             return render_template('create_user.html', form=form, user_type=type_)
     else:
         for fieldName, errorMessages in form.errors.items():
@@ -76,9 +77,9 @@ def create_user_type(type_):
     return render_template('create_user.html', form=form, user_type=type_)
 
 
-@users.route('/delete_user/<int:id_>', methods=['GET', 'POST'])
+@users.route('/delete_user/<int:id>', methods=['GET', 'POST'])
 @login_required
-def delete_user(id_):
+def delete_user(id):
     """Deletes the data of the user from the database.
 
     Args:
@@ -87,61 +88,98 @@ def delete_user(id_):
     Returns:
         Redirects the view to the home page
     """
-    if current_user.id == id_:
-        user = UserManager.retrieve_by_id(id_)
-        if user is not None and user.type == "operator":
-            restaurant = RestaurantManager.retrieve_by_operator_id(id_)
-            if restaurant is not None:
-                RestaurantManager.delete_restaurant(restaurant)
+    logout_user()
+    url = "%s/delete/%d" % (USERS_ENDPOINT, id)
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        flash("Error while deleting the user")
+        return redirect(url_for('auth.profile', id=id))
         
-        UserManager.delete_user_by_id(id_)
     return redirect(url_for('home.index'))
 
 
-@users.route('/update_user/<int:id>', methods=['GET', 'POST'])
+@users.route('/update_customer/<int:id>', methods=['GET', 'POST'])
 @login_required
-def update_user(id):
-    """This method allows the user to edit their personal information.
+def update_customer(id):
+    """This method allows the customer to edit their personal information.
 
     Args:
-        id (int): the univocal id for the user
+        id (int): the univocal id for the customer
 
     Returns:
-        Redirects the view to the personal page of the user
+        Redirects the view to the personal page of the customer
     """
-    user = UserManager.retrieve_by_id(id)
-    if user.type == "customer":        
-        form = UpdateCustomerForm()
-    elif user.type == "operator":
-        form = LoginForm()
 
-    if request.method == "POST":
-        if form.is_submitted():
-            email = form.data['email']
-            searched_user = UserManager.retrieve_by_email(email)
-            if searched_user is not None and id != searched_user.id:
-                flash("Data already present in the database.")
-                return render_template('update_customer.html', form=form)
+    form = UpdateCustomerForm()
+    if form.is_submitted():
+        email = form.data['email']
+        search_url = "%s/user_email/%s" % (USERS_ENDPOINT, email)
+        response = requests.get(search_url).json()
+        searched_user = User.build_from_json(response)
+        if searched_user is not None and id != searched_user.id:
+            flash("Email already present in the database.")
+            return render_template('update_customer.html', form=form)
 
-            password = form.data['password']
-            user.set_email(email)
-            user.set_password(password)
+        password = form.data['password']
+        phone = form.data['phone']
+        url = "%s/update_customer/%d" % (USERS_ENDPOINT, id)
+        response = requests.post(url,
+                                json={
+                                    'email': email,
+                                    'password': password,
+                                    'phone': phone
+                                })
 
-            if user.type == "customer":
-                phone = form.data['phone']
-                user.set_phone(phone)
-                UserManager.update_user(user)
-
-                return redirect(url_for('auth.profile', id=user.id))
-
-            elif user.type == "operator":
-                UserManager.update_user(user)
-                return redirect(url_for('auth.operator', id=user.id))
+        if response.status_code != 200:
+            flash("Error while updating the user")
+        
+        return redirect(url_for('auth.profile', id=id))
 
     return render_template('update_customer.html', form=form)
 
 
-@users.route('/add_social_number/<int:id>', methods=['GET', 'POST'])
+@users.route('/update_operator/<int:id>', methods=['GET', 'POST'])
+@login_required
+def update_operator(id):
+    """This method allows the operator to edit their personal information.
+
+    Args:
+        id (int): the univocal id for the operator
+
+    Returns:
+        Redirects the view to the personal page of the operator
+    """
+    url = "%s/user/%d" % (USERS_ENDPOINT, id)
+    response = requests.get(url).json()
+    user = User.build_from_json(response)
+
+    form = LoginForm()
+    if form.is_submitted():
+        email = form.data['email']
+        search_url = "%s/user_email/%s" % (USERS_ENDPOINT, email)
+        response = requests.get(url).json()
+        searched_user = User.build_from_json(response)
+        if searched_user is not None and id != searched_user.id:
+            flash("Email already present in the database.")
+            return render_template('update_customer.html', form=form)
+        
+        password = form.data['password']
+        url = "%s/update_operator/%d" % (USERS_ENDPOINT, id)
+        response = requests.post(url,
+                                json={
+                                    'email': email,
+                                    'password': password
+                                })
+        if response.status_code != 200:
+            flash("Error while updating the user")
+        
+        return redirect(url_for('auth.operator', op_id=id))
+
+    return render_template('update_customer.html', form=form)
+
+
+@users.route('/add_social_number/<int:id>', methods=['POST'])
 @login_required
 def add_social_number(id):
     """Allows the user to insert their SSN.
@@ -152,12 +190,18 @@ def add_social_number(id):
     Returns:
         Redirects the view to the personal page of the user
     """
-    social_form = AddSocialNumberForm()
-    user = UserManager.retrieve_by_id(id)
-    if request.method == "POST":
-        if social_form.is_submitted():
-            social_number = social_form.data['social_number']
-            user.set_social_number(social_number)
-            UserManager.update_user(user)
-            
-    return redirect(url_for('auth.profile', id=user.id))
+
+    social_form = AddSocialNumberForm()    
+    if social_form.is_submitted():
+        social_number = social_form.data['social_number']
+        url = "%s/add_social_number/%d" % (USERS_ENDPOINT, id)
+
+        response = requests.post(url,
+                            json={
+                                'social_number': social_number
+                            })
+
+        if response.status_code != 200:
+            flash("Error while adding the social number")
+
+    return redirect(url_for('auth.profile', id=id))

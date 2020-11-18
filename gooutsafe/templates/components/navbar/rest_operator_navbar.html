@@ -13,7 +13,7 @@
 {% block navbar_profile_links %}
     <div class="btn-group">
         <a class="btn btn-warning" href="{{ url_for('auth.logout') }}">Logout</a>
-        <a class="btn btn-info" href="{{ url_for('auth.my_operator') }}">My Profile</a>
+        <a class="btn btn-info" href="{{ url_for('auth.operator', op_id=current_user.id) }}">My Profile</a>
         <a class="btn btn-secondary" href="{{ url_for('auth.notifications') }}">Notifications</a>
     </div>
 {% endblock %}
