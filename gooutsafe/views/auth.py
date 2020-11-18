@@ -8,9 +8,12 @@ from gooutsafe.forms.filter_form import FilterForm
 from gooutsafe.forms.reservation import ReservationForm
 from gooutsafe.forms.update_customer import AddSocialNumberForm
 from gooutsafe.rao.user_manager import UserManager
+from gooutsafe.rao.restaurant_manager import RestaurantManager
+from gooutsafe.rao.reservation_manager import ReservationManager
 
 auth = Blueprint('auth', __name__)
 RESTA_MS_URL = app.config['RESTA_MS_URL']
+USERS_ENDPOINT = app.config['USERS_MS_URL']
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login(re=False):
@@ -37,9 +40,9 @@ def login(re=False):
             login_user(user)
 
             if user.type == 'operator':
-                return redirect('/operator/%d' % user.id)
+                return redirect(url_for('auth.operator', id=user.id))
             elif user.type == 'customer':
-                return redirect('/profile/%d' % user.id)
+                return redirect(url_for('auth.profile', id=user.id))
             else:
                 return redirect('/authority/%d/0' % user.id)
 
@@ -65,15 +68,16 @@ def profile(id):
         Redirects the view to personal page of the customer
     """
 
-    """ if current_user.id == id:
-        reservations = ReservationManager.retrieve_by_customer_id(id)
+    if current_user.id == id:
         form = ReservationForm()
         social_form = AddSocialNumberForm()
-        customer = CustomerManager.retrieve_by_id(id)
-        restaurants = RestaurantManager.retrieve_all()
-        return render_template('customer_profile.html', customer=customer,
-                               reservations=reservations, restaurants=restaurants, 
-                               form=form, social_form=social_form)"""
+
+        # restaurants = RestaurantManager.retrieve_all()
+        # reservations = ReservationManager.retrieve_by_customer_id(id)
+
+        return render_template('customer_profile.html',
+                               # reservations=reservations, restaurants=restaurants,
+                               form=form, social_form=social_form)
 
     return redirect(url_for('home.index'))
 
