@@ -94,7 +94,8 @@ def operator(op_id):
     Returns:
         Redirects the view to personal page of the operator
     """
-    if current_user.id ==id:
+    
+    if current_user.id == op_id:
         filter_form = FilterForm()
 
         url = "%s/restaurants/details/%s" % (RESTA_MS_URL, op_id)
@@ -105,6 +106,7 @@ def operator(op_id):
             restaurant = None
         else:
             restaurant = json_data['details']['restaurant']
+
         return render_template('operator_profile.html',
                         restaurant=restaurant, filter_form=filter_form)
     return redirect(url_for('home.index'))

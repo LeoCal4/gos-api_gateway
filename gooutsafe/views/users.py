@@ -3,6 +3,7 @@ from flask_login import (login_user, login_required, current_user, logout_user)
 
 from gooutsafe.forms import UserForm, LoginForm
 from gooutsafe.forms.update_customer import UpdateCustomerForm, AddSocialNumberForm
+from gooutsafe.rao.user_manager import UserManager
 from gooutsafe.auth.user import User
 import requests
 from gooutsafe import app
@@ -88,7 +89,7 @@ def delete_user(id):
     Returns:
         Redirects the view to the home page
     """
-
+    #TODO da mettere a posto
     url = "%s/user/%d" % (USERS_ENDPOINT, id)
     response = requests.delete(url)
 
@@ -114,23 +115,14 @@ def update_customer(id):
     form = UpdateCustomerForm()
     if form.is_submitted():
         email = form.data['email']
-        search_url = "%s/user_email/%s" % (USERS_ENDPOINT, email)
-        response = requests.get(search_url).json()
-        if response["status"] == "User present" :
-            searched_user = User.build_from_json(response)
-            if id != searched_user.id:
-                flash("Email already present in the database.")
-                return render_template('update_customer.html', form=form)
+        searched_user = UserManager.get_user_by_email(email)
+        if searched_user is not None and id != searched_user.id:
+            flash("Email already present in the database.")
+            return render_template('update_customer.html', form=form)
 
         password = form.data['password']
         phone = form.data['phone']
-        url = "%s/customer/%d" % (USERS_ENDPOINT, id)
-        response = requests.put(url,
-                                json={
-                                    'email': email,
-                                    'password': password,
-                                    'phone': phone
-                                })
+        response = UserManager.update_user(id, email, password, phone)
 
         if response.status_code != 204:
             flash("Error while updating the user")
@@ -155,21 +147,13 @@ def update_operator(id):
     form = LoginForm()
     if form.is_submitted():
         email = form.data['email']
-        search_url = "%s/user_email/%s" % (USERS_ENDPOINT, email)
-        response = requests.get(search_url).json()
-        if response["status"] == "User present" :
-            searched_user = User.build_from_json(response)
-            if id != searched_user.id:
-                flash("Email already present in the database.")
-                return render_template('update_customer.html', form=form)
+        searched_user = UserManager.get_user_by_email(email)
+        if searched_user is not None and id != searched_user.id:
+            flash("Email already present in the database.")
+            return render_template('update_customer.html', form=form)
 
         password = form.data['password']
-        url = "%s/operator/%d" % (USERS_ENDPOINT, id)
-        response = requests.put(url,
-                                json={
-                                    'email': email,
-                                    'password': password
-                                })
+        response = UserManager.update_user(id, email, password, phone=0)
 
         if response.status_code != 204:
             flash("Error while updating the user")
@@ -177,6 +161,7 @@ def update_operator(id):
         return redirect(url_for('auth.operator', op_id=id))
 
     return render_template('update_customer.html', form=form)
+
 
 
 @users.route('/add_social_number/<int:id>', methods=['POST'])
@@ -194,12 +179,8 @@ def add_social_number(id):
     social_form = AddSocialNumberForm()    
     if social_form.is_submitted():
         social_number = social_form.data['social_number']
-        url = "%s/social_number/%d" % (USERS_ENDPOINT, id)
-
-        response = requests.put(url,
-                            json={
-                                'social_number': social_number
-                            })
+        response = UserManager.add_social_number(id, social_number)
+        
         if response.status_code != 204:
             flash("Error while updating the user")
 
