@@ -2,9 +2,8 @@ from gooutsafe import app
 from gooutsafe.auth.user import User
 import requests
 from gooutsafe import app
+from flask_login import (logout_user)
 
-
-USERS_ENDPOINT = app.config['USERS_MS_URL']
 
 class UserManager:
     USERS_ENDPOINT = app.config['USERS_MS_URL']
@@ -19,7 +18,6 @@ class UserManager:
         """
         response = requests.get("%s/user/%d" % (cls.USERS_ENDPOINT, user_id))
         json_payload = response.json()
-
         if response.status_code == 200:
             # user is authenticated
             user = User.build_from_json(json_payload)
@@ -87,12 +85,43 @@ class UserManager:
         :param user_id: the user id
         :return: User updated
         """
-        url = "%s/social_number/%d" % (USERS_ENDPOINT, user_id)
+        url = "%s/social_number/%d" % (cls.USERS_ENDPOINT, user_id)
 
         response = requests.put(url,
                             json={
                                 'social_number': social_number
                             })
+        return response
+
+    @classmethod
+    def create_customer(cls, type: str, 
+                        email:str, password:str, social_number:str,
+                        firstname: str, lastname: str,
+                        birthdate, phone:str):
+
+        url = "%s/customer" % (cls.USERS_ENDPOINT)
+        response = requests.post(url,
+                                json={
+                                    'type': 'customer',
+                                    'email': email, 
+                                    'password': password,
+                                    'social_number': social_number,
+                                    'firstname': firstname,
+                                    'lastname': lastname,
+                                    'birthdate': birthdate,
+                                    'phone': phone
+                                })
+        return response
+
+    @classmethod
+    def create_operator(cls, type: str, email:str, password:str):
+        url = "%s/operator" % (cls.USERS_ENDPOINT)
+        response = requests.post(url, 
+                                json={
+                                    'type': 'operator',
+                                    'email': email, 
+                                    'password': password
+                                })
         return response
 
     @classmethod
@@ -109,7 +138,7 @@ class UserManager:
 
         user = UserManager.get_user_by_id(user_id)
         if user.type == "customer":
-            url = "%s/customer/%d" % (USERS_ENDPOINT, user_id)
+            url = "%s/customer/%d" % (cls.USERS_ENDPOINT, user_id)
             response = requests.put(url,
                                 json={
                                     'email': email,
@@ -119,7 +148,7 @@ class UserManager:
             return response
 
         elif user.type == "operator":
-            url = "%s/operator/%d" % (USERS_ENDPOINT, user_id)
+            url = "%s/operator/%d" % (cls.USERS_ENDPOINT, user_id)
             response = requests.put(url,
                                 json={
                                     'email': email,
@@ -137,7 +166,10 @@ class UserManager:
         :param user_id: the user id
         :return: User updated
         """
-        pass
+        logout_user()
+        url = "%s/user/%d" % (cls.USERS_ENDPOINT, user_id)
+        response = requests.delete(url)
+        return response
 
     @classmethod
     def authenticate_user(cls, email: str, password: str) -> User:

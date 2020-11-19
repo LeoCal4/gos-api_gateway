@@ -31,7 +31,6 @@ def login(re=False):
     if form.is_submitted():
         email, password = form.data['email'], form.data['password']
         user = UserManager.authenticate_user(email, password)
-
         if user is None:
             # user is not authenticated
             flash('Invalid credentials')
@@ -94,7 +93,7 @@ def operator(op_id):
     Returns:
         Redirects the view to personal page of the operator
     """
-    
+
     if current_user.id == op_id:
         filter_form = FilterForm()
 
