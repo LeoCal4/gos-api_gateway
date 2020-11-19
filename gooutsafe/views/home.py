@@ -44,7 +44,7 @@ def search():
             else:
                 restaurants = json_data['restaurants']
                 for r in restaurants:
-                    json_list.append({"name": r.name, "lat": r.lat, "lon": r.lon })
+                    json_list.append({"name": r['name'], "lat": r['lat'], "lon": r['lon'] })
             json_list = json.dumps(json_list)
     except Exception as e:
         print(str(e))

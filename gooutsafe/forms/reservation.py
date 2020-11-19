@@ -24,7 +24,6 @@ class ReservationForm(FlaskForm):
         date = self.start_date.data
         time = self.start_time.data
         people_number = self.people_number.data
-        print(time)
         start_time_merged = datetime.combine(date, time)
         if start_time_merged < datetime.now() or people_number <= 0:
             return False
