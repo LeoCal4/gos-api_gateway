@@ -44,7 +44,8 @@ def restaurant_sheet(restaurant_id):
 
     return render_template("restaurantsheet.html",
                            restaurant=restaurant_sheet['restaurant'], list_measures=restaurant_sheet['list_measures'],
-                           average_rate=restaurant_sheet['average_rate'], max_rate=restaurant_sheet['max_value'],
+                           average_rate=restaurant_sheet['average_rate'], max_rate=restaurant_sheet['max_rate'],
+                           is_open=restaurant_sheet['is_open']
                            )
 
 
@@ -122,6 +123,8 @@ def details(id_op):
     url = "%s/restaurants/details/%s" % (RESTA_MS_URL, id_op)
     res = requests.get(url)
     payload = res.json()
+    if res.status_code != 200:
+        return redirect(url_for('restaurants.add', id_op=id_op))
     json_data = payload['details']
     list_measures = json_data['list_measure'].split(',')[1:]
 
