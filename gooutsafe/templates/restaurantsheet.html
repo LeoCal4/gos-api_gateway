@@ -11,7 +11,7 @@
                 <div class="col-sm-2">
                     <h5>
                         <span class="badge badge-secondary">
-                            {{ restaurant.likes_count() }}
+                            {{ restaurant.likes|count }}
                         </span>
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-hand-thumbs-up"
                              fill="currentColor"
@@ -43,7 +43,7 @@
                         <tr>
                             <th>Status</th>
                             <td>
-                                {% if restaurant.is_open_date() %}
+                                {% if is_open %}
                                     <span class="badge badge-success">Now Open</span>
                                 {% else %}
                                     <span class="badge badge-danger">Now Closed</span>
@@ -157,11 +157,11 @@
                         {% if rating is defined %}
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ rating.customer.firstname }}</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">{{ "%.0f"|format(rating.value) }}
+                                    <h5 class="card-title">{{ rating['customer_name'] }}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ "%.0f"|format(rating['value']) }}
                                         / {{ max_rate }}</h6>
-                                    <p class="card-text">{{ rating.review }}</p>
-                                    <h6 class="card-subtitle mb-2 text-muted">{{ rating.get_how_long_ago() }}</h6>
+                                    <p class="card-text">{{ rating['review'] }}</p>
+                                    <!--<h6 class="card-subtitle mb-2 text-muted">{# rating.get_how_long_ago() #}</h6> TODO --> 
                                 </div>
                             </div>
                         {% endif %}

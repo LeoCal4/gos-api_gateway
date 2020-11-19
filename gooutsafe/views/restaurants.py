@@ -41,10 +41,11 @@ def restaurant_sheet(restaurant_id):
         return abort(404)
 
     restaurant_sheet = json_data['restaurant_sheet']
-
+    
     return render_template("restaurantsheet.html",
                            restaurant=restaurant_sheet['restaurant'], list_measures=restaurant_sheet['list_measures'],
-                           average_rate=restaurant_sheet['average_rate'], max_rate=restaurant_sheet['max_value'],
+                           average_rate=restaurant_sheet['average_rate'], max_rate=restaurant_sheet['max_rate'],
+                           is_open=restaurant_sheet['is_open']
                            )
 
 
