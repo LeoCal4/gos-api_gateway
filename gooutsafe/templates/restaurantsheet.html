@@ -161,7 +161,7 @@
                                     <h6 class="card-subtitle mb-2 text-muted">{{ "%.0f"|format(rating['value']) }}
                                         / {{ max_rate }}</h6>
                                     <p class="card-text">{{ rating['review'] }}</p>
-                                    <!--<h6 class="card-subtitle mb-2 text-muted">{# rating.get_how_long_ago() #}</h6> TODO --> 
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ rating['timestamp'] }}</h6>
                                 </div>
                             </div>
                         {% endif %}

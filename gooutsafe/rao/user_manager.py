@@ -4,8 +4,6 @@ import requests
 from gooutsafe import app
 
 
-USERS_ENDPOINT = app.config['USERS_MS_URL']
-
 class UserManager:
     USERS_ENDPOINT = app.config['USERS_MS_URL']
 
@@ -87,7 +85,7 @@ class UserManager:
         :param user_id: the user id
         :return: User updated
         """
-        url = "%s/social_number/%d" % (USERS_ENDPOINT, user_id)
+        url = "%s/social_number/%d" % (cls.USERS_ENDPOINT, user_id)
 
         response = requests.put(url,
                             json={
@@ -109,7 +107,7 @@ class UserManager:
 
         user = UserManager.get_user_by_id(user_id)
         if user.type == "customer":
-            url = "%s/customer/%d" % (USERS_ENDPOINT, user_id)
+            url = "%s/customer/%d" % (cls.USERS_ENDPOINT, user_id)
             response = requests.put(url,
                                 json={
                                     'email': email,
@@ -119,7 +117,7 @@ class UserManager:
             return response
 
         elif user.type == "operator":
-            url = "%s/operator/%d" % (USERS_ENDPOINT, user_id)
+            url = "%s/operator/%d" % (cls.USERS_ENDPOINT, user_id)
             response = requests.put(url,
                                 json={
                                     'email': email,

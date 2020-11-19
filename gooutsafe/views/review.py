@@ -32,7 +32,7 @@ def write_review(restaurant_id):
             'review': form.data['review']
         }
         res = requests.post('%s/restaurants/review' % RESTA_MS_URL, json=json_data)
-        if res.status_code <= 201:
+        if res.status_code == 201 or res.status_code == 200:
             already_written = res.json()['already_written']
             return render_template('thank_you_review.html', already_written=already_written, restaurant_id=restaurant_id)
         else:

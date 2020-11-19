@@ -5,7 +5,7 @@
 {% block content %}
     <div class="row" style="margin-top:50px">
         <div class="col-md-12">
-            {% if already_written is defined %}
+            {% if already_written is defined and already_written is sameas true %}
                 <div class="alert alert-warning" role="alert">
                     You have already written a review, thank you!
                 </div>
