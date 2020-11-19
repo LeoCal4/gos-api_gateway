@@ -78,6 +78,24 @@ class UserManager:
         return user
 
     @classmethod
+    def get_all_positive_customer(cls) -> [User]:
+        """
+        This method contacts the users microservice
+        and retrieves all positive customers.
+        :return: A list of User obj with health_status = True
+        """
+
+        response = requests.get("%s/positive_customer" % cls.USERS_ENDPOINT)
+        json_payload = response.json()
+        pos_customers = []
+
+        if response.status_code == 200:
+            #TODO append in pos_customers all item of the json_payload
+            pass
+        
+        return None
+
+    @classmethod
     def add_social_number(cls, user_id: int, social_number:str):
         """
         This method contacts the users microservice
