@@ -8,6 +8,8 @@ class Config(object):
     # configuring microservices endpoints
     import os
 
+    REQUESTS_TIMEOUT_SECONDS = float(os.getenv("REQUESTS_TIMEOUT_SECONDS", 5))
+
     # users microservice
     USERS_MS_PROTO = os.getenv('USERS_MS_PROTO', 'http')
     USERS_MS_HOST = os.getenv('USERS_MS_HOST', 'localhost')
@@ -15,10 +17,16 @@ class Config(object):
     USERS_MS_URL = '%s://%s:%s' % (USERS_MS_PROTO, USERS_MS_HOST, USERS_MS_PORT)
 
     # restaurants
-    RESTA_MS_PROTO = os.getenv('RESTA_MS_PROTO', 'http')
-    RESTA_MS_HOST = os.getenv('RESTA_MS_HOST', 'localhost')
-    RESTA_MS_PORT = os.getenv('RESTA_MS_PORT', 5002)
+    RESTA_MS_PROTO = os.getenv('RESTAURANTS_MS_PROTO', 'http')
+    RESTA_MS_HOST = os.getenv('RESTAURANTS_MS_HOST', 'localhost')
+    RESTA_MS_PORT = os.getenv('RESTAURANTS_MS_PORT', 5002)
     RESTA_MS_URL = '%s://%s:%s' % (RESTA_MS_PROTO, RESTA_MS_HOST, RESTA_MS_PORT)
+
+    # reservation
+    RESERVATION_MS_PROTO = os.getenv('RESERVATION_MS_PROTO', 'http')
+    RESERVATION_MS_HOST = os.getenv('RESERVATION_MS_HOST', 'localhost')
+    RESERVATION_MS_PORT = os.getenv('RESERVATION_MS_PORT', 5003)
+    RESERVATION_MS_URL = '%s://%s:%s' % (RESERVATION_MS_PROTO, RESERVATION_MS_HOST, RESERVATION_MS_PORT)
 
 
 class DebugConfig(Config):

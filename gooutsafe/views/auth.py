@@ -125,9 +125,7 @@ def authority(id, positive_id):
     """
     if current_user.id == id:
         ha_form = AuthorityForm()
-        #TODO implement retrieving of all positive in rao and user microservice
-        #pos_customers = CustomerManager.retrieve_all_positive()
-        pos_customers = None
+        pos_customers = UserManager.get_all_positive_customer()
         if positive_id != 0:
             search_customer = UserManager.get_user_by_id(positive_id)
         else: #authority clicks on "Profile"

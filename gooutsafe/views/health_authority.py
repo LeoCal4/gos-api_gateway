@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 
 from gooutsafe.forms.authority import AuthorityForm
+from gooutsafe.rao.user_manager import UserManager
 
 authority = Blueprint('authority', __name__)
 
@@ -23,11 +24,11 @@ def search_customer():
             track_type = form.data['track_type']
             customer_ident = form.data['customer_ident']
             if track_type == 'SSN':
-                customer = CustomerManager.retrieve_by_ssn(ssn=customer_ident)
+                customer = UserManager.get_user_by_social_number(customer_ident)
             elif track_type == 'Email':
-                customer = CustomerManager.retrieve_by_email(email=customer_ident)
+                customer = UserManager.get_user_by_email(customer_ident)
             else:
-                customer = CustomerManager.retrieve_by_phone(phone=customer_ident)
+                customer = UserManager.get_user_by_phone(customer_ident)
             if customer is None:
                 flash("The customer doesn't exist")
                 return redirect(url_for('auth.authority', id=current_user.id, positive_id=0))
@@ -36,7 +37,7 @@ def search_customer():
         return redirect(url_for('home.index'))
 
 
-@authority.route('/ha/mark_positive/<int:customer_id>', methods=['GET', 'POST'])
+@authority.route('/ha/mark_positive/<int:customer_id>', methods=['POST'])
 @login_required
 def mark_positive(customer_id):
     """Through this method the health authority can set the health status
@@ -50,17 +51,21 @@ def mark_positive(customer_id):
     """
     if current_user is not None and current_user.type == 'authority':
         if request.method == 'POST':
-            customer = CustomerManager.retrieve_by_id(id_=customer_id)
+            customer = UserManager.get_user_by_id(customer_id)
             if customer is not None and customer.health_status:
                 flash("Customer is already set to positive!")
+            #TODO set health status for customer
             elif customer is not None:
-                customer.set_health_status(status=True)
-                CustomerManager.update_customer(customer.id)
-                schedule_revert_customer_health_status(customer.id)
+                response = UserManager.update_health_status(customer.id)
+                if response.status_code == 200:
+                    flash("Customer set to positive!")
+                else:
+                    flash("Error during the operation")
+                #we have to do this in user microservice
+                """schedule_revert_customer_health_status(customer.id)
                 notify_restaurant_owners_about_positive_past_customer(customer.id)
                 notify_restaurant_owners_about_positive_booked_customer(customer.id)
-                notify_customers_about_positive_contact(customer.id)
-                flash("Customer set to positive!")
+                notify_customers_about_positive_contact(customer.id)"""
     return redirect(url_for('auth.authority', id=current_user.id, positive_id=0))
 
 

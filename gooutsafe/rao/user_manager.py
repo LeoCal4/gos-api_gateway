@@ -1,12 +1,16 @@
-from gooutsafe import app
 from gooutsafe.auth.user import User
-import requests
 from gooutsafe import app
 from flask_login import (logout_user)
+from flask import abort
+import requests
+
+
 
 
 class UserManager:
     USERS_ENDPOINT = app.config['USERS_MS_URL']
+    REQUESTS_TIMEOUT_SECONDS = app.config['REQUESTS_TIMEOUT_SECONDS']
+
 
     @classmethod
     def get_user_by_id(cls, user_id: int) -> User:
@@ -16,13 +20,18 @@ class UserManager:
         :param user_id: the user id
         :return: User obj with id=user_id
         """
-        response = requests.get("%s/user/%d" % (cls.USERS_ENDPOINT, user_id))
-        json_payload = response.json()
-        if response.status_code == 200:
-            # user is authenticated
-            user = User.build_from_json(json_payload)
-        else:
-            raise RuntimeError('Server has sent an unrecognized status code %s' % response.status_code)
+        try:
+            response = requests.get("%s/user/%d" % (cls.USERS_ENDPOINT, user_id))
+            json_payload = response.json()
+            if response.status_code == 200:
+                # user is authenticated
+                user = User.build_from_json(json_payload)
+            else:
+                raise RuntimeError('Server has sent an unrecognized status code %s' % response.status_code)
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
 
         return user
     
@@ -76,6 +85,26 @@ class UserManager:
             user = User.build_from_json(json_payload)
        
         return user
+
+    @classmethod
+    def get_all_positive_customer(cls) -> [User]:
+        """
+        This method contacts the users microservice
+        and retrieves all positive customers.
+        :return: A list of User obj with health_status = True
+        """
+
+        response = requests.get("%s/positive_customers" % (cls.USERS_ENDPOINT))
+        json_payload = response.json()
+        pos_customers = []
+
+        if response.status_code == 200:
+            #TODO append in pos_customers all item of the json_payload
+            for json in json_payload:
+                pos_customers.append(User.build_from_json(json))
+            return pos_customers
+                
+        return None
 
     @classmethod
     def add_social_number(cls, user_id: int, social_number:str):
@@ -159,6 +188,20 @@ class UserManager:
         raise RuntimeError('Error with searching for the user %d' % user_id)
         
     @classmethod
+    def update_health_status(cls, user_id: int):
+        """Mark a customer as positive
+
+        Args:
+            user_id (int)
+
+        Returns:
+            PUT response
+        """
+        url = "%s/mark_positive/%d" % (cls.USERS_ENDPOINT, user_id)
+        response = requests.put(url)
+        return response
+
+    @classmethod
     def delete_user(cls, user_id: int):
         """
         This method contacts the users microservice
@@ -180,8 +223,13 @@ class UserManager:
         :return: None if credentials are not correct, User instance if credentials are correct.
         """
         payload = dict(email=email, password=password)
-        response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, json=payload)
-        json_response = response.json()
+        try:
+            response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, json=payload, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            json_response = response.json()
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
 
         if response.status_code == 401:
             # user is not authenticated
