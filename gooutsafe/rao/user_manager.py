@@ -5,12 +5,9 @@ from flask import abort
 import requests
 
 
-
-
 class UserManager:
     USERS_ENDPOINT = app.config['USERS_MS_URL']
     REQUESTS_TIMEOUT_SECONDS = app.config['REQUESTS_TIMEOUT_SECONDS']
-
 
     @classmethod
     def get_user_by_id(cls, user_id: int) -> User:
@@ -21,7 +18,8 @@ class UserManager:
         :return: User obj with id=user_id
         """
         try:
-            response = requests.get("%s/user/%d" % (cls.USERS_ENDPOINT, user_id))
+            response = requests.get("%s/user/%d" % (cls.USERS_ENDPOINT, user_id), 
+                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_payload = response.json()
             if response.status_code == 200:
                 # user is authenticated
@@ -43,13 +41,19 @@ class UserManager:
         :param user_email: the user email
         :return: User obj with email=user_email
         """
-        response = requests.get("%s/user_email/%s" % (cls.USERS_ENDPOINT, user_email))
-        json_payload = response.json()
-        user = None
+        try:
+            response = requests.get("%s/user_email/%s" % (cls.USERS_ENDPOINT, user_email),
+                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            json_payload = response.json()
+            user = None
 
-        if response.status_code == 200:
-            user = User.build_from_json(json_payload)
-    
+            if response.status_code == 200:
+                user = User.build_from_json(json_payload)
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
+
         return user
     
     @classmethod
@@ -60,13 +64,19 @@ class UserManager:
         :param user_phone: the user phone
         :return: User obj with phone=user_phone
         """
-        response = requests.get("%s/user_phone/%s" % (cls.USERS_ENDPOINT, user_phone))
-        json_payload = response.json()
-        user = None
+        try:
+            response = requests.get("%s/user_phone/%s" % (cls.USERS_ENDPOINT, user_phone),
+                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            json_payload = response.json()
+            user = None
 
-        if response.status_code == 200:
-            user = User.build_from_json(json_payload)
-        
+            if response.status_code == 200:
+                user = User.build_from_json(json_payload)
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
+
         return user
 
     @classmethod
@@ -77,13 +87,19 @@ class UserManager:
         :param user_social_number: the user social_number
         :return: User obj with social_number=user_social_number
         """
-        response = requests.get("%s/user_social_number/%s" % (cls.USERS_ENDPOINT, user_social_number))
-        json_payload = response.json()
-        user = None
+        try:
+            response = requests.get("%s/user_social_number/%s" % (cls.USERS_ENDPOINT, user_social_number),
+                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            json_payload = response.json()
+            user = None
 
-        if response.status_code == 200:
-            user = User.build_from_json(json_payload)
-       
+            if response.status_code == 200:
+                user = User.build_from_json(json_payload)
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
+
         return user
 
     @classmethod
@@ -93,17 +109,22 @@ class UserManager:
         and retrieves all positive customers.
         :return: A list of User obj with health_status = True
         """
+        try:
+            response = requests.get("%s/positive_customers" % (cls.USERS_ENDPOINT),
+                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            json_payload = response.json()
+            pos_customers = []
 
-        response = requests.get("%s/positive_customers" % (cls.USERS_ENDPOINT))
-        json_payload = response.json()
-        pos_customers = []
+            if response.status_code == 200:
+                #TODO append in pos_customers all item of the json_payload
+                for json in json_payload:
+                    pos_customers.append(User.build_from_json(json))
+                return pos_customers
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
 
-        if response.status_code == 200:
-            #TODO append in pos_customers all item of the json_payload
-            for json in json_payload:
-                pos_customers.append(User.build_from_json(json))
-            return pos_customers
-                
         return None
 
     @classmethod
@@ -114,12 +135,19 @@ class UserManager:
         :param user_id: the user id
         :return: User updated
         """
-        url = "%s/social_number/%d" % (cls.USERS_ENDPOINT, user_id)
+        try:
+            url = "%s/social_number/%d" % (cls.USERS_ENDPOINT, user_id)
+            response = requests.put(url,
+                                json={
+                                    'social_number': social_number
+                                },
+                                timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                )
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
 
-        response = requests.put(url,
-                            json={
-                                'social_number': social_number
-                            })
         return response
 
     @classmethod
@@ -127,19 +155,26 @@ class UserManager:
                         email:str, password:str, social_number:str,
                         firstname: str, lastname: str,
                         birthdate, phone:str):
+        try:
+            url = "%s/customer" % (cls.USERS_ENDPOINT)
+            response = requests.post(url,
+                                    json={
+                                        'type': 'customer',
+                                        'email': email, 
+                                        'password': password,
+                                        'social_number': social_number,
+                                        'firstname': firstname,
+                                        'lastname': lastname,
+                                        'birthdate': birthdate,
+                                        'phone': phone
+                                    },
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                    )
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
 
-        url = "%s/customer" % (cls.USERS_ENDPOINT)
-        response = requests.post(url,
-                                json={
-                                    'type': 'customer',
-                                    'email': email, 
-                                    'password': password,
-                                    'social_number': social_number,
-                                    'firstname': firstname,
-                                    'lastname': lastname,
-                                    'birthdate': birthdate,
-                                    'phone': phone
-                                })
         return response
 
     @classmethod
@@ -164,27 +199,36 @@ class UserManager:
             phone: the user phone
         :return: User updated
         """
+        try:
+            user = UserManager.get_user_by_id(user_id)
+            if user.type == "customer":
+                url = "%s/customer/%d" % (cls.USERS_ENDPOINT, user_id)
+                response = requests.put(url,
+                                    json={
+                                        'email': email,
+                                        'password': password,
+                                        'phone': phone
+                                    },
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                    )
+                return response
 
-        user = UserManager.get_user_by_id(user_id)
-        if user.type == "customer":
-            url = "%s/customer/%d" % (cls.USERS_ENDPOINT, user_id)
-            response = requests.put(url,
-                                json={
-                                    'email': email,
-                                    'password': password,
-                                    'phone': phone
-                                })
-            return response
+            elif user.type == "operator":
+                url = "%s/operator/%d" % (cls.USERS_ENDPOINT, user_id)
+                response = requests.put(url,
+                                    json={
+                                        'email': email,
+                                        'password': password
+                                    },
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                    )
+                return response 
 
-        elif user.type == "operator":
-            url = "%s/operator/%d" % (cls.USERS_ENDPOINT, user_id)
-            response = requests.put(url,
-                                json={
-                                    'email': email,
-                                    'password': password
-                                })
-            return response 
-        
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
+
         raise RuntimeError('Error with searching for the user %d' % user_id)
         
     @classmethod
@@ -197,8 +241,14 @@ class UserManager:
         Returns:
             PUT response
         """
-        url = "%s/mark_positive/%d" % (cls.USERS_ENDPOINT, user_id)
-        response = requests.put(url)
+        try:
+            url = "%s/mark_positive/%d" % (cls.USERS_ENDPOINT, user_id)
+            response = requests.put(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
+
         return response
 
     @classmethod
@@ -209,9 +259,16 @@ class UserManager:
         :param user_id: the user id
         :return: User updated
         """
-        logout_user()
-        url = "%s/user/%d" % (cls.USERS_ENDPOINT, user_id)
-        response = requests.delete(url)
+        try:
+            logout_user()
+            url = "%s/user/%d" % (cls.USERS_ENDPOINT, user_id)
+            response = requests.delete(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
+
         return response
 
     @classmethod
@@ -224,7 +281,10 @@ class UserManager:
         """
         payload = dict(email=email, password=password)
         try:
-            response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, json=payload, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, 
+                                        json=payload, 
+                                        timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                    )
             json_response = response.json()
         except requests.exceptions.ConnectionError:
             return abort(500)
