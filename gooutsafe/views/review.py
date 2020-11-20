@@ -25,9 +25,9 @@ def write_review(restaurant_id):
                                rating_max_value=bounds['max_value'])
     if form.is_submitted():
         json_data = {
-            'user_id': current_user.id,
+            'customer_id': current_user.id,
             'restaurant_id': restaurant_id,
-            'user_name': current_user.firstname,
+            'customer_name': current_user.firstname,
             'value': form.data['value'],
             'review': form.data['review']
         }
