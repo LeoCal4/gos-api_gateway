@@ -8,9 +8,10 @@ from gooutsafe.forms.add_stay_time import StayTimeForm
 from gooutsafe.forms.add_table import TableForm
 from gooutsafe.forms.add_times import TimesForm
 from gooutsafe.forms.restaurant import RestaurantForm
+from gooutsafe.rao.restaurant_manager import RestaurantManager
 
 restaurants = Blueprint('restaurants', __name__)
-RESTA_MS_URL = app.config['RESTA_MS_URL']
+
 
 @restaurants.route('/my_restaurant', methods=['GET'])
 @login_required
@@ -32,15 +33,10 @@ def restaurant_sheet(restaurant_id):
     Args:
         restaurant_id (int): univocal identifier of the restaurant
     """
-    url = "%s/restaurants/%s" % (RESTA_MS_URL, restaurant_id)
-    res = requests.get(url)
-    json_data = res.json()
-
-    if res.status_code != 200:
-        print(json_data['message'])
-        return abort(404)
-
-    restaurant_sheet = json_data['restaurant_sheet']
+    restaurant_sheet = RestaurantManager.get_restaurant_sheet(restaurant_id)
+    if restaurant_sheet is None:
+        flash('No restaurant found given the specified id')
+        return redirect(url_for('home.index'))
 
     return render_template("restaurantsheet.html",
                            restaurant=restaurant_sheet['restaurant'], list_measures=restaurant_sheet['list_measures'],
@@ -60,11 +56,8 @@ def like_toggle(restaurant_id):
     Returns:
         Redirects to the single page for a restaurant
     """
-    url = "%s/restaurants/like/%s" % (RESTA_MS_URL, restaurant_id)
-    res = requests.post(url, json={'user_id': current_user.id})
-    json_data = res.json()
-    if res.status_code != 200:
-        print(json_data['message'])
+    like_toggled = RestaurantManager.post_toggle_like(restaurant_id, current_user.id)
+    if not like_toggled:
         flash('Unable to toggle like')
     return restaurant_sheet(restaurant_id)
 
@@ -94,10 +87,8 @@ def add(id_op):
                 'city': city,
                 'phone': phone,
                 'menu_type': menu_type}
-            url = "%s/restaurants/add/%d" % (RESTA_MS_URL, id_op)
-            res = requests.post(url, json=json_data_to_send)
-            if res.status_code != 200:
-                print(res.json()['message'])
+            restaurant_added = RestaurantManager.post_add(id_op, json_data_to_send)
+            if not restaurant_added:
                 flash('Something went wrong with the creation of the restaurant, sorry!')
             else:
                 return redirect(url_for('auth.operator', op_id=id_op))
@@ -120,17 +111,11 @@ def details(id_op):
     measure_form = MeasureForm()
     avg_time_form = StayTimeForm()
 
-    url = "%s/restaurants/details/%s" % (RESTA_MS_URL, id_op)
-    res = requests.get(url)
-    payload = res.json()
-    if res.status_code != 200:
+    json_data = RestaurantManager.get_restaurant_details(id_op)
+    if not json_data:
         return redirect(url_for('restaurants.add', id_op=id_op))
-    json_data = payload['details']
-    list_measures = json_data['list_measure'].split(',')[1:]
 
-    if res.status_code != 200:
-        print(payload['message'])
-        return add(current_user.id)
+    list_measures = json_data['list_measure'].split(',')[1:]        
 
     return render_template('add_restaurant_details.html',
                            restaurant=json_data['restaurant'], tables=json_data['tables'],
@@ -158,10 +143,10 @@ def save_details(id_op, rest_id):
         if table_form.is_submitted():
             num_tables = table_form.data['number']
             capacity = table_form.data['max_capacity']
-            url = "%s/restaurants/add_tables/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
-            res = requests.post(url, json={'number': num_tables, 'max_capacity': capacity})
-            if res.status_code != 200:
-                print(res.json()['message'])
+
+            json_data = {'number': num_tables, 'max_capacity': capacity}
+            tables_added = RestaurantManager.post_add_tables(id_op, rest_id, json_data)
+            if not tables_added:
                 flash('Error in saving the tables')
 
     return redirect(url_for('restaurants.details', id_op=id_op))
@@ -185,13 +170,12 @@ def save_time(id_op, rest_id):
             day = time_form.data['day']
             start_time = time_form.data['start_time']
             end_time = time_form.data['end_time']
+
             json_data_to_send = {'day': day,
                                     'start_time': str(start_time),
                                     'end_time': str(end_time)}
-            url = "%s/restaurants/add_time/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
-            res = requests.post(url, json=json_data_to_send)
-            if res.status_code != 200:
-                print(res.json()['message'])
+            avail_added = RestaurantManager.post_add_time(id_op, rest_id, json_data_to_send) 
+            if not avail_added:
                 flash('Error in saving the availability')
 
     return redirect(url_for('restaurants.details', id_op=id_op))
@@ -216,10 +200,8 @@ def save_measure(id_op, rest_id):
         if measure_form.is_submitted():
             measure = measure_form.data['measure']
             json_data_to_send = {'measure': measure}
-            url = "%s/restaurants/add_measure/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
-            res = requests.post(url, json=json_data_to_send)
-            if res.status_code != 200:
-                print(res.json()['message'])
+            measure_added = RestaurantManager.post_add_measure(id_op, rest_id, json_data_to_send)
+            if not measure_added:
                 flash('Error in saving the measure')
     return redirect(url_for('restaurants.details', id_op=id_op))
 
@@ -234,11 +216,9 @@ def save_avg_stay(id_op, rest_id):
             hours = avg_time_form.data['hours']
             minute = avg_time_form.data['minutes']
             json_data_to_send = {'hours': hours,
-                                    'minutes': minute}
-            url = "%s/restaurants/add_avg_stay/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
-            res = requests.post(url, json=json_data_to_send)
-            if res.status_code != 200:
-                print(res.json()['message'])
+                                'minutes': minute}
+            avg_stay_added = RestaurantManager.post_add_avg_stay(id_op, rest_id, json_data_to_send)
+            if avg_stay_added:
                 flash('Error in saving the average stay time')
 
     return redirect(url_for('restaurants.details', id_op=id_op))
@@ -269,10 +249,8 @@ def edit_restaurant(id_op, rest_id):
                                     'city': city,
                                     'phone': phone,
                                     'menu_type': menu_type}
-            url = "%s/edit_restaurant/%d/%d" % (RESTA_MS_URL, id_op, rest_id)
-            res = requests.post(url, json=json_data_to_send)
-            if res.status_code != 200:
-                print(res.json()['message'])
+            restaurant_edited = RestaurantManager.put_edit_restaurant(id_op, rest_id, json_data_to_send)
+            if restaurant_edited:
                 flash('Error in saving the average stay time')
             else:
                 return redirect(url_for('auth.operator', op_id=id_op))

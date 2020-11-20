@@ -5,8 +5,8 @@ from flask import Blueprint, flash, render_template, request
 from flask_login import current_user
 from gooutsafe import app
 from gooutsafe.forms.restaurant_search import RestaurantSearchForm
+from gooutsafe.rao.restaurant_manager import RestaurantManager 
 
-RESTA_MS_URL = app.config['RESTA_MS_URL']
 home = Blueprint('home', __name__)
 
 
@@ -37,12 +37,10 @@ def search():
         elif keyword is not None and filters is not None:
             restaurants = search_by(keyword, filters)
         else:
-            res = requests.get('%s/restaurants/get_all' % RESTA_MS_URL)
-            json_data = res.json()
-            if res.status_code != 200:
+            restaurants = RestaurantManager.get_get_all()
+            if restaurants is None:
                 flash('Error in getting all the restaurants')
             else:
-                restaurants = json_data['restaurants']
                 for r in restaurants:
                     json_list.append({"name": r['name'], "lat": r['lat'], "lon": r['lon'] })
             json_list = json.dumps(json_list)
@@ -61,12 +59,7 @@ def search_by(search_filter, search_field):
         search_filter (string)
 
     """
-    url = "%s/restaurants/search_by/%s/%s" % (RESTA_MS_URL, search_filter, search_field)
-    res = requests.get(url)
-    json_data = res.json()
-    if res.status_code != 200:
+    restaurants = RestaurantManager.get_search_by(search_filter, search_field)
+    if restaurants is None:
         raise ValueError
-    else:
-        restaurants = json_data['restaurants']
-
     return restaurants
