@@ -20,6 +20,12 @@ class Config(object):
     RESTA_MS_PORT = os.getenv('RESTA_MS_PORT', 5002)
     RESTA_MS_URL = '%s://%s:%s' % (RESTA_MS_PROTO, RESTA_MS_HOST, RESTA_MS_PORT)
 
+    # reservation
+    RESERVATION_MS_PROTO = os.getenv('RESERVATION_MS_PROTO', 'http')
+    RESERVATION_MS_HOST = os.getenv('RESERVATION_MS_HOST', 'localhost')
+    RESERVATION_MS_PORT = os.getenv('RESERVATION_MS_PORT', 5003)
+    RESERVATION_MS_URL = '%s://%s:%s' % (RESERVATION_MS_PROTO, RESERVATION_MS_HOST, RESERVATION_MS_PORT)
+
 
 class DebugConfig(Config):
     """
