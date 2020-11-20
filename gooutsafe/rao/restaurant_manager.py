@@ -1,6 +1,6 @@
 from gooutsafe import app
 from gooutsafe.auth.user import User
-from .custom_request import requests
+import requests
 
 class RestaurantManager:
     """

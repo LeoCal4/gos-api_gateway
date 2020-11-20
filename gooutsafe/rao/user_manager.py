@@ -2,11 +2,15 @@ from gooutsafe.auth.user import User
 from gooutsafe import app
 from flask_login import (logout_user)
 from flask import abort
-from .custom_request import requests
+import requests
+
+
 
 
 class UserManager:
     USERS_ENDPOINT = app.config['USERS_MS_URL']
+    REQUESTS_TIMEOUT_SECONDS = app.config['REQUESTS_TIMEOUT_SECONDS']
+
 
     @classmethod
     def get_user_by_id(cls, user_id: int) -> User:
@@ -206,13 +210,13 @@ class UserManager:
         """
         payload = dict(email=email, password=password)
         try:
-            response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, json=payload)
+            response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, json=payload, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_response = response.json()
         except requests.exceptions.ConnectionError:
             return abort(500)
         except requests.exceptions.Timeout:
             return abort(500)
-            
+
         if response.status_code == 401:
             # user is not authenticated
             return None
