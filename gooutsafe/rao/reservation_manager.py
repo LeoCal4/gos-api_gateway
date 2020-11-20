@@ -1,7 +1,6 @@
 from gooutsafe import app
 from gooutsafe.auth.user import User
-import requests
-from gooutsafe import app
+from .custom_request import requests
 
 class ReservationManager:
     RESERVATION_ENDPOINT = app.config['RESERVATION_MS_URL']
@@ -16,8 +15,8 @@ class ReservationManager:
         json_tables, json_times = self.get_restaurant_detatils(restaurant_id)
         response = requests.post(url,
                                 json={
-                                    'restaurant_id': restaurant_id
-                                    'user_id': user_id
+                                    'restaurant_id': restaurant_id,
+                                    'user_id': user_id,
                                     'start_time': start_time,
                                     'poeple_number': poeple_number, 
                                     'tables': json_tables,

@@ -1,8 +1,8 @@
-from gooutsafe import app
 from gooutsafe.auth.user import User
-import requests
 from gooutsafe import app
 from flask_login import (logout_user)
+from flask import abort
+from .custom_request import requests
 
 
 class UserManager:
@@ -16,13 +16,18 @@ class UserManager:
         :param user_id: the user id
         :return: User obj with id=user_id
         """
-        response = requests.get("%s/user/%d" % (cls.USERS_ENDPOINT, user_id))
-        json_payload = response.json()
-        if response.status_code == 200:
-            # user is authenticated
-            user = User.build_from_json(json_payload)
-        else:
-            raise RuntimeError('Server has sent an unrecognized status code %s' % response.status_code)
+        try:
+            response = requests.get("%s/user/%d" % (cls.USERS_ENDPOINT, user_id))
+            json_payload = response.json()
+            if response.status_code == 200:
+                # user is authenticated
+                user = User.build_from_json(json_payload)
+            else:
+                raise RuntimeError('Server has sent an unrecognized status code %s' % response.status_code)
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
 
         return user
     
@@ -200,9 +205,14 @@ class UserManager:
         :return: None if credentials are not correct, User instance if credentials are correct.
         """
         payload = dict(email=email, password=password)
-        response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, json=payload)
-        json_response = response.json()
-
+        try:
+            response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, json=payload)
+            json_response = response.json()
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)
+            
         if response.status_code == 401:
             # user is not authenticated
             return None
