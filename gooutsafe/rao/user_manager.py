@@ -179,6 +179,20 @@ class UserManager:
         raise RuntimeError('Error with searching for the user %d' % user_id)
         
     @classmethod
+    def update_health_status(cls, user_id: int):
+        """Mark a customer as positive
+
+        Args:
+            user_id (int)
+
+        Returns:
+            PUT response
+        """
+        url = "%s/mark_positive/%d" % (cls.USERS_ENDPOINT, user_id)
+        response = requests.put(url)
+        return response
+
+    @classmethod
     def delete_user(cls, user_id: int):
         """
         This method contacts the users microservice
