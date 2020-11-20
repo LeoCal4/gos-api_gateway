@@ -85,14 +85,16 @@ class UserManager:
         :return: A list of User obj with health_status = True
         """
 
-        response = requests.get("%s/positive_customer" % cls.USERS_ENDPOINT)
+        response = requests.get("%s/positive_customers" % (cls.USERS_ENDPOINT))
         json_payload = response.json()
         pos_customers = []
 
         if response.status_code == 200:
             #TODO append in pos_customers all item of the json_payload
-            pass
-        
+            for json in json_payload:
+                pos_customers.append(User.build_from_json(json))
+            return pos_customers
+                
         return None
 
     @classmethod
