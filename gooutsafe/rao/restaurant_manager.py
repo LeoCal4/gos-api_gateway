@@ -36,9 +36,7 @@ class RestaurantManager:
                 return None
 
             return json_data['restaurant_sheet']
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
          
     @classmethod
@@ -64,9 +62,7 @@ class RestaurantManager:
                 print(json_data['message'])
                 return False
             return True
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
     
     @classmethod
@@ -90,9 +86,7 @@ class RestaurantManager:
                 print(res.json()['message'])
                 return False
             return True
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -116,9 +110,7 @@ class RestaurantManager:
             if res.status_code != 200:
                 return None
             return payload
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -144,9 +136,7 @@ class RestaurantManager:
                 print(res.json()['message'])
                 return False
             return True
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -172,9 +162,7 @@ class RestaurantManager:
                 print(res.json()['message'])
                 return False
             return True
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -200,9 +188,7 @@ class RestaurantManager:
                 print(res.json()['message'])
                 return False
             return True
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -228,9 +214,7 @@ class RestaurantManager:
                 print(res.json()['message'])
                 return False
             return True
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -256,9 +240,7 @@ class RestaurantManager:
                 print(res.json()['message'])
                 return False
             return True
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -277,9 +259,7 @@ class RestaurantManager:
                 print(res.json()['message'])
                 return None
             return res.json()['restaurants']
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -301,9 +281,7 @@ class RestaurantManager:
             if res.status_code != 200:
                 return None
             return res.json()['restaurants']
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -320,9 +298,7 @@ class RestaurantManager:
             res = requests.get('%s/restaurants/rating_bounds' % cls.RESTA_MS_URL,
                                 timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             return res.json()['bounds']
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
     @classmethod
@@ -344,7 +320,5 @@ class RestaurantManager:
             if res.status_code == 201 or res.status_code == 200:
                 return (True, res.json()['already_written'])
             return (False, None)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
