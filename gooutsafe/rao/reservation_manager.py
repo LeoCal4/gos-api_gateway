@@ -74,19 +74,24 @@ class ReservationManager:
 
     @classmethod
     def confirm_reservation(cls, reservation_id):
-        url = "%s/reservation/%s" % (cls.RESERVATION_ENDPOINT, str(reservation_id))
-        pass
+        url = "%s/reservation/confirm/%s" % (cls.RESERVATION_ENDPOINT, str(reservation_id))
+        try:
+            response = requests.put(url,timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+        except requests.exceptions.ConnectionError:
+            return abort(500)
+        except requests.exceptions.Timeout:
+            return abort(500)        
+        return response
 
     @classmethod    
-    def filtered_reservations(cls, start_time, end_time):
+    def filtered_reservations(cls, restaurant_id, start_time, end_time):
         url = "%s/reservation/dates/" % (cls.RESERVATION_ENDPOINT)
         try:
-            response = requests.put(url,
+            response = requests.post(url,
                                     json={
+                                        'restaurant_id': restaurant_id,
                                         'start_time': start_time,
-                                        'people_number': people_number, 
-                                        'tables': json_tables,
-                                        'times': json_times
+                                        'end_time': end_time, 
                                     },
                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS)
         except requests.exceptions.ConnectionError:

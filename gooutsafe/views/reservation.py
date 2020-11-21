@@ -1,7 +1,7 @@
 from datetime import datetime
 from datetime import timedelta
 
-from flask import Blueprint, redirect, render_template, request, url_for, flash
+from flask import Blueprint, redirect, render_template, request, url_for, flash, abort
 # from flask_user import roles_required
 from flask_login import current_user, login_required
 
@@ -10,6 +10,7 @@ from gooutsafe.forms.reservation import ReservationForm
 
 from gooutsafe.rao.reservation_manager import ReservationManager
 from gooutsafe.rao.restaurant_manager import RestaurantManager
+from gooutsafe.rao.user_manager import UserManager
 
 
 reservation = Blueprint('reservation', __name__)
@@ -63,12 +64,26 @@ def reservation_all(restaurant_id):
         The template of the reservations.
     """
     filter_form = FilterForm()
-    reservations = ReservationManager.get_all_reservation_restaurant(restaurant_id)
+    response = ReservationManager.get_all_reservation_restaurant(restaurant_id)
+    json_resp = response.json()
+    reservations = json_resp['reservations']
     _, _, json_details = ReservationManager.get_restaurant_detatils(restaurant_id)
+    restaurant = json_details['restaurant']
+    
+    users = []
     people = 0
-    for r in reservations:
-        if r.is_confirmed:
-            people = people + r.people_number
+    if reservations:
+        for r in reservations:
+            start_time = datetime.strptime(r['start_time'], "%Y-%m-%dT%H:%M:%SZ")
+            r['start_time'] = datetime.strftime(start_time, "%Y-%m-%d %H:%M")
+            end_time = datetime.strptime(r['end_time'], "%Y-%m-%dT%H:%M:%SZ")
+            r['end_time'] = datetime.strftime(end_time, "%Y-%m-%d %H:%M")
+            user_dict = {}
+            user_id = r['user_id']
+            user = UserManager.get_user_by_id(user_id)
+            r['lastname'] = user.extra_data['lastname']
+            if r['is_confirmed']:
+                people = people + r['people_number']
 
     if request.method == 'POST':
         if filter_form.is_submitted():
@@ -81,16 +96,14 @@ def reservation_all(restaurant_id):
                 end_date_time = datetime.combine(filter_date, end_time)
                 start_date_time = datetime.strftime(start_date_time,"%Y-%m-%d %H:%M:%S")
                 end_date_time = datetime.strftime(end_date_time,"%Y-%m-%d %H:%M:%S")
-                res = ReservationManager.filtered_reservations(
+                response = ReservationManager.filtered_reservations(
                     restaurant_id, start_date_time, end_date_time
                 )
-                people = 0
-                for r in res:
-                    if r.is_confirmed:
-                        people = people + r.people_number
+                json_resp = response.json()
+                reservations = json_resp['reservations']
 
                 return render_template("restaurant_reservation.html",
-                                       restaurant=restaurant, reservations=res,
+                                       restaurant=restaurant, reservations=reservations,
                                        filter_form=filter_form, people=people)
             else:
                 flash("The form is not correct")
@@ -100,7 +113,7 @@ def reservation_all(restaurant_id):
 
 
 @reservation.route('/reservation/delete/<restaurant_id>/<reservation_id>', methods=['GET', 'POST'])
-def delete_reservation(restaurant_id, reservation_id):
+def delete_reservation(reservation_id, restaurant_id):
     """Given a customer and a reservation id,
     this function delete the reservation from the database.
 
@@ -111,14 +124,13 @@ def delete_reservation(restaurant_id, reservation_id):
         Redirects the view to the customer profile page.
     """
     response = ReservationManager.delete_reservation(reservation_id)
-    print(response.status_code)
     if response.status_code != 200:
         flash("Error during deletion")
         
     if current_user.type == 'customer':
         return redirect(url_for('auth.profile', id=current_user.id))
     else:
-        return redirect(url_for('auth.operator', op_id=current_user.id))
+        return redirect(url_for('reservation.reservation_all',restaurant_id=restaurant_id))
 
 
 
@@ -163,21 +175,21 @@ def customer_my_reservation():
     reservations = ReservationManager.get_all_reservation_customer(current_user.id)
     return render_template('customer_reservations.html', reservations=reservations, form=form)
 
-@reservation.route('/reservation/confirm/<int:res_id>')
-def confirm_reservation(res_id):
+@reservation.route('/reservation/confirm/<int:restaurant_id>/<int:reservation_id>')
+def confirm_reservation(restaurant_id, reservation_id):
     """
     This method is used to confirm reservation
 
     Args:
-        res_id (Integer): the restaurant id of the reservation
+        restaurant_id (Integer): the restaurant id of the reservation
 
     Returns:
         redirect: redirects to the reservations operator page
     """
-    reservation = ReservationManager.retrieve_by_id(res_id)
-    reservation.set_is_confirmed()
-    ReservationManager.update_reservation(reservation)
-    return redirect(url_for('reservation.reservation_all',restaurant_id=res_id))
+    response = ReservationManager.confirm_reservation(reservation_id)
+    if response.status_code != 200:
+        flash('Error during confermation')
+    return redirect(url_for('reservation.reservation_all',restaurant_id=restaurant_id))
 
 
 @reservation.route('/my_reservations')
@@ -185,10 +197,11 @@ def my_reservations():
     """Given a restaurant operator, this method returns all its reservations
 
     """
-    restaurant = RestaurantManager.retrieve_by_operator_id(current_user.id)
+    restaurant = RestaurantManager.get_restaurant_details(current_user.id)
+    restaurant_id = restaurant['details']['restaurant']['id']
 
     if restaurant is None:
         from gooutsafe.views.restaurants import add
         return add(current_user.id)
 
-    return reservation_all(restaurant.id)
+    return reservation_all(restaurant_id)

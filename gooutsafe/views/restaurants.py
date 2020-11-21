@@ -114,8 +114,8 @@ def details(id_op):
     json_data = RestaurantManager.get_restaurant_details(id_op)
     if not json_data:
         return redirect(url_for('restaurants.add', id_op=id_op))
-
-    list_measures = json_data['list_measure'].split(',')[1:]        
+    json_data = json_data['details']
+    list_measures = json_data['list_measures'].split(',')[1:]        
 
     return render_template('add_restaurant_details.html',
                            restaurant=json_data['restaurant'], tables=json_data['tables'],
