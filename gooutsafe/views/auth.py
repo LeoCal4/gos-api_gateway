@@ -13,8 +13,6 @@ from gooutsafe.rao.restaurant_manager import RestaurantManager
 from gooutsafe.rao.reservation_manager import ReservationManager
 
 auth = Blueprint('auth', __name__)
-RESTA_MS_URL = app.config['RESTA_MS_URL']
-USERS_ENDPOINT = app.config['USERS_MS_URL']
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login(re=False):
@@ -116,12 +114,8 @@ def operator(op_id):
 
     if current_user.id == op_id:
         filter_form = FilterForm()
-
-        url = "%s/restaurants/details/%s" % (RESTA_MS_URL, op_id)
-        res = requests.get(url)
-        json_data = res.json()
-        if res.status_code != 200:
-            print(json_data['message'])
+        json_data = RestaurantManager.get_restaurant_details(op_id)
+        if json_data is None:
             restaurant = None
         else:
             restaurant = json_data['details']['restaurant']
