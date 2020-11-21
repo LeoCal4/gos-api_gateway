@@ -12,7 +12,6 @@ from gooutsafe.rao.restaurant_manager import RestaurantManager
 from gooutsafe.rao.reservation_manager import ReservationManager
 
 auth = Blueprint('auth', __name__)
-USERS_ENDPOINT = app.config['USERS_MS_URL']
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login(re=False):
