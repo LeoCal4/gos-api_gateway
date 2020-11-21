@@ -56,7 +56,7 @@ def like_toggle(restaurant_id):
     Returns:
         Redirects to the single page for a restaurant
     """
-    like_toggled = RestaurantManager.post_toggle_like(restaurant_id, current_user.id)
+    like_toggled = RestaurantManager.put_toggle_like(restaurant_id, current_user.id)
     if not like_toggled:
         flash('Unable to toggle like')
     return restaurant_sheet(restaurant_id)
@@ -200,7 +200,7 @@ def save_measure(id_op, rest_id):
         if measure_form.is_submitted():
             measure = measure_form.data['measure']
             json_data_to_send = {'measure': measure}
-            measure_added = RestaurantManager.post_add_measure(id_op, rest_id, json_data_to_send)
+            measure_added = RestaurantManager.put_add_measure(id_op, rest_id, json_data_to_send)
             if not measure_added:
                 flash('Error in saving the measure')
     return redirect(url_for('restaurants.details', id_op=id_op))
@@ -217,7 +217,7 @@ def save_avg_stay(id_op, rest_id):
             minute = avg_time_form.data['minutes']
             json_data_to_send = {'hours': hours,
                                 'minutes': minute}
-            avg_stay_added = RestaurantManager.post_add_avg_stay(id_op, rest_id, json_data_to_send)
+            avg_stay_added = RestaurantManager.put_add_avg_stay(id_op, rest_id, json_data_to_send)
             if avg_stay_added:
                 flash('Error in saving the average stay time')
 
