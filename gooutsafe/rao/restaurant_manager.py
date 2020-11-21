@@ -30,11 +30,9 @@ class RestaurantManager:
             url = "%s/restaurants/%s" % (cls.RESTA_MS_URL, restaurant_id)
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
-
             if res.status_code != 200:
                 print(json_data['message'])
                 return None
-
             return json_data['restaurant_sheet']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)

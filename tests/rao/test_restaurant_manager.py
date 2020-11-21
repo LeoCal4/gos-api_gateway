@@ -21,6 +21,12 @@ class TestRestaurantManager(RaoTest):
         response = self.restaurant_manager.get_restaurant_sheet(randint(0, 999))
         assert 'value' in response
 
+    @patch('gooutsafe.rao.restaurant_manager.requests.get')
+    def test_get_restaurant_sheet_fail(self, mock_get):
+        mock_get.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        response = self.restaurant_manager.get_restaurant_sheet(randint(0, 999))
+        assert response is None
+
     def test_get_restaurant_sheet_error(self):
         with self.assertRaises(HTTPException) as http_error:
             self.restaurant_manager.get_restaurant_sheet(randint(0, 999))
@@ -74,7 +80,7 @@ class TestRestaurantManager(RaoTest):
 
     def test_get_restaurant_details_error(self):
         with self.assertRaises(HTTPException) as http_error:
-            self.restaurant_manager.get_rating_bounds()
+            self.restaurant_manager.get_restaurant_details(randint(0, 999))
             self.assertEqual(http_error.exception.code, 500)
 
     @patch('gooutsafe.rao.restaurant_manager.requests.post')
@@ -123,9 +129,26 @@ class TestRestaurantManager(RaoTest):
         response = self.restaurant_manager.put_add_measure(randint(0, 999), randint(0, 999), {})
         assert response == False
 
-    def test_put_add_table_error(self):
+    def test_put_add_measure_error(self):
         with self.assertRaises(HTTPException) as http_error:
             self.restaurant_manager.put_add_measure(randint(0, 999), randint(0, 999), {})
+            self.assertEqual(http_error.exception.code, 500)
+
+    @patch('gooutsafe.rao.restaurant_manager.requests.put')
+    def test_put_add_avg_stay_success(self, mock_get):
+        mock_get.return_value = Mock(status_code=200)
+        response = self.restaurant_manager.put_add_avg_stay(randint(0, 999), randint(0, 999), {})
+        assert response == True
+
+    @patch('gooutsafe.rao.restaurant_manager.requests.put')
+    def test_put_add_avg_stay_fail(self, mock_get):
+        mock_get.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        response = self.restaurant_manager.put_add_avg_stay(randint(0, 999), randint(0, 999), {})
+        assert response == False
+
+    def test_put_add_avg_stay_error(self):
+        with self.assertRaises(HTTPException) as http_error:
+            self.restaurant_manager.put_add_avg_stay(randint(0, 999), randint(0, 999), {})
             self.assertEqual(http_error.exception.code, 500)
 
     @patch('gooutsafe.rao.restaurant_manager.requests.put')
@@ -190,4 +213,19 @@ class TestRestaurantManager(RaoTest):
             self.restaurant_manager.get_rating_bounds()
             self.assertEqual(http_error.exception.code, 500)
 
+    @patch('gooutsafe.rao.restaurant_manager.requests.post')
+    def test_post_review_success(self, mock_get):
+        mock_get.return_value = Mock(status_code=200, json=lambda : {'already_written': True})
+        response = self.restaurant_manager.post_review({})
+        assert response == (True, True)
 
+    @patch('gooutsafe.rao.restaurant_manager.requests.post')
+    def test_post_review_fail(self, mock_get):
+        mock_get.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        response = self.restaurant_manager.post_review({})
+        assert response == (False, None)
+
+    def test_post_review_error(self):
+        with self.assertRaises(HTTPException) as http_error:
+            self.restaurant_manager.post_review({})
+            self.assertEqual(http_error.exception.code, 500)
