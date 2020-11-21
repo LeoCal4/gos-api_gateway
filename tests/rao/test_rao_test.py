@@ -1,5 +1,4 @@
 from unittest.mock import Mock, patch
-import requests_mock
 from .rao_test import RaoTest
 import requests
 from werkzeug.exceptions import HTTPException

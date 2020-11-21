@@ -55,6 +55,7 @@ class TestConfig(Config):
     import os
     SECRET_KEY = os.urandom(24)
     WTF_CSRF_ENABLED = False
+    LOGIN_DISABLED = True
 
 
 class ProdConfig(Config):
