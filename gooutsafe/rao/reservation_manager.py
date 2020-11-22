@@ -1,6 +1,7 @@
 from gooutsafe import app
 from gooutsafe.auth.user import User
 import requests
+from flask import abort
 
 class ReservationManager:
     RESERVATION_ENDPOINT = app.config['RESERVATION_MS_URL']
@@ -24,9 +25,7 @@ class ReservationManager:
                                         'times': json_times
                                     },
                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
         return response
 
@@ -36,9 +35,7 @@ class ReservationManager:
         url = "%s/reservation/restaurant/%s" % (cls.RESERVATION_ENDPOINT, restaurant_id)
         try:
             response = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
         return response
 
@@ -47,10 +44,8 @@ class ReservationManager:
         url = "%s/reservation/customer/%s" % (cls.RESERVATION_ENDPOINT, customer_id)
         try:
             response = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-        except requests.exceptions.ConnectionError:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
-        except requests.exceptions.Timeout:
-            return abort(500)        
         return response
 
     @classmethod
@@ -66,9 +61,7 @@ class ReservationManager:
                                         'times': json_times
                                     },
                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)        
         return response
 
@@ -77,9 +70,7 @@ class ReservationManager:
         url = "%s/reservation/confirm/%s" % (cls.RESERVATION_ENDPOINT, str(reservation_id))
         try:
             response = requests.put(url,timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)        
         return response
 
@@ -94,9 +85,7 @@ class ReservationManager:
                                         'end_time': end_time, 
                                     },
                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)        
         return response 
 
@@ -105,10 +94,8 @@ class ReservationManager:
         url = "%s/reservation/%s" % (cls.RESERVATION_ENDPOINT, str(reservation_id))
         try:
             response = requests.delete(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
-            return abort(500)        
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)       
         return response
 
 # Helper Methods
@@ -127,9 +114,7 @@ class ReservationManager:
             json_details = payload['details']            
             json_tables = json_details['tables']
             json_times = json_details['times']
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
-            return abort(500)    
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)   
         return json_tables, json_times, json_details
 
