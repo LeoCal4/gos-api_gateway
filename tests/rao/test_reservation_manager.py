@@ -20,9 +20,11 @@ class TestReservationManager(RaoTest):
     def test_create_reservation_success(self, mock_get, mock_post):
         mock_get.return_value = Mock(status_code=200, 
                                     json = lambda:{
-                                        'details':{
-                                            'tables':{},
-                                            'times': {},
+                                        'restaurant_sheet':{
+                                            'restaurant':{
+                                                'tables':{},
+                                                'availabilities': {},
+                                            },
                                         },
                                     })
         mock_post.return_value = Mock(status_code=200)
@@ -39,6 +41,19 @@ class TestReservationManager(RaoTest):
     @patch('gooutsafe.rao.reservation_manager.requests.post')
     def test_create_reservation_error(self, mock):
         mock.side_effect = requests.exceptions.ConnectionError()
+        mock.return_value = Mock(status_code=200)
+        restaurant_id = 1
+        user_id = 1
+        start_time = '2020-11-29 20:00:00'
+        people_number = 1
+        with self.assertRaises(HTTPException) as http_error:
+            self.reservation_manager.create_reservation(restaurant_id,
+                                                                user_id,
+                                                                start_time,
+                                                                people_number)
+            self.assertEqual(http_error.exception.code, 500)
+        #TIMEOUT ERROR
+        mock.side_effect = requests.exceptions.ConnectTimeout()
         mock.return_value = Mock(status_code=200)
         restaurant_id = 1
         user_id = 1
@@ -91,9 +106,11 @@ class TestReservationManager(RaoTest):
     def test_edit_reservation_success(self, mock_get, mock_put):
         mock_get.return_value = Mock(status_code=200, 
                                     json = lambda:{
-                                        'details':{
-                                            'tables':{},
-                                            'times': {},
+                                        'restaurant_sheet':{
+                                            'restaurant':{
+                                                'tables':{},
+                                                'availabilities': {},
+                                            },
                                         },
                                     })
         mock_put.return_value = Mock(status_code=200)
@@ -175,3 +192,12 @@ class TestReservationManager(RaoTest):
             self.reservation_manager.delete_reservation(reservation_id)
             self.assertEqual(http_error.exception.code, 500)
     
+    @patch('gooutsafe.rao.reservation_manager.requests.get')
+    def test_get_restaurant_details(self, mock):
+        mock.side_effect = requests.exceptions.ConnectionError()
+        mock.return_value = Mock(status_code=200)
+        mock.return_value = Mock(status_code=200)
+        restaurant_id = 1
+        with self.assertRaises(HTTPException) as http_error:
+            self.reservation_manager.get_restaurant_detatils(restaurant_id)
+            self.assertEqual(http_error.exception.code, 500)

@@ -1,5 +1,6 @@
 from gooutsafe import app
 from gooutsafe.auth.user import User
+from .restaurant_manager import RestaurantManager
 import requests
 from flask import abort
 
@@ -101,20 +102,16 @@ class ReservationManager:
 # Helper Methods
     @classmethod
     def get_restaurant_detatils(cls,restaurant_id):
-        RESTA_MS_URL = app.config['RESTA_MS_URL']
-        url = "%s/restaurants/restaurant_details/%s" % (RESTA_MS_URL, str(restaurant_id))
         json_details = {}            
         json_tables = {}
         json_times = {}        
         try:
-            res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-            payload = res.json()
-            if res.status_code != 200:
-                return None
-            json_details = payload['details']            
-            json_tables = json_details['tables']
-            json_times = json_details['times']
+            res = RestaurantManager.get_restaurant_sheet(restaurant_id)
+            print(res)
+            json_details = res
+            json_tables = res['restaurant']['tables']
+            json_times = res['restaurant']['availabilities']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
-            return abort(500)   
+            return abort(500)
         return json_tables, json_times, json_details
 
