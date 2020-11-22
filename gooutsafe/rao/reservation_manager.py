@@ -50,6 +50,15 @@ class ReservationManager:
         return response
 
     @classmethod
+    def get_reservation(cls, reservation_id):
+        url = "%s/reservation/customer/%s" % (cls.RESERVATION_ENDPOINT, reservation_id)
+        try:
+            response = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)
+        return response
+
+    @classmethod
     def edit_reservation(cls, reservation_id, restaurant_id, start_time, people_number):
         url = "%s/reservation/%s" % (cls.RESERVATION_ENDPOINT, str(reservation_id))
         json_tables, json_times, _ = cls.get_restaurant_detatils(restaurant_id)

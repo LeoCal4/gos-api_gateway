@@ -101,6 +101,22 @@ class TestReservationManager(RaoTest):
             self.reservation_manager.get_all_reservation_customer(customer_id)
             self.assertEqual(http_error.exception.code, 500)
 
+    @patch('gooutsafe.rao.reservation_manager.requests.get')
+    def tast_get_reservation_success(self, mock):
+        mock.return_value = Mock(status_code=200)
+        reservation_id = 1
+        response = self.reservation_manager.get_reservation(reservation_id)
+        assert response.status_code == 200
+
+    @patch('gooutsafe.rao.reservation_manager.requests.get')
+    def test_get_reservation_error(self, mock):
+        mock.side_effect = requests.exceptions.ConnectionError()
+        mock.return_value = Mock(status_code=200)
+        reservation_id = 1
+        with self.assertRaises(HTTPException) as http_error:
+            self.reservation_manager.get_reservation(reservation_id)
+            self.assertEqual(http_error.exception.code, 500)
+
     @patch('gooutsafe.rao.reservation_manager.requests.put')
     @patch('gooutsafe.rao.reservation_manager.requests.get')
     def test_edit_reservation_success(self, mock_get, mock_put):
