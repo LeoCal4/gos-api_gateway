@@ -1,5 +1,6 @@
 from gooutsafe import app
 from gooutsafe.auth.user import User
+from flask import abort
 import requests
 
 class ReservationManager:

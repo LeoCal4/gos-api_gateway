@@ -190,46 +190,59 @@ class UserManager:
         return response
 
     @classmethod
-    def update_user(cls, user_id: int, email:str, password:str, phone:str):
+    def update_customer(cls, user_id: int, email:str, password:str, phone:str):
         """
         This method contacts the users microservice
-        to allow the users to update their profiles
-        :param user_id: the user id
-            email: the user email
-            password: the user password
-            phone: the user phone
+        to allow the customers to update their profiles
+        :param user_id: the customer id
+            email: the customer email
+            password: the customer password
+            phone: the customer phone
         :return: User updated
         """
         try:
-            user = UserManager.get_user_by_id(user_id)
-            if user.type == "customer":
-                url = "%s/customer/%s" % (cls.USERS_ENDPOINT, str(user_id))
-                response = requests.put(url,
-                                    json={
-                                        'email': email,
-                                        'password': password,
-                                        'phone': phone
-                                    },
-                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                    )
-                return response
-
-            elif user.type == "operator":
-                url = "%s/operator/%s" % (cls.USERS_ENDPOINT, str(user_id))
-                response = requests.put(url,
-                                    json={
-                                        'email': email,
-                                        'password': password
-                                    },
-                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                    )
-                return response 
+            url = "%s/customer/%s" % (cls.USERS_ENDPOINT, str(user_id))
+            response = requests.put(url,
+                                json={
+                                    'email': email,
+                                    'password': password,
+                                    'phone': phone
+                                },
+                                timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                )
+            return response
 
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         raise RuntimeError('Error with searching for the user %s' % user_id)
-        
+    
+    @classmethod
+    def update_operator(cls, user_id: int, email:str, password:str):
+        """
+        This method contacts the users microservice
+        to allow the operators to update their profiles
+        :param user_id: the operator id
+            email: the operator email
+            password: the operator password
+            phone: the operator phone
+        :return: User updated
+        """
+        try:
+            url = "%s/operator/%s" % (cls.USERS_ENDPOINT, str(user_id))
+            response = requests.put(url,
+                                json={
+                                    'email': email,
+                                    'password': password,
+                                },
+                                timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                )
+            return response
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)
+
+        raise RuntimeError('Error with searching for the user %s' % user_id)
+
     @classmethod
     def update_health_status(cls, user_id: int):
         """Mark a customer as positive
