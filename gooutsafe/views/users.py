@@ -114,7 +114,7 @@ def update_customer(id):
 
         password = form.data['password']
         phone = form.data['phone']
-        response = UserManager.update_user(id, email, password, phone)
+        response = UserManager.update_customer(id, email, password, phone)
 
         if response.status_code != 204:
             flash("Error while updating the user")
@@ -145,7 +145,7 @@ def update_operator(id):
             return render_template('update_customer.html', form=form)
 
         password = form.data['password']
-        response = UserManager.update_user(id, email, password, phone=0)
+        response = UserManager.update_operator(id, email, password)
 
         if response.status_code != 204:
             flash("Error while updating the user")
@@ -153,7 +153,6 @@ def update_operator(id):
         return redirect(url_for('auth.operator', op_id=id))
 
     return render_template('update_customer.html', form=form)
-
 
 
 @users.route('/add_social_number/<int:id>', methods=['POST'])
