@@ -166,28 +166,32 @@ def logout():
 @auth.route('/notifications', methods=['GET'])
 @login_required
 def notifications():
-    """[summary]
+    """Get all notifications for the user
 
     Returns:
-        [type]: [description]
+        Redirects the view to the notifications page
     """
+    #TODO check datetime for notification
     #get all notifications from the manager
     notifications = ntm.retrieve_by_target_user_id(user_id=current_user.id)
-    print(notifications)
     processed_notification_info = []
     if current_user.type == "customer":
         for notification in notifications:
             restaurant_name = RestaurantManager.get_restaurant_sheet(notification['contagion_restaurant_id'])['restaurant']['name']
-            processed_notification_info.append({"timestamp": notification['timestamp'],
-                                                "contagion_datetime": notification['contagion_datetime'],
+            cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date']/1000)).date()
+            cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date']/1000))
+            processed_notification_info.append({"timestamp": cont_timestamp,
+                                                "contagion_datetime": cont_datetime,
                                                 "contagion_restaurant_name": restaurant_name})
         return render_template('customer_notifications.html', current_user=current_user,
                                notifications=processed_notification_info)
     elif current_user.type == "operator":
         for notification in notifications:
-            info = {"timestamp": notification['timestamp'],
-                    "contagion_datetime": notification['contagion_datetime']}
-            is_future = notification['timestamp'] < notification['contagion_datetime']
+            cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date']/1000)).date()
+            cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date']/1000))
+            info = {"timestamp": cont_timestamp,
+                    "contagion_datetime": cont_datetime}
+            is_future = notification['timestamp']['$date'] < notification['contagion_datetime']['$date']
             info['is_future'] = is_future
             if is_future:
                 customer_phone_number = UserManager.get_user_by_id(notification.positive_customer_id).phone
