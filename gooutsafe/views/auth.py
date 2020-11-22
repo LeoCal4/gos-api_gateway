@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
 from gooutsafe import app
@@ -71,11 +72,30 @@ def profile(id):
         social_form = AddSocialNumberForm()
 
         # restaurants = RestaurantManager.retrieve_all()
-        # reservations = ReservationManager.retrieve_by_customer_id(id)
+        resp = ReservationManager.get_all_reservation_customer(id)
+        if resp.status_code != 200:  
+            return render_template('customer_profile.html',social_form=social_form)      
 
+        json_response = resp.json()
+        restaurants = []
+        reservations = json_response['reservations']
+        for res in reservations:
+            #time reformat
+            start_time = datetime.strptime(res['start_time'], "%Y-%m-%dT%H:%M:%SZ")
+            res['start_time'] = datetime.strftime(start_time, "%Y-%m-%d %H:%M")
+            print()
+            #restaurant details extraction
+            rest_dict = {}
+            restaurant_id = res['restaurant_id']
+            _,_,details = ReservationManager.get_restaurant_detatils(restaurant_id)
+            restaurant = details['restaurant']
+            rest_dict['name'] = restaurant['name']
+            rest_dict['address'] = restaurant['address']
+            restaurants.append(rest_dict)
+        
         return render_template('customer_profile.html',
-                               # reservations=reservations, restaurants=restaurants,
-                               form=form, social_form=social_form)
+            reservations=reservations, restaurants=restaurants,
+            form=form, social_form=social_form)
 
     return redirect(url_for('home.index'))
 

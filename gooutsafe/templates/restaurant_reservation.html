@@ -58,7 +58,7 @@
                         <td>{{ r.people_number }}</td>
                         <td>{{ r.start_time }} -- {{ r.end_time }}</td>
                         <td>
-                            {{r.user.lastname}}
+                            {{r['lastname']}}
                         </td>
                         <td>
                             {% if r.is_confirmed%}
@@ -67,7 +67,7 @@
                                 </a>
                             {% else %}
                                 <a type="button" class="btn btn-light active"
-                                href="{{ url_for('reservation.confirm_reservation', res_id=r.id ) }}">
+                                href="{{ url_for('reservation.confirm_reservation', restaurant_id=r.restaurant_id, reservation_id=r.id ) }}">
                                 Confirm
                             </a>
                             {% endif %}
@@ -101,8 +101,7 @@
                                             </button>
 
                                             <a type="button" class="btn btn-danger"
-                                               href="{{ url_for('reservation.delete_reservation', id=r.id,
-                              restaurant_id=restaurant.id) }}">
+                                               href="{{ url_for('reservation.delete_reservation',restaurant_id=r['restaurant_id'], reservation_id=r['id']) }}">
                                                 Delete
                                             </a>
                                         </div>
