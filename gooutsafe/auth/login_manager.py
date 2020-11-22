@@ -16,8 +16,8 @@ def init_login_manager(app):
         :param user_id: user id
         :return: the user object
         """
-        return UserManager.get_user_by_id(user_id)
+        user = UserManager.get_user_by_id(user_id)
+        user.authenticated = True
+        return user
 
     return login_manager
-
-
