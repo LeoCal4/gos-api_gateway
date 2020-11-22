@@ -30,17 +30,15 @@ class RestaurantManager:
             url = "%s/restaurants/%s" % (cls.RESTA_MS_URL, restaurant_id)
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
-
             if res.status_code != 200:
                 print(json_data['message'])
                 return None
-
             return json_data['restaurant_sheet']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
          
     @classmethod
-    def post_toggle_like(cls, restaurant_id: int, user_id: int):
+    def put_toggle_like(cls, restaurant_id: int, user_id: int):
         """Requests a toggle on the like of the restaurant linked to restaurant_id, 
         from the user_id
 
@@ -56,7 +54,7 @@ class RestaurantManager:
         """
         try:
             url = "%s/restaurants/like/%s" % (cls.RESTA_MS_URL, restaurant_id)
-            res = requests.post(url, json={'user_id': user_id}, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            res = requests.put(url, json={'user_id': user_id}, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
                 print(json_data['message'])
@@ -166,8 +164,8 @@ class RestaurantManager:
             return abort(500)
 
     @classmethod
-    def post_add_measure(cls, id_op: int, rest_id: int, json_data_to_send: dict):
-        """Handles the post request needed to add safety measures to the restaurant
+    def put_add_measure(cls, id_op: int, rest_id: int, json_data_to_send: dict):
+        """Handles the put request needed to add safety measures to the restaurant
         linked to restaurant_id
 
         Args:
@@ -183,7 +181,7 @@ class RestaurantManager:
         """
         try:
             url = "%s/restaurants/add_measure/%d/%d" % (cls.RESTA_MS_URL, id_op, rest_id)
-            res = requests.post(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
                 return False
@@ -192,8 +190,8 @@ class RestaurantManager:
             return abort(500)
 
     @classmethod
-    def post_add_avg_stay(cls, id_op: int, rest_id: int, json_data_to_send: dict):
-        """Handles the post request needed to add the average stay time to 
+    def put_add_avg_stay(cls, id_op: int, rest_id: int, json_data_to_send: dict):
+        """Handles the put request needed to add the average stay time to 
         the restaurant linked to restaurant_id
 
         Args:
@@ -209,7 +207,7 @@ class RestaurantManager:
         """
         try:
             url = "%s/restaurants/add_avg_stay/%d/%d" % (cls.RESTA_MS_URL, id_op, rest_id)
-            res = requests.post(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
                 return False
@@ -235,7 +233,7 @@ class RestaurantManager:
         """
         try:
             url = "%s/edit_restaurant/%d/%d" % (cls.RESTA_MS_URL, id_op, rest_id)
-            res = requests.post(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
                 return False

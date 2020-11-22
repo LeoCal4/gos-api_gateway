@@ -3,6 +3,7 @@ import unittest
 
 class RaoTest(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         from gooutsafe import create_app
-        self.app = create_app()
+        cls.app = create_app()

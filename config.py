@@ -34,6 +34,12 @@ class Config(object):
     NOTIFICATIONS_MS_PORT = os.getenv('NOTIFICATIONS_MS_PORT', 5003)
     NOTIFICATIONS_MS_URL = '%s://%s:%s' % (NOTIFICATIONS_MS_PROTO, NOTIFICATIONS_MS_HOST, NOTIFICATIONS_MS_PORT)
 
+    # notifications
+    NOTIFICATION_MS_PROTO = os.getenv('NOTIFICATION_MS_PROTO', 'http')
+    NOTIFICATION_MS_HOST = os.getenv('NOTIFICATION_MS_HOST', 'localhost')
+    NOTIFICATION_MS_PORT = os.getenv('NOTIFICATION_MS_PORT', 5004)
+    NOTIFICATION_MS_URL = '%s://%s:%s' % (NOTIFICATION_MS_PROTO, NOTIFICATION_MS_HOST, NOTIFICATION_MS_PORT)
+
 
 class DebugConfig(Config):
     """
@@ -61,6 +67,7 @@ class TestConfig(Config):
     import os
     SECRET_KEY = os.urandom(24)
     WTF_CSRF_ENABLED = False
+    LOGIN_DISABLED = True
 
 
 class ProdConfig(Config):

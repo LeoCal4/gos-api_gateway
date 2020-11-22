@@ -98,18 +98,20 @@
     <br>
     <h3>Your reservations</h3><br>
     <br>
-    <!--
+
     <table class="table">
         {% for r in reservations %}
             <tr>
                 <td>
+
                     {% for rest in restaurants %}
-                        {% if rest.id == r.restaurant_id %}
-                            Restaurant: {{ rest.name }}, {{ rest.address }} <br>
-                        {% endif %}
+                        Restaurant: {{ rest['name'] }} <br>
+                        Address: {{ rest['address'] }} <br>
                     {% endfor %}
+
                     People: {{ r.people_number }} <br>
-                    Start time: {{ r.start_time }} -- End time: {{ r.end_time }}
+                    Start time: {{ r.start_time }}
+                    
                 </td>
 
                 <td>
@@ -117,9 +119,8 @@
                             data-target="#editReservation">
                         Edit
                     </button>
-    -->
                     <!-- Modal -->
-    <!--                <div class="modal fade" id="editReservation" tabindex="-1"
+                   <div class="modal fade" id="editReservation" tabindex="-1"
                          aria-labelledby="editReservation" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -133,7 +134,7 @@
                                 </div>
                                 <div class="modal-body">
 
-                                    <form action="{{ url_for('reservation.edit_reservation',reservation_id=r.id, customer_id=r.user_id ) }}"
+                                    <form action="{{ url_for('reservation.edit_reservation', restaurant_id=r['restaurant_id'], reservation_id=r['id']) }}"
                                           method="POST">
                                         {{ form.hidden_tag() }}
                                         <dl>
@@ -157,7 +158,6 @@
                     </div>
                     </div>
                 </td>
-    -->
                 <td>
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-light" data-toggle="modal"
@@ -166,7 +166,7 @@
                     </button>
 
                     <!-- Modal -->
-    <!--               <div class="modal fade" id="deleteReservation" tabindex="-1"
+                    <div class="modal fade" id="deleteReservation" tabindex="-1"
                          aria-labelledby="deleteReservation" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -187,7 +187,7 @@
                                         Close
                                     </a>
 
-                                    <a href="{{ url_for('reservation.delete_reservation_customer',id=r.id, customer_id=r.user_id ) }}">
+                                    <a href="{{ url_for('reservation.delete_reservation',restaurant_id=r['restaurant_id'], reservation_id=r['id']) }}">
                                         Delete
                                     </a>
                                 </div>
@@ -198,7 +198,7 @@
             </tr>
         {% endfor %}
     </table>
-    -->
+
     <div class="row">
         <div class="col-md-12">
             <h3 class="text-danger">Danger Zone</h3>

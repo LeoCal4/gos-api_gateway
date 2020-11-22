@@ -18,7 +18,7 @@ class UserManager:
         :return: User obj with id=user_id
         """
         try:
-            response = requests.get("%s/user/%d" % (cls.USERS_ENDPOINT, user_id), 
+            response = requests.get("%s/user/%s" % (cls.USERS_ENDPOINT, str(user_id)), 
                         timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_payload = response.json()
             if response.status_code == 200:
@@ -26,9 +26,8 @@ class UserManager:
                 user = User.build_from_json(json_payload)
             else:
                 raise RuntimeError('Server has sent an unrecognized status code %s' % response.status_code)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return user
@@ -49,9 +48,8 @@ class UserManager:
 
             if response.status_code == 200:
                 user = User.build_from_json(json_payload)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+                
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return user
@@ -72,9 +70,8 @@ class UserManager:
 
             if response.status_code == 200:
                 user = User.build_from_json(json_payload)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return user
@@ -95,9 +92,8 @@ class UserManager:
 
             if response.status_code == 200:
                 user = User.build_from_json(json_payload)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return user
@@ -120,9 +116,8 @@ class UserManager:
                 for json in json_payload:
                     pos_customers.append(User.build_from_json(json))
                 return pos_customers
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return None
@@ -136,16 +131,16 @@ class UserManager:
         :return: User updated
         """
         try:
-            url = "%s/social_number/%d" % (cls.USERS_ENDPOINT, user_id)
+            response = None
+            url = "%s/social_number/%s" % (cls.USERS_ENDPOINT, str(user_id))
             response = requests.put(url,
                                 json={
                                     'social_number': social_number
                                 },
                                 timeout=cls.REQUESTS_TIMEOUT_SECONDS
                                 )
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return response
@@ -170,67 +165,84 @@ class UserManager:
                                     },
                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS
                                     )
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return response
 
     @classmethod
     def create_operator(cls, type: str, email:str, password:str):
-        url = "%s/operator" % (cls.USERS_ENDPOINT)
-        response = requests.post(url, 
-                                json={
-                                    'type': 'operator',
-                                    'email': email, 
-                                    'password': password
-                                })
-        return response
-
-    @classmethod
-    def update_user(cls, user_id: int, email:str, password:str, phone:str):
-        """
-        This method contacts the users microservice
-        to allow the users to update their profiles
-        :param user_id: the user id
-            email: the user email
-            password: the user password
-            phone: the user phone
-        :return: User updated
-        """
         try:
-            user = UserManager.get_user_by_id(user_id)
-            if user.type == "customer":
-                url = "%s/customer/%d" % (cls.USERS_ENDPOINT, user_id)
-                response = requests.put(url,
+            url = "%s/operator" % (cls.USERS_ENDPOINT)
+            response = requests.post(url, 
                                     json={
-                                        'email': email,
-                                        'password': password,
-                                        'phone': phone
-                                    },
-                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                    )
-                return response
-
-            elif user.type == "operator":
-                url = "%s/operator/%d" % (cls.USERS_ENDPOINT, user_id)
-                response = requests.put(url,
-                                    json={
-                                        'email': email,
+                                        'type': 'operator',
+                                        'email': email, 
                                         'password': password
                                     },
                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS
                                     )
-                return response 
 
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
-        raise RuntimeError('Error with searching for the user %d' % user_id)
-        
+        return response
+
+    @classmethod
+    def update_customer(cls, user_id: int, email:str, password:str, phone:str):
+        """
+        This method contacts the users microservice
+        to allow the customers to update their profiles
+        :param user_id: the customer id
+            email: the customer email
+            password: the customer password
+            phone: the customer phone
+        :return: User updated
+        """
+        try:
+            url = "%s/customer/%s" % (cls.USERS_ENDPOINT, str(user_id))
+            response = requests.put(url,
+                                json={
+                                    'email': email,
+                                    'password': password,
+                                    'phone': phone
+                                },
+                                timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                )
+            return response
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)
+
+        raise RuntimeError('Error with searching for the user %s' % user_id)
+    
+    @classmethod
+    def update_operator(cls, user_id: int, email:str, password:str):
+        """
+        This method contacts the users microservice
+        to allow the operators to update their profiles
+        :param user_id: the operator id
+            email: the operator email
+            password: the operator password
+            phone: the operator phone
+        :return: User updated
+        """
+        try:
+            url = "%s/operator/%s" % (cls.USERS_ENDPOINT, str(user_id))
+            response = requests.put(url,
+                                json={
+                                    'email': email,
+                                    'password': password,
+                                },
+                                timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                )
+            return response
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)
+
+        raise RuntimeError('Error with searching for the user %s' % user_id)
+
     @classmethod
     def update_health_status(cls, user_id: int):
         """Mark a customer as positive
@@ -242,11 +254,10 @@ class UserManager:
             PUT response
         """
         try:
-            url = "%s/mark_positive/%d" % (cls.USERS_ENDPOINT, user_id)
+            url = "%s/mark_positive/%s" % (cls.USERS_ENDPOINT, str(user_id))
             response = requests.put(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return response
@@ -261,12 +272,10 @@ class UserManager:
         """
         try:
             logout_user()
-            url = "%s/user/%d" % (cls.USERS_ENDPOINT, user_id)
+            url = "%s/user/%s" % (cls.USERS_ENDPOINT, str(user_id))
             response = requests.delete(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
 
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return response
@@ -286,9 +295,7 @@ class UserManager:
                                         timeout=cls.REQUESTS_TIMEOUT_SECONDS
                                     )
             json_response = response.json()
-        except requests.exceptions.ConnectionError:
-            return abort(500)
-        except requests.exceptions.Timeout:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         if response.status_code == 401:

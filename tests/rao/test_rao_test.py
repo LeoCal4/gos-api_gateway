@@ -1,5 +1,4 @@
 from unittest.mock import Mock, patch
-import requests_mock
 from .rao_test import RaoTest
 import requests
 from werkzeug.exceptions import HTTPException
@@ -24,10 +23,3 @@ class TestRaoTest(RaoTest):
         with self.assertRaises(HTTPException) as http_error:
             self.restaurant_manager.get_rating_bounds()
             self.assertEqual(http_error.exception.code, 500)
-
-    # test using requests_mock
-    @requests_mock.Mocker()
-    def test_get_rating_bounds3(self, mock):
-        mock.get('http://localhost:5002/restaurants/rating_bounds', json={'bounds': {'min_value': 4, 'max_value': 5}})
-        response = self.restaurant_manager.get_rating_bounds()
-        assert response['min_value'] == 4
