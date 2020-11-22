@@ -15,6 +15,7 @@ from gooutsafe.rao.notification_tracing_manager import NotificationTracingManage
 
 auth = Blueprint('auth', __name__)
 
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login(re=False):
     """Allows the user to log into the system
@@ -74,29 +75,29 @@ def profile(id):
 
         # restaurants = RestaurantManager.retrieve_all()
         resp = ReservationManager.get_all_reservation_customer(id)
-        if resp.status_code != 200:  
-            return render_template('customer_profile.html',social_form=social_form)      
+        if resp.status_code != 200:
+            return render_template('customer_profile.html', social_form=social_form)
 
         json_response = resp.json()
         restaurants = []
         reservations = json_response['reservations']
         for res in reservations:
-            #time reformat
+            # time reformat
             start_time = datetime.strptime(res['start_time'], "%Y-%m-%dT%H:%M:%SZ")
             res['start_time'] = datetime.strftime(start_time, "%Y-%m-%d %H:%M")
             print()
-            #restaurant details extraction
+            # restaurant details extraction
             rest_dict = {}
             restaurant_id = res['restaurant_id']
-            _,_,details = ReservationManager.get_restaurant_detatils(restaurant_id)
+            _, _, details = ReservationManager.get_restaurant_detatils(restaurant_id)
             restaurant = details['restaurant']
             rest_dict['name'] = restaurant['name']
             rest_dict['address'] = restaurant['address']
             restaurants.append(rest_dict)
-        
+
         return render_template('customer_profile.html',
-            reservations=reservations, restaurants=restaurants,
-            form=form, social_form=social_form)
+                               reservations=reservations, restaurants=restaurants,
+                               form=form, social_form=social_form)
 
     return redirect(url_for('home.index'))
 
@@ -122,7 +123,7 @@ def operator(op_id):
             restaurant = json_data['details']['restaurant']
 
         return render_template('operator_profile.html',
-                        restaurant=restaurant, filter_form=filter_form)
+                               restaurant=restaurant, filter_form=filter_form)
     return redirect(url_for('home.index'))
 
 
@@ -143,7 +144,7 @@ def authority(id, positive_id):
         pos_customers = UserManager.get_all_positive_customer()
         if positive_id != 0:
             search_customer = UserManager.get_user_by_id(positive_id)
-        else: #authority clicks on "Profile"
+        else:  # authority clicks on "Profile"
             search_customer = None
         return render_template('authority_profile.html',
                                form=ha_form, pos_customers=pos_customers,
@@ -171,15 +172,16 @@ def notifications():
     Returns:
         Redirects the view to the notifications page
     """
-    #TODO check datetime for notification
-    #get all notifications from the manager
+    # TODO check datetime for notification
+    # get all notifications from the manager
     notifications = ntm.retrieve_by_target_user_id(user_id=current_user.id)
     processed_notification_info = []
     if current_user.type == "customer":
         for notification in notifications:
-            restaurant_name = RestaurantManager.get_restaurant_sheet(notification['contagion_restaurant_id'])['restaurant']['name']
-            cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date']/1000)).date()
-            cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date']/1000))
+            restaurant_name = \
+            RestaurantManager.get_restaurant_sheet(notification['contagion_restaurant_id'])['restaurant']['name']
+            cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date'] / 1000)).date()
+            cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date'] / 1000))
             processed_notification_info.append({"timestamp": cont_timestamp,
                                                 "contagion_datetime": cont_datetime,
                                                 "contagion_restaurant_name": restaurant_name})
@@ -187,8 +189,8 @@ def notifications():
                                notifications=processed_notification_info)
     elif current_user.type == "operator":
         for notification in notifications:
-            cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date']/1000)).date()
-            cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date']/1000))
+            cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date'] / 1000)).date()
+            cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date'] / 1000))
             info = {"timestamp": cont_timestamp,
                     "contagion_datetime": cont_datetime}
             is_future = notification['timestamp']['$date'] < notification['contagion_datetime']['$date']
