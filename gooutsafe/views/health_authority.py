@@ -62,13 +62,11 @@ def mark_positive(customer_id):
                 response = UserManager.update_health_status(customer.id)
                 if response.status_code == 200:
                     flash("Customer set to positive!")
+                    ntm.trigger_contact_tracing(positive_id=customer.id) 
                 else:
                     flash("Error during the operation")
                 #we have to do this in user microservice
                 """schedule_revert_customer_health_status(customer.id)
-                notify_restaurant_owners_about_positive_past_customer(customer.id)
-                notify_restaurant_owners_about_positive_booked_customer(customer.id)
-                notify_customers_about_positive_contact(customer.id)"""
     return redirect(url_for('auth.authority', id=current_user.id, positive_id=0))
 
 
