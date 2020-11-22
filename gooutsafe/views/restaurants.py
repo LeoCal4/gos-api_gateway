@@ -75,6 +75,7 @@ def add(id_op):
     """
     form = RestaurantForm()
     if request.method == 'POST':
+        print(form.data)
         if form.validate_on_submit():
             name = form.data['name']
             address = form.data['address']
