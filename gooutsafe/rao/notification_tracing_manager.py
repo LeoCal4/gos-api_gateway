@@ -38,3 +38,13 @@ class NotificationTracingManager:
 
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
+
+    @classmethod
+    def trigger_contact_tracing(cls,positive_id: int):
+        try:
+            response = requests.post("%s/contact_tracing/%s" % (cls.NOTIFICATION_ENDPOINT, str(positive_id)),
+                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            return response.status_code
+
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)
