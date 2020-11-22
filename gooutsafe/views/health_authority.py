@@ -66,7 +66,7 @@ def mark_positive(customer_id):
                 else:
                     flash("Error during the operation")
                 #we have to do this in user microservice
-                """schedule_revert_customer_health_status(customer.id)
+                #schedule_revert_customer_health_status(customer.id)
     return redirect(url_for('auth.authority', id=current_user.id, positive_id=0))
 
 
