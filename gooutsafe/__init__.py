@@ -65,7 +65,7 @@ def create_redis(_app):
     if app.config['TESTING']:
         # loading mockredis
         from mockredis import MockRedis
-        redis_client = MockRedis(FlaskRedis.from_custom_provider(MockRedis))
+        redis_client = FlaskRedis.from_custom_provider(MockRedis, _app)
     else:
         # loading the real redis instance
         redis_client = FlaskRedis(app)
