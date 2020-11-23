@@ -1,8 +1,6 @@
-import requests
 from datetime import datetime
-from flask import Blueprint, flash, redirect, render_template, request, url_for, abort
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
-from gooutsafe import app
 from gooutsafe.forms import LoginForm
 from gooutsafe.forms.authority import AuthorityForm
 from gooutsafe.forms.filter_form import FilterForm
@@ -179,7 +177,7 @@ def notifications():
     if current_user.type == "customer":
         for notification in notifications:
             restaurant_name = \
-            RestaurantManager.get_restaurant_sheet(notification['contagion_restaurant_id'])['restaurant']['name']
+                RestaurantManager.get_restaurant_sheet(notification['contagion_restaurant_id'])['restaurant']['name']
             cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date'] / 1000)).date()
             cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date'] / 1000))
             processed_notification_info.append({"timestamp": cont_timestamp,
