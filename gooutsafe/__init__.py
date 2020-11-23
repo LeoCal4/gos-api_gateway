@@ -90,6 +90,7 @@ def register_extensions(app):
     Bootstrap(app)
 
     # adding session extension
+    app.config['SESSION_REDIS'] = redis_client
     Session(app)
 
 
