@@ -8,10 +8,10 @@ class RestaurantManager:
     """
     Restaurant Manager RAO
     """
-    
-    RESTA_MS_URL = app.config['RESTA_MS_URL']
+
+    RESTAURANTS_MS_URL = app.config['RESTAURANTS_MS_URL']
     REQUESTS_TIMEOUT_SECONDS = app.config['REQUESTS_TIMEOUT_SECONDS']
-    
+
     @classmethod
     def get_restaurant_sheet(cls, restaurant_id: int):
         """Requests the restaurant sheet of the restaurant linked 
@@ -27,7 +27,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/%s" % (cls.RESTA_MS_URL, restaurant_id)
+            url = "%s/restaurants/%s" % (cls.RESTAURANTS_MS_URL, restaurant_id)
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
@@ -36,7 +36,7 @@ class RestaurantManager:
             return json_data['restaurant_sheet']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
-         
+
     @classmethod
     def put_toggle_like(cls, restaurant_id: int, user_id: int):
         """Requests a toggle on the like of the restaurant linked to restaurant_id, 
@@ -53,7 +53,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/like/%s" % (cls.RESTA_MS_URL, restaurant_id)
+            url = "%s/restaurants/like/%s" % (cls.RESTAURANTS_MS_URL, restaurant_id)
             res = requests.put(url, json={'user_id': user_id}, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
@@ -62,7 +62,7 @@ class RestaurantManager:
             return True
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
-    
+
     @classmethod
     def post_add(cls, id_op: int, json_data: dict):
         """Handles the post request needed to create a new restaurant
@@ -78,7 +78,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/add/%d" % (cls.RESTA_MS_URL, id_op)
+            url = "%s/restaurants/add/%d" % (cls.RESTAURANTS_MS_URL, id_op)
             res = requests.post(url, json=json_data, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -102,7 +102,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/details/%s" % (cls.RESTA_MS_URL, id_op)
+            url = "%s/restaurants/details/%s" % (cls.RESTAURANTS_MS_URL, id_op)
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             payload = res.json()
             if res.status_code != 200:
@@ -128,7 +128,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/add_tables/%d/%d" % (cls.RESTA_MS_URL, id_op, restaurant_id)
+            url = "%s/restaurants/add_tables/%d/%d" % (cls.RESTAURANTS_MS_URL, id_op, restaurant_id)
             res = requests.post(url, json=json_post_data, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -154,7 +154,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/add_time/%d/%d" % (cls.RESTA_MS_URL, id_op, rest_id)
+            url = "%s/restaurants/add_time/%d/%d" % (cls.RESTAURANTS_MS_URL, id_op, rest_id)
             res = requests.post(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -180,7 +180,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/add_measure/%d/%d" % (cls.RESTA_MS_URL, id_op, rest_id)
+            url = "%s/restaurants/add_measure/%d/%d" % (cls.RESTAURANTS_MS_URL, id_op, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -206,7 +206,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/add_avg_stay/%d/%d" % (cls.RESTA_MS_URL, id_op, rest_id)
+            url = "%s/restaurants/add_avg_stay/%d/%d" % (cls.RESTAURANTS_MS_URL, id_op, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -232,7 +232,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/edit_restaurant/%d/%d" % (cls.RESTA_MS_URL, id_op, rest_id)
+            url = "%s/edit_restaurant/%d/%d" % (cls.RESTAURANTS_MS_URL, id_op, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -251,8 +251,8 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            res = requests.get('%s/restaurants/get_all' % cls.RESTA_MS_URL, 
-                                timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            res = requests.get('%s/restaurants/get_all' % cls.RESTAURANTS_MS_URL,
+                               timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
                 return None
@@ -274,7 +274,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurants/search_by/%s/%s" % (cls.RESTA_MS_URL, search_filter, search_field)
+            url = "%s/restaurants/search_by/%s/%s" % (cls.RESTAURANTS_MS_URL, search_filter, search_field)
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 return None
@@ -293,8 +293,8 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            res = requests.get('%s/restaurants/rating_bounds' % cls.RESTA_MS_URL,
-                                timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            res = requests.get('%s/restaurants/rating_bounds' % cls.RESTAURANTS_MS_URL,
+                               timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             return res.json()['bounds']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
@@ -313,7 +313,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            res = requests.post('%s/restaurants/review' % cls.RESTA_MS_URL, json=json_data,
+            res = requests.post('%s/restaurants/review' % cls.RESTAURANTS_MS_URL, json=json_data,
                                 timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code == 201 or res.status_code == 200:
                 return (True, res.json()['already_written'])

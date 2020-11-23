@@ -10,6 +10,16 @@ class Config(object):
 
     REQUESTS_TIMEOUT_SECONDS = float(os.getenv("REQUESTS_TIMEOUT_SECONDS", 5))
 
+    # configuring redis
+    REDIS_HOST = os.getenv('REDIS_HOST', 'redis_cache')
+    REDIS_PORT = os.getenv('REDIS_PORT', 6379)
+    REDIS_DB = os.getenv('REDIS_DB', '0')
+    REDIS_URL = 'redis://%s:%s/%s' % (
+        REDIS_HOST,
+        REDIS_PORT,
+        REDIS_DB
+    )
+
     # users microservice
     USERS_MS_PROTO = os.getenv('USERS_MS_PROTO', 'http')
     USERS_MS_HOST = os.getenv('USERS_MS_HOST', 'localhost')
@@ -17,22 +27,34 @@ class Config(object):
     USERS_MS_URL = '%s://%s:%s' % (USERS_MS_PROTO, USERS_MS_HOST, USERS_MS_PORT)
 
     # restaurants
-    RESTA_MS_PROTO = os.getenv('RESTAURANTS_MS_PROTO', 'http')
-    RESTA_MS_HOST = os.getenv('RESTAURANTS_MS_HOST', 'localhost')
-    RESTA_MS_PORT = os.getenv('RESTAURANTS_MS_PORT', 5002)
-    RESTA_MS_URL = '%s://%s:%s' % (RESTA_MS_PROTO, RESTA_MS_HOST, RESTA_MS_PORT)
+    RESTAURANTS_MS_PROTO = os.getenv('RESTAURANTS_MS_PROTO', 'http')
+    RESTAURANTS_MS_HOST = os.getenv('RESTAURANTS_MS_HOST', 'localhost')
+    RESTAURANTS_MS_PORT = os.getenv('RESTAURANTS_MS_PORT', 5002)
+    RESTAURANTS_MS_URL = '%s://%s:%s' % (RESTAURANTS_MS_PROTO, RESTAURANTS_MS_HOST, RESTAURANTS_MS_PORT)
 
     # reservation
-    RESERVATION_MS_PROTO = os.getenv('RESERVATION_MS_PROTO', 'http')
-    RESERVATION_MS_HOST = os.getenv('RESERVATION_MS_HOST', 'localhost')
-    RESERVATION_MS_PORT = os.getenv('RESERVATION_MS_PORT', 5003)
-    RESERVATION_MS_URL = '%s://%s:%s' % (RESERVATION_MS_PROTO, RESERVATION_MS_HOST, RESERVATION_MS_PORT)
+    RESERVATIONS_MS_PROTO = os.getenv('RESERVATIONS_MS_PROTO', 'http')
+    RESERVATIONS_MS_HOST = os.getenv('RESERVATIONS_MS_HOST', 'localhost')
+    RESERVATIONS_MS_PORT = os.getenv('RESERVATIONS_MS_PORT', 5003)
+    RESERVATIONS_MS_URL = '%s://%s:%s' % (RESERVATIONS_MS_PROTO, RESERVATIONS_MS_HOST, RESERVATIONS_MS_PORT)
+
+    # notifications
+    NOTIFICATIONS_MS_PROTO = os.getenv('NOTIFICATIONS_MS_PROTO', 'http')
+    NOTIFICATIONS_MS_HOST = os.getenv('NOTIFICATIONS_MS_HOST', 'localhost')
+    NOTIFICATIONS_MS_PORT = os.getenv('NOTIFICATIONS_MS_PORT', 5003)
+    NOTIFICATIONS_MS_URL = '%s://%s:%s' % (NOTIFICATIONS_MS_PROTO, NOTIFICATIONS_MS_HOST, NOTIFICATIONS_MS_PORT)
 
     # notifications
     NOTIFICATION_MS_PROTO = os.getenv('NOTIFICATION_MS_PROTO', 'http')
     NOTIFICATION_MS_HOST = os.getenv('NOTIFICATION_MS_HOST', 'localhost')
     NOTIFICATION_MS_PORT = os.getenv('NOTIFICATION_MS_PORT', 5004)
     NOTIFICATION_MS_URL = '%s://%s:%s' % (NOTIFICATION_MS_PROTO, NOTIFICATION_MS_HOST, NOTIFICATION_MS_PORT)
+
+    # Configuring sessions
+    SESSION_TYPE = 'redis'
+
+    # secret key
+    SECRET_KEY = os.getenv('APP_SECRET_KEY', b'isreallynotsecretatall')
 
 
 class DebugConfig(Config):
@@ -41,8 +63,6 @@ class DebugConfig(Config):
     """
     DEBUG = True
     TESTING = True
-
-    SECRET_KEY = b'isreallynotsecretatall'
 
 
 class DevConfig(DebugConfig):
@@ -73,4 +93,5 @@ class ProdConfig(Config):
 
     import os
     SECRET_KEY = os.getenv('APP_SECRET_KEY', os.urandom(24))
+
 

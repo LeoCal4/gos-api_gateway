@@ -31,7 +31,6 @@ def create_user_type(type_):
         
         if type_ == "operator":
             response = UserManager.create_operator(
-                'operator',
                 email,
                 password
             )

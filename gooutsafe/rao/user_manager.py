@@ -18,8 +18,8 @@ class UserManager:
         :return: User obj with id=user_id
         """
         try:
-            response = requests.get("%s/user/%s" % (cls.USERS_ENDPOINT, str(user_id)), 
-                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            response = requests.get("%s/user/%s" % (cls.USERS_ENDPOINT, str(user_id)),
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_payload = response.json()
             if response.status_code == 200:
                 # user is authenticated
@@ -31,7 +31,7 @@ class UserManager:
             return abort(500)
 
         return user
-    
+
     @classmethod
     def get_user_by_email(cls, user_email: str):
         """
@@ -42,18 +42,18 @@ class UserManager:
         """
         try:
             response = requests.get("%s/user_email/%s" % (cls.USERS_ENDPOINT, user_email),
-                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_payload = response.json()
             user = None
 
             if response.status_code == 200:
                 user = User.build_from_json(json_payload)
-                
+
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         return user
-    
+
     @classmethod
     def get_user_by_phone(cls, user_phone: str) -> User:
         """
@@ -64,7 +64,7 @@ class UserManager:
         """
         try:
             response = requests.get("%s/user_phone/%s" % (cls.USERS_ENDPOINT, user_phone),
-                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_payload = response.json()
             user = None
 
@@ -86,7 +86,7 @@ class UserManager:
         """
         try:
             response = requests.get("%s/user_social_number/%s" % (cls.USERS_ENDPOINT, user_social_number),
-                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_payload = response.json()
             user = None
 
@@ -106,13 +106,13 @@ class UserManager:
         :return: A list of User obj with health_status = True
         """
         try:
-            response = requests.get("%s/positive_customers" % (cls.USERS_ENDPOINT),
-                        timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            response = requests.get("%s/positive_customers" % cls.USERS_ENDPOINT,
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_payload = response.json()
             pos_customers = []
 
             if response.status_code == 200:
-                #TODO append in pos_customers all item of the json_payload
+                # TODO append in pos_customers all item of the json_payload
                 for json in json_payload:
                     pos_customers.append(User.build_from_json(json))
                 return pos_customers
@@ -123,10 +123,11 @@ class UserManager:
         return None
 
     @classmethod
-    def add_social_number(cls, user_id: int, social_number:str):
+    def add_social_number(cls, user_id: int, social_number: str):
         """
         This method contacts the users microservice
         to add the social number for a customer
+        :param social_number: the user social number
         :param user_id: the user id
         :return: User updated
         """
@@ -134,11 +135,11 @@ class UserManager:
             response = None
             url = "%s/social_number/%s" % (cls.USERS_ENDPOINT, str(user_id))
             response = requests.put(url,
-                                json={
-                                    'social_number': social_number
-                                },
-                                timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                )
+                                    json={
+                                        'social_number': social_number
+                                    },
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                    )
 
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
@@ -146,25 +147,25 @@ class UserManager:
         return response
 
     @classmethod
-    def create_customer(cls, type: str, 
-                        email:str, password:str, social_number:str,
+    def create_customer(cls, type: str,
+                        email: str, password: str, social_number: str,
                         firstname: str, lastname: str,
-                        birthdate, phone:str):
+                        birthdate, phone: str):
         try:
             url = "%s/customer" % (cls.USERS_ENDPOINT)
             response = requests.post(url,
-                                    json={
-                                        'type': 'customer',
-                                        'email': email, 
-                                        'password': password,
-                                        'social_number': social_number,
-                                        'firstname': firstname,
-                                        'lastname': lastname,
-                                        'birthdate': birthdate,
-                                        'phone': phone
-                                    },
-                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                    )
+                                     json={
+                                         'type': 'customer',
+                                         'email': email,
+                                         'password': password,
+                                         'social_number': social_number,
+                                         'firstname': firstname,
+                                         'lastname': lastname,
+                                         'birthdate': birthdate,
+                                         'phone': phone
+                                     },
+                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                     )
 
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
@@ -172,17 +173,17 @@ class UserManager:
         return response
 
     @classmethod
-    def create_operator(cls, type: str, email:str, password:str):
+    def create_operator(cls, email: str, password: str):
         try:
-            url = "%s/operator" % (cls.USERS_ENDPOINT)
-            response = requests.post(url, 
-                                    json={
-                                        'type': 'operator',
-                                        'email': email, 
-                                        'password': password
-                                    },
-                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                    )
+            url = "%s/operator" % cls.USERS_ENDPOINT
+            response = requests.post(url,
+                                     json={
+                                         'type': 'operator',
+                                         'email': email,
+                                         'password': password
+                                     },
+                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                     )
 
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
@@ -190,10 +191,13 @@ class UserManager:
         return response
 
     @classmethod
-    def update_customer(cls, user_id: int, email:str, password:str, phone:str):
+    def update_customer(cls, user_id: int, email: str, password: str, phone: str):
         """
         This method contacts the users microservice
         to allow the customers to update their profiles
+        :param phone:
+        :param password:
+        :param email:
         :param user_id: the customer id
             email: the customer email
             password: the customer password
@@ -203,22 +207,22 @@ class UserManager:
         try:
             url = "%s/customer/%s" % (cls.USERS_ENDPOINT, str(user_id))
             response = requests.put(url,
-                                json={
-                                    'email': email,
-                                    'password': password,
-                                    'phone': phone
-                                },
-                                timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                )
+                                    json={
+                                        'email': email,
+                                        'password': password,
+                                        'phone': phone
+                                    },
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                    )
             return response
 
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
         raise RuntimeError('Error with searching for the user %s' % user_id)
-    
+
     @classmethod
-    def update_operator(cls, user_id: int, email:str, password:str):
+    def update_operator(cls, user_id: int, email: str, password: str):
         """
         This method contacts the users microservice
         to allow the operators to update their profiles
@@ -231,12 +235,12 @@ class UserManager:
         try:
             url = "%s/operator/%s" % (cls.USERS_ENDPOINT, str(user_id))
             response = requests.put(url,
-                                json={
-                                    'email': email,
-                                    'password': password,
-                                },
-                                timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                )
+                                    json={
+                                        'email': email,
+                                        'password': password,
+                                    },
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                    )
             return response
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
@@ -290,10 +294,10 @@ class UserManager:
         """
         payload = dict(email=email, password=password)
         try:
-            response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT, 
-                                        json=payload, 
-                                        timeout=cls.REQUESTS_TIMEOUT_SECONDS
-                                    )
+            response = requests.post('%s/authenticate' % cls.USERS_ENDPOINT,
+                                     json=payload,
+                                     timeout=cls.REQUESTS_TIMEOUT_SECONDS
+                                     )
             json_response = response.json()
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
@@ -309,3 +313,16 @@ class UserManager:
                 'Microservice users returned an invalid status code %s, and message %s'
                 % (response.status_code, json_response['error_message'])
             )
+
+    @classmethod
+    def create_authority(cls):
+        """This method create an instance of health authority
+
+        Returns:
+            status_code
+        """
+        try:
+            response = requests.get('%s/load_authority' % cls.USERS_ENDPOINT, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            return response
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)

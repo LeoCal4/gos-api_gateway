@@ -42,6 +42,12 @@ services:
     depends_on:
       - api_gateway
 
+  # redis instance
+  redis_cache:
+    image: library/redis:6.0.9
+    ports:
+    - "6379:6379"
+
 volumes:
   nginx_conf:
   static_contents:
