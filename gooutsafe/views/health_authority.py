@@ -102,3 +102,8 @@ def contact_tracing(contact_id):
             return redirect(url_for('auth.authority', id=current_user.id, positive_id=0))
     else:
         return redirect(url_for('home.index'))
+
+@authority.route('/ha/create', methods=['GET'])
+def create_authority():
+    UserManager.create_authority()
+    return redirect(url_for('home.index'))

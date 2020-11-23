@@ -116,6 +116,7 @@ db.sqlite
 # Personal
 variables.sh
 settings.json
+*.cmd
 
 ### Linux ###
 *~

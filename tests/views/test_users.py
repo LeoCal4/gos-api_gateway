@@ -1,10 +1,10 @@
 from unittest.mock import Mock, patch
 from .view_test import ViewTest
-import requests
 from werkzeug.exceptions import HTTPException
 from flask import url_for
 from faker import Faker
 from random import randint, choice
+import requests
 
 from gooutsafe.auth.user import User
 
@@ -48,40 +48,6 @@ class TestUsers(ViewTest):
             
         return user
 
-    
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.post')
-    def test_create_operator_post(self, mock_post, mock_get):
-        """user = self.generate_user(type='operator')
-        user_data = {
-            'id': user.id, 
-            'email': user.email,
-            'is_active' : user.is_active,
-            'authenticated': user.is_authenticated,
-            'is_anonymous': False,
-            'type': 'operator',
-        }
-        mock_get.return_value = Mock(
-            status_code=200,
-            json =  lambda : user_data
-        )
-
-        mock_post.return_value = Mock(
-            status_code=201,
-            json =  lambda : {
-                'user': user_data,
-                'status': 'success',
-                'message': 'Successfully registered'
-            }
-        )
-        with self.captured_templates(self.app) as templates:
-            response = self.client.post(
-                '/create_user/'+ user.type,
-                follow_redirects=False
-            )
-            assert response is not None
-            assert response.status_code == 302"""
-        pass
     
     @patch('gooutsafe.rao.user_manager.requests.get')
     @patch('gooutsafe.rao.user_manager.requests.post')
@@ -139,11 +105,6 @@ class TestUsers(ViewTest):
             assert len(templates) == 1
             template, _ = templates[0]
             assert template.name == 'create_user.html' 
-
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.post')
-    def test_create_customer_post(self, mock_post, mock_get):
-        pass
 
     @patch('gooutsafe.rao.user_manager.requests.get')
     @patch('gooutsafe.rao.user_manager.requests.post')
