@@ -1,6 +1,8 @@
+import requests
+from flask import abort
 from gooutsafe import app
 from gooutsafe.auth.user import User
-import requests
+
 
 class ReservationManager:
     RESERVATION_ENDPOINT = app.config['RESERVATION_MS_URL']

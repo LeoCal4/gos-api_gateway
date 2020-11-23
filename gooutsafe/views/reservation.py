@@ -197,7 +197,8 @@ def my_reservations():
     """Given a restaurant operator, this method returns all its reservations
 
     """
-    restaurant = RestaurantManager.get_restaurant_details(current_user.id)
+    print(current_user)
+    restaurant = RestaurantManager.get_restaurant_by_op_id(current_user.id)
     restaurant_id = restaurant['details']['restaurant']['id']
 
     if restaurant is None:
