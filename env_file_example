@@ -7,7 +7,7 @@ FLASK_ENV=production
 APP_SECRET=2929383DmdosfSlsDKfkSl2304ssdfpgmfls302k
 
 # Redis conf
-REDIS_HOST=redis_cache
+REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_DB=0
 

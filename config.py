@@ -62,7 +62,7 @@ class DebugConfig(Config):
     This is the main configuration object for application.
     """
     DEBUG = True
-    TESTING = True
+    TESTING = False
 
 
 class DevConfig(DebugConfig):
