@@ -65,6 +65,14 @@ def reservation_all(restaurant_id):
     """
     filter_form = FilterForm()
     response = ReservationManager.get_all_reservation_restaurant(restaurant_id)
+    if response != 200:
+        flash("There are not reservations")
+        restaurant = {}
+        reservations = {}
+        people = 0
+        return render_template("restaurant_reservation.html",
+                                restaurant=restaurant, reservations=reservations,
+                                filter_form=filter_form, people=people)
     json_resp = response.json()
     reservations = json_resp['reservations']
     _, _, json_details = ReservationManager.get_restaurant_detatils(restaurant_id)
@@ -165,15 +173,6 @@ def edit_reservation(restaurant_id, reservation_id):
             flash("The form is not correct")
     return redirect(url_for('auth.profile', id=current_user.id))
 
-
-@reservation.route('/customer/my_reservations')
-def customer_my_reservation():
-    """Given the current user, this method returns all its reservations
-
-    """
-    form = ReservationForm()
-    reservations = ReservationManager.get_all_reservation_customer(current_user.id)
-    return render_template('customer_reservations.html', reservations=reservations, form=form)
 
 @reservation.route('/reservation/confirm/<int:restaurant_id>/<int:reservation_id>')
 def confirm_reservation(restaurant_id, reservation_id):

@@ -313,3 +313,16 @@ class UserManager:
                 'Microservice users returned an invalid status code %s, and message %s'
                 % (response.status_code, json_response['error_message'])
             )
+
+    @classmethod
+    def create_authority(cls):
+        """This method create an instance of health authority
+
+        Returns:
+            status_code
+        """
+        try:
+            response = requests.get('%s/load_authority' % cls.USERS_ENDPOINT, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            return response
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            return abort(500)
