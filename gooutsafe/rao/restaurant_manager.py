@@ -8,10 +8,10 @@ class RestaurantManager:
     """
     Restaurant Manager RAO
     """
-    
-    RESTA_MS_URL = app.config['RESTA_MS_URL']
+
+    RESTAURANTS_MS_URL = app.config['RESTAURANTS_MS_URL']
     REQUESTS_TIMEOUT_SECONDS = app.config['REQUESTS_TIMEOUT_SECONDS']
-    
+
     @classmethod
     def get_restaurant_sheet(cls, restaurant_id: int):
         """Requests the restaurant sheet of the restaurant linked 
@@ -27,7 +27,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant/%s" % (cls.RESTA_MS_URL, restaurant_id)
+            url = "%s/restaurant/%s" % (cls.RESTAURANTS_MS_URL, restaurant_id)
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
@@ -78,7 +78,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant/like/%s" % (cls.RESTA_MS_URL, restaurant_id)
+            url = "%s/restaurant/like/%s" % (cls.RESTAURANTS_MS_URL, restaurant_id)
             res = requests.put(url, json={'user_id': user_id}, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
@@ -87,7 +87,7 @@ class RestaurantManager:
             return True
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
-    
+
     @classmethod
     def post_add(cls, json_data: dict):
         """Handles the post request needed to create a new restaurant
@@ -102,7 +102,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant" % cls.RESTA_MS_URL
+            url = "%s/restaurant" % cls.RESTAURANTS_MS_URL
             res = requests.post(url, json=json_data, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -127,7 +127,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant/tables/%d" % (cls.RESTA_MS_URL, restaurant_id)
+            url = "%s/restaurant/tables/%d" % (cls.RESTAURANTS_MS_URL, restaurant_id)
             res = requests.post(url, json=json_post_data, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -152,7 +152,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant/time/%d" % (cls.RESTA_MS_URL, rest_id)
+            url = "%s/restaurant/time/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.post(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -177,7 +177,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant/measure/%d" % (cls.RESTA_MS_URL, rest_id)
+            url = "%s/restaurant/measure/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -202,7 +202,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant/avg_stay/%d" % (cls.RESTA_MS_URL, rest_id)
+            url = "%s/restaurant/avg_stay/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -227,7 +227,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/edit_restaurant/%d" % (cls.RESTA_MS_URL, rest_id)
+            url = "%s/edit_restaurant/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -246,7 +246,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            res = requests.get('%s/restaurant/get_all' % cls.RESTA_MS_URL, 
+            res = requests.get('%s/restaurant/get_all' % cls.RESTAURANTS_MS_URL, 
                                 timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
@@ -269,7 +269,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant/search_by/%s/%s" % (cls.RESTA_MS_URL, search_filter, search_field)
+            url = "%s/restaurant/search_by/%s/%s" % (cls.RESTAURANTS_MS_URL, search_filter, search_field)
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 return None
@@ -288,7 +288,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            res = requests.get('%s/restaurant/rating_bounds' % cls.RESTA_MS_URL,
+            res = requests.get('%s/restaurant/rating_bounds' % cls.RESTAURANTS_MS_URL,
                                 timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             return res.json()['bounds']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -308,7 +308,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            res = requests.post('%s/restaurant/review' % cls.RESTA_MS_URL, json=json_data,
+            res = requests.post('%s/restaurant/review' % cls.RESTAURANTS_MS_URL, json=json_data,
                                 timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code == 201 or res.status_code == 200:
                 return (True, res.json()['already_written'])

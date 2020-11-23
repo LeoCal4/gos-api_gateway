@@ -1,8 +1,6 @@
-import requests
 from datetime import datetime
-from flask import Blueprint, flash, redirect, render_template, request, url_for, abort
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
-from gooutsafe import app
 from gooutsafe.forms import LoginForm
 from gooutsafe.forms.authority import AuthorityForm
 from gooutsafe.forms.filter_form import FilterForm
@@ -11,8 +9,10 @@ from gooutsafe.forms.update_customer import AddSocialNumberForm
 from gooutsafe.rao.user_manager import UserManager
 from gooutsafe.rao.restaurant_manager import RestaurantManager
 from gooutsafe.rao.reservation_manager import ReservationManager
+from gooutsafe.rao.notification_tracing_manager import NotificationTracingManager as ntm
 
 auth = Blueprint('auth', __name__)
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login(re=False):
@@ -73,29 +73,29 @@ def profile(id):
 
         # restaurants = RestaurantManager.retrieve_all()
         resp = ReservationManager.get_all_reservation_customer(id)
-        if resp.status_code != 200:  
-            return render_template('customer_profile.html',social_form=social_form)      
+        if resp.status_code != 200:
+            return render_template('customer_profile.html', social_form=social_form)
 
         json_response = resp.json()
         restaurants = []
         reservations = json_response['reservations']
         for res in reservations:
-            #time reformat
+            # time reformat
             start_time = datetime.strptime(res['start_time'], "%Y-%m-%dT%H:%M:%SZ")
             res['start_time'] = datetime.strftime(start_time, "%Y-%m-%d %H:%M")
             print()
-            #restaurant details extraction
+            # restaurant details extraction
             rest_dict = {}
             restaurant_id = res['restaurant_id']
-            _,_,details = ReservationManager.get_restaurant_detatils(restaurant_id)
+            _, _, details = ReservationManager.get_restaurant_detatils(restaurant_id)
             restaurant = details['restaurant']
             rest_dict['name'] = restaurant['name']
             rest_dict['address'] = restaurant['address']
             restaurants.append(rest_dict)
-        
+
         return render_template('customer_profile.html',
-            reservations=reservations, restaurants=restaurants,
-            form=form, social_form=social_form)
+                               reservations=reservations, restaurants=restaurants,
+                               form=form, social_form=social_form)
 
     return redirect(url_for('home.index'))
 
@@ -121,7 +121,7 @@ def operator(op_id):
             restaurant = json_data['details']['restaurant']
 
         return render_template('operator_profile.html',
-                        restaurant=restaurant, filter_form=filter_form)
+                               restaurant=restaurant, filter_form=filter_form)
     return redirect(url_for('home.index'))
 
 
@@ -142,7 +142,7 @@ def authority(id, positive_id):
         pos_customers = UserManager.get_all_positive_customer()
         if positive_id != 0:
             search_customer = UserManager.get_user_by_id(positive_id)
-        else: #authority clicks on "Profile"
+        else:  # authority clicks on "Profile"
             search_customer = None
         return render_template('authority_profile.html',
                                form=ha_form, pos_customers=pos_customers,
@@ -165,29 +165,36 @@ def logout():
 @auth.route('/notifications', methods=['GET'])
 @login_required
 def notifications():
-    """[summary]
+    """Get all notifications for the user
 
     Returns:
-        [type]: [description]
+        Redirects the view to the notifications page
     """
-    notifications = NotificationManager.retrieve_by_target_user_id(current_user.id)
+    # TODO check datetime for notification
+    # get all notifications from the manager
+    notifications = ntm.retrieve_by_target_user_id(user_id=current_user.id)
     processed_notification_info = []
     if current_user.type == "customer":
         for notification in notifications:
-            restaurant_name = RestaurantManager.retrieve_by_id(notification.contagion_restaurant_id).name
-            processed_notification_info.append({"timestamp": notification.timestamp,
-                                                "contagion_datetime": notification.contagion_datetime,
+            restaurant_name = \
+                RestaurantManager.get_restaurant_sheet(notification['contagion_restaurant_id'])['restaurant']['name']
+            cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date'] / 1000)).date()
+            cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date'] / 1000))
+            processed_notification_info.append({"timestamp": cont_timestamp,
+                                                "contagion_datetime": cont_datetime,
                                                 "contagion_restaurant_name": restaurant_name})
         return render_template('customer_notifications.html', current_user=current_user,
                                notifications=processed_notification_info)
     elif current_user.type == "operator":
         for notification in notifications:
-            info = {"timestamp": notification.timestamp,
-                    "contagion_datetime": notification.contagion_datetime}
-            is_future = notification.timestamp < notification.contagion_datetime
+            cont_datetime = datetime.fromtimestamp((notification['contagion_datetime']['$date'] / 1000)).date()
+            cont_timestamp = datetime.fromtimestamp((notification['timestamp']['$date'] / 1000))
+            info = {"timestamp": cont_timestamp,
+                    "contagion_datetime": cont_datetime}
+            is_future = notification['timestamp']['$date'] < notification['contagion_datetime']['$date']
             info['is_future'] = is_future
             if is_future:
-                customer_phone_number = UserManager.retrieve_by_id(notification.positive_customer_id).phone
+                customer_phone_number = UserManager.get_user_by_id(notification.positive_customer_id).phone
                 info['customer_phone_number'] = customer_phone_number
             processed_notification_info.append(info)
         return render_template('operator_notifications.html', current_user=current_user,

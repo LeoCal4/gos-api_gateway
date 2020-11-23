@@ -19,10 +19,6 @@ class TestUserManager(RaoTest):
         self.user_manager = UserManager
         from gooutsafe import app
         self.app = app
-        self.app.config['DEBUG'] = True
-        self.app.config['TESTING'] = True
-        from werkzeug.exceptions import HTTPException
-
 
     def generate_user(self, type):
         if type == 'customer':
@@ -49,6 +45,8 @@ class TestUserManager(RaoTest):
         user = User(**data)
         if type == 'customer':
             user.type = 'customer'
+        elif type == 'operator':
+            user.type ='operator'
             
         return user
 
@@ -137,7 +135,7 @@ class TestUserManager(RaoTest):
         response = self.user_manager.get_user_by_social_number(user.social_number)
         assert response is not None
 
-    def test_get_user_by_social_error_error(self):
+    def test_get_user_by_social_number_error(self):
         ssn = TestUserManager.faker.ssn()
         with self.assertRaises(HTTPException) as http_error:
             self.user_manager.get_user_by_social_number(ssn)
@@ -149,10 +147,9 @@ class TestUserManager(RaoTest):
     
     @patch('gooutsafe.rao.user_manager.requests.put')
     def test_add_social_number(self, mock_get):
-        user = self.generate_user(type='generic')
-        social_number = TestUserManager.faker.ssn()
+        user = self.generate_user(type='customer')
         mock_get.return_value = Mock(status_code=200)
-        response = self.user_manager.add_social_number(user.id, social_number)
+        response = self.user_manager.add_social_number(user.id, user.social_number)
         assert response is not None
 
     @patch('gooutsafe.rao.user_manager.requests.post')
@@ -170,7 +167,7 @@ class TestUserManager(RaoTest):
         
     @patch('gooutsafe.rao.user_manager.requests.post')
     def test_create_operator(self, mock_get):
-        user = self.generate_user(type='generic')
+        user = self.generate_user(type='operator')
         mock_get.return_value = Mock(status_code=200)
         password = TestUserManager.faker.password()
         response = self.user_manager.create_operator(
@@ -179,40 +176,37 @@ class TestUserManager(RaoTest):
         assert response is not None
 
     @patch('gooutsafe.rao.user_manager.requests.put')
-    def test_update_customer_error(self, mock_put):
+    def test_update_customer(self, mock_put):
         user = self.generate_user(type='customer')
-        mock_put.side_effect = requests.exceptions.ConnectionError()
         mock_put.return_value = Mock(
-            status_code = 200
+            status_code = 200,
+            json=lambda : {
+                'status': 'success',
+                'message': 'Updated'
+            }
         )
         password = TestUserManager.faker.password()
-        response = None
-        try:
-            response = self.user_manager.update_user(
-                user_id=user.id, email=user.email, password=password, phone=user.phone
-            )
-        except Exception as e:
-            print ("This is an error message!{}".format(e))
+        response = self.user_manager.update_customer(
+            user_id=user.id, email=user.email, password=password, phone=user.phone
+        )
 
-        assert response is None
+        assert response is not None
 
     @patch('gooutsafe.rao.user_manager.requests.put')
-    def test_update_operator_error(self, mock_put):
-        user = self.generate_user(type='generic')
-        mock_put.side_effect = requests.exceptions.ConnectionError()
+    def test_update_operator(self, mock_put):
+        user = self.generate_user(type='operator')
         mock_put.return_value = Mock(
-            status_code = 200
+            status_code = 204,
+            json=lambda : {
+                'status': 'success',
+                'message': 'Updated'
+            }
         )
         password = TestUserManager.faker.password()
-        response = None
-        try:
-            response = self.user_manager.update_user(
-                user_id=user.id, email=user.email, password=password, phone=user.phone
-            )
-        except Exception as e:
-            print ("This is an error message!{}".format(e))
-
-        assert response is None
+        response = self.user_manager.update_operator(
+            user_id=user.id, email=user.email, password=password
+        )
+        assert response is not None
 
     @patch('gooutsafe.rao.user_manager.requests.put')
     def test_update_health_status(self, mock_get):

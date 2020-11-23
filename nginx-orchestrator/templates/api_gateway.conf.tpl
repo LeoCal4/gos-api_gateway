@@ -22,11 +22,18 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_redirect default;
     }
 
     # static content serving (directly)
     location /static {
         rewrite ^/static(.*) /$1 break;
         root /static;
+    }
+
+    # statistics
+    location /nginx_stats {
+        stub_status on;
     }
 }

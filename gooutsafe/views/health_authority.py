@@ -3,6 +3,9 @@ from flask_login import login_required, current_user
 
 from gooutsafe.forms.authority import AuthorityForm
 from gooutsafe.rao.user_manager import UserManager
+from gooutsafe.rao.notification_tracing_manager import NotificationTracingManager as ntm
+from gooutsafe.rao.restaurant_manager import RestaurantManager
+from gooutsafe.rao.reservation_manager import ReservationManager
 
 authority = Blueprint('authority', __name__)
 
@@ -59,13 +62,11 @@ def mark_positive(customer_id):
                 response = UserManager.update_health_status(customer.id)
                 if response.status_code == 200:
                     flash("Customer set to positive!")
+                    ntm.trigger_contact_tracing(positive_id=customer.id) 
                 else:
                     flash("Error during the operation")
                 #we have to do this in user microservice
-                """schedule_revert_customer_health_status(customer.id)
-                notify_restaurant_owners_about_positive_past_customer(customer.id)
-                notify_restaurant_owners_about_positive_booked_customer(customer.id)
-                notify_customers_about_positive_contact(customer.id)"""
+                #schedule_revert_customer_health_status(customer.id)
     return redirect(url_for('auth.authority', id=current_user.id, positive_id=0))
 
 
@@ -82,19 +83,19 @@ def contact_tracing(contact_id):
         Redirects the view to the health authority's home page
     """
     if current_user is not None and current_user.type == 'authority':
-        customer = CustomerManager.retrieve_by_id(id_=contact_id)
+        customer = UserManager.get_user_by_id(user_id=contact_id)
         if customer is not None:
-            pos_reservations = ReservationManager.retrieve_by_customer_id(user_id=customer.id)
+            tracing_list = ntm.get_contact_tracing_list(customer_id=customer.id)
             cust_contacts = []
             restaurant_contacts = []
             date_contacts = []
-            for res in pos_reservations:
-                contacts = ReservationManager.retrieve_all_contact_reservation_by_id(res.id)
-                for c in contacts:
-                    cust = CustomerManager.retrieve_by_id(c.user_id)
-                    cust_contacts.append(cust)
-                    restaurant_contacts.append(RestaurantManager.retrieve_by_id(c.restaurant_id).name)
-                    date_contacts.append(c.start_time.date())
+            for res in tracing_list:
+                customer = UserManager.get_user_by_id(res['contact_id'])
+                cust_contacts.append(customer)
+                restaurant = RestaurantManager.get_restaurant_sheet(restaurant_id=res['restaurant_id'])
+                restaurant_contacts.append(restaurant['restaurant']['name'])
+                reservation = ReservationManager.get_reservation(reservation_id=res['reservation_id'])
+                date_contacts.append(reservation['start_time'])
             return render_template('contact_tracing_positive.html', customer=customer, pos_contact=cust_contacts,
                                    res_contact=restaurant_contacts, date_contact=date_contacts)
         else:

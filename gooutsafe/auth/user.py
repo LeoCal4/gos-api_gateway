@@ -61,6 +61,6 @@ class User(UserMixin):
 
     def __str__(self):
         s = 'User Object\n'
-        for (key, value) in self:
+        for (key, value) in self.__dict__.items():
             s += "%s=%s\n" % (key, value)
         return s
