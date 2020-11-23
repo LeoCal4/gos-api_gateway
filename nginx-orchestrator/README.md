@@ -13,7 +13,7 @@ license is required.
 ## Our solution
 
 To fix this problem
-we have created this docker image that listens
+we have created this docker image that listens to
 the events from docker and dynamically updates the nginx
 upstream server list, by parsing a configuration template
 with Jinja2.

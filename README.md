@@ -70,9 +70,9 @@ flask run
 #### Python dotenv
 
 Each time you start a new terminal session, you have to
-set up all environment variables that projects requires.
-When variable number increases the procedures to run
-project become uncomfortable. 
+set up all the environment variables that projects requires.
+When the variables number increases, the procedures needed to run
+the project becomes uncomfortable. 
 
 To solve this problem we have introduced the python-dotenv dependency,
 but only for development purposes.

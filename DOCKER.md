@@ -4,7 +4,7 @@ This project has the possibility to be built as
 docker image.
 To build the image you can launch the command
 
-`docker build . -t gotf` 
+`docker build . -t gotf`
 
 ## docker-compose
 
