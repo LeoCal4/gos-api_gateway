@@ -14,7 +14,7 @@ class Config(object):
     REDIS_HOST = os.getenv('REDIS_HOST', 'redis_cache')
     REDIS_PORT = os.getenv('REDIS_PORT', 6379)
     REDIS_DB = os.getenv('REDIS_DB', '0')
-    REDIS_URL = 'redis://%s:%d/%s' % (
+    REDIS_URL = 'redis://%s:%s/%s' % (
         REDIS_HOST,
         REDIS_PORT,
         REDIS_DB
