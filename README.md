@@ -57,8 +57,15 @@ The available environments are:
 - testing
 - production
 
-If you want to run the application with development environment
-you can run the `run.sh` script.
+If you want to run the application you have to startup the redis
+instance, using the command:
+
+```shell script
+cp env_file_example env_file
+docker-compose up -d redis_cache
+export FLASK_ENV=development
+flask run
+```
 
 #### Python dotenv
 
