@@ -10,6 +10,16 @@ class Config(object):
 
     REQUESTS_TIMEOUT_SECONDS = float(os.getenv("REQUESTS_TIMEOUT_SECONDS", 5))
 
+    # configuring redis
+    REDIS_HOST = os.getenv('REDIS_HOST', 'redis_cache')
+    REDIS_PORT = os.getenv('REDIS_PORT', 6379)
+    REDIS_DB = os.getenv('REDIS_DB', '0')
+    REDIS_URL = 'redis://%s:%d/%s' % (
+        REDIS_HOST,
+        REDIS_PORT,
+        REDIS_DB
+    )
+
     # users microservice
     USERS_MS_PROTO = os.getenv('USERS_MS_PROTO', 'http')
     USERS_MS_HOST = os.getenv('USERS_MS_HOST', 'localhost')
@@ -40,6 +50,12 @@ class Config(object):
     NOTIFICATION_MS_PORT = os.getenv('NOTIFICATION_MS_PORT', 5004)
     NOTIFICATION_MS_URL = '%s://%s:%s' % (NOTIFICATION_MS_PROTO, NOTIFICATION_MS_HOST, NOTIFICATION_MS_PORT)
 
+    # Configuring sessions
+    SESSION_TYPE = 'redis'
+
+    # secret key
+    SECRET_KEY = os.getenv('APP_SECRET_KEY', b'isreallynotsecretatall')
+
 
 class DebugConfig(Config):
     """
@@ -47,8 +63,6 @@ class DebugConfig(Config):
     """
     DEBUG = True
     TESTING = True
-
-    SECRET_KEY = b'isreallynotsecretatall'
 
 
 class DevConfig(DebugConfig):
@@ -79,4 +93,5 @@ class ProdConfig(Config):
 
     import os
     SECRET_KEY = os.getenv('APP_SECRET_KEY', os.urandom(24))
+
 

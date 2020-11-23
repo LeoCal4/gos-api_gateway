@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_environments import Environments
+from flask_session import Session
 
 __version__ = '0.1'
 
@@ -10,6 +11,7 @@ login = None
 debug_toolbar = None
 celery = None
 app = None
+redis_client = None
 
 
 def create_app():
@@ -37,6 +39,9 @@ def create_app():
     env = Environments(app)
     env.from_object(config_object)
 
+    # Configuring redis
+    create_redis(app)
+
     register_extensions(app)
     register_blueprints(app)
     register_handlers(app)
@@ -49,6 +54,21 @@ def create_app():
         register_test_blueprints(app)
 
     return app
+
+
+def create_redis(_app):
+    global redis_client
+
+    # loading redis
+    from flask_redis import FlaskRedis
+
+    if app.config['TESTING']:
+        # loading mockredis
+        from mockredis import MockRedis
+        redis_client = MockRedis(FlaskRedis.from_custom_provider(MockRedis))
+    else:
+        # loading the real redis instance
+        redis_client = FlaskRedis(app)
 
 
 def register_extensions(app):
@@ -68,6 +88,9 @@ def register_extensions(app):
 
     # adding bootstrap and date picker
     Bootstrap(app)
+
+    # adding session extension
+    Session(app)
 
 
 def register_blueprints(app):

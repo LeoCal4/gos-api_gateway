@@ -1,5 +1,17 @@
+#
+# API Gateway configuration
+#
+
+# Flask settings
 FLASK_ENV=production
 APP_SECRET=2929383DmdosfSlsDKfkSl2304ssdfpgmfls302k
+
+# Redis conf
+REDIS_HOST=redis_cache
+REDIS_PORT=6379
+REDIS_DB=0
+
+# Microservices
 USERS_MS_PORT=5000
 RESTAURANTS_MS_PORT=5000
 RESERVATIONS_MS_PORT=5000
