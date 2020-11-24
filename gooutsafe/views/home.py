@@ -26,15 +26,13 @@ def search():
     form = RestaurantSearchForm()
 
     keyword = request.args.get('keyword', default=None, type=str)
-    filters = request.args.get('filters', default=None, type=str)
+    filters = request.args.get('filters', default=None, type=str) or form.DEFAULT_SEARCH_FILTER
 
     keyword = None if keyword is None or len(keyword) == 0 else keyword
     json_list = []
     restaurants = []
     try:
-        if keyword is not None and filters is None:
-            restaurants = search_by(keyword, form.DEFAULT_SEARCH_FILTER)
-        elif keyword is not None and filters is not None:
+        if keyword is not None:
             restaurants = search_by(keyword, filters)
         else:
             restaurants = RestaurantManager.get_get_all()

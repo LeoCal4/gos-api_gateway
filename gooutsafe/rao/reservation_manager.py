@@ -1,3 +1,5 @@
+import requests
+from flask import abort
 from gooutsafe import app
 from gooutsafe.auth.user import User
 from .restaurant_manager import RestaurantManager
@@ -14,7 +16,7 @@ class ReservationManager:
 
     @classmethod
     def create_reservation(cls, restaurant_id, user_id, start_time, people_number):
-        url = "%s/reservation/" % cls.RESERVATION_ENDPOINT
+        url = "%s/reservation" % cls.RESERVATION_ENDPOINT
         json_tables, json_times, _ = cls.get_restaurant_detatils(restaurant_id)
         try:
             response = requests.post(url,

@@ -65,7 +65,7 @@ def reservation_all(restaurant_id):
     """
     filter_form = FilterForm()
     response = ReservationManager.get_all_reservation_restaurant(restaurant_id)
-    if response != 200:
+    if response.status_code != 200:
         flash("There are not reservations")
         restaurant = {}
         reservations = {}
@@ -196,8 +196,9 @@ def my_reservations():
     """Given a restaurant operator, this method returns all its reservations
 
     """
-    restaurant = RestaurantManager.get_restaurant_details(current_user.id)
-    restaurant_id = restaurant['details']['restaurant']['id']
+    print(current_user)
+    restaurant = RestaurantManager.get_restaurant_by_op_id(current_user.id)
+    restaurant_id = restaurant['restaurant']['id']
 
     if restaurant is None:
         from gooutsafe.views.restaurants import add

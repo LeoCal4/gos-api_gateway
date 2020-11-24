@@ -23,10 +23,11 @@ def write_review(restaurant_id):
         return render_template('create_review.html', form=form, rating_min_value=bounds['min_value'],
                                rating_max_value=bounds['max_value'])
     if form.is_submitted():
+        customer_name = current_user.extra_data.get('firstname') or 'operator' # TODO change
         json_data = {
             'customer_id': current_user.id,
             'restaurant_id': restaurant_id,
-            'customer_name': current_user.firstname,
+            'customer_name': customer_name,
             'value': form.data['value'],
             'review': form.data['review']
         }
