@@ -11,12 +11,26 @@ from .view_test import ViewTest
 
 
 class selfs(ViewTest):
-    faker = Faker()
 
     @classmethod
     def setUpClass(cls):
         super(selfs, cls).setUpClass()
+    
+    """
+    def test_restaurants_sheet(self):
+        self.login_test_customer()
+        restaurant, _ = self.test_restaurant.generate_random_restaurant()
+        self.restaurant_manager.create_restaurant(restaurant)
+        rv = self.client.get('/restaurant/' + str(restaurant.id))
+        assert rv.status_code == 200
+    """
 
+    def test_add_get(self):
+        owner = self.login_test_customer()
+        rv = requests.get('/restaurant' + str(owner.id))
+        assert rv.status_code == 200
+
+    """
     # needs the whole resturant dict since it actually renders the page
     @skip('It fails')
     @patch('gooutsafe.rao.restaurant_manager.requests.get')
@@ -64,7 +78,7 @@ class selfs(ViewTest):
             assert len(templates) == 1
             template, _ = templates[0]
             assert template.name == 'create_restaurant.html'
-
+    """
     ### Helper methods ###
 
     def generate_random_restaurant(self):

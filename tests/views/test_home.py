@@ -4,9 +4,12 @@ import requests
 from werkzeug.exceptions import HTTPException
 from flask import url_for
 from faker import Faker
+import requests
 
 class TestHome(ViewTest):
     faker = Faker()
+
+    BASE_URl = 'http://localhost'
 
     @classmethod
     def setUpClass(cls):
