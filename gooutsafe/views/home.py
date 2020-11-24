@@ -27,6 +27,10 @@ def search():
 
     keyword = request.args.get('keyword', default=None, type=str)
     filters = request.args.get('filters', default=None, type=str) or form.DEFAULT_SEARCH_FILTER
+    print('keyword')
+    print(keyword)
+    print('filter')
+    print(filters)
 
     keyword = None if keyword is None or len(keyword) == 0 else keyword
     json_list = []
@@ -34,9 +38,9 @@ def search():
     try:
         if keyword is not None:
             restaurants = search_by(keyword, filters)
-        else:
+        else:      
             restaurants = RestaurantManager.get_get_all()
-            if restaurants is None:
+            if not restaurants:
                 flash('Error in getting all the restaurants')
             else:
                 for r in restaurants:
