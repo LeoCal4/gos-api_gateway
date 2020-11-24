@@ -27,9 +27,6 @@ class TestHome(ViewTest):
         with self.assertRaises(ValueError):
             self.assertIsNotNone(search_by(search_filter,search_field))
 
-
-
-
     def test_search_restaurant(self):
         url = self.BASE_URL + '/search'
         #search restaurant with name filter
