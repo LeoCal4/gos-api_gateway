@@ -2,6 +2,8 @@ import unittest
 from flask import template_rendered
 from contextlib import contextmanager
 
+from gooutsafe.auth.user import User
+
 
 class ViewTest(unittest.TestCase):
 
@@ -10,15 +12,34 @@ class ViewTest(unittest.TestCase):
         from gooutsafe import create_app
         cls.app = create_app()
         cls.client = cls.app.test_client()
-        cls.app.config['LOGIN_DISABLED'] = True
 
-    @contextmanager
-    def captured_templates(self, app):
-        recorded = []
-        def record(sender, template, context, **extra):
-            recorded.append((template, context))
-        template_rendered.connect(record, app)
-        try:
-            yield recorded
-        finally:
-            template_rendered.disconnect(record, app)
+    
+    def generate_user(self, type):
+        if type == 'customer':
+            extra_data = {
+            'firstname': "Mario",
+            'lastname': "Rossi",
+            'birthdate': self.faker.date(),
+            'social_number': self.faker.ssn(),
+            'health_status': choice([True, False]),
+            'phone': self.faker.phone_number()
+            }
+        else:
+            extra_data = {}
+
+        data = {
+            'id': randint(0,999), 
+            'email': self.faker.email(),
+            'is_active' : choice([True,False]),
+            'authenticated': choice([True,False]),
+            'is_anonymous': False,
+            'type': choice(['customer', 'operator']),
+            'extra': extra_data,
+        }
+        user = User(**data)
+        if type == 'customer':
+            user.type = 'customer'
+        elif type == 'operator':
+            user.type = 'operator'
+            
+        return user
