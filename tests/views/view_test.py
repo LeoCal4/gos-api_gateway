@@ -8,6 +8,8 @@ from gooutsafe.auth.user import User
 class ViewTest(unittest.TestCase):
     faker = Faker()
 
+    BASE_URL = "http://localhost"
+
     @classmethod
     def setUpClass(cls):
         from gooutsafe import create_app
