@@ -198,7 +198,7 @@ def my_reservations():
     """
     print(current_user)
     restaurant = RestaurantManager.get_restaurant_by_op_id(current_user.id)
-    restaurant_id = restaurant['details']['restaurant']['id']
+    restaurant_id = restaurant['restaurant']['id']
 
     if restaurant is None:
         from gooutsafe.views.restaurants import add

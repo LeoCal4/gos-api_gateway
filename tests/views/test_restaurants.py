@@ -22,7 +22,7 @@ class selfs(ViewTest):
     @patch('gooutsafe.rao.restaurant_manager.requests.get')
     def test_restaurant_sheet(self, mock):
         with self.captured_templates(self.app) as templates:
-            data = {'restaurant_sheet': {'restaurant': {}, 'list_measures': '', 'average_rate': 0, 'max_rate': 0, 'is_open': False}}
+            data = {'restaurant_sheet': {'restaurant': {}, 'average_rate': 0, 'max_rate': 0, 'is_open': False}}
             mock.return_value = Mock(status_code=200, json=lambda : data)
             rv = self.client.get('/restaurants/' + str(randint(0, 999)))
             assert rv.status_code == 200

@@ -33,7 +33,7 @@ def restaurant_sheet(restaurant_id):
         restaurant_id (int): univocal identifier of the restaurant
     """
     restaurant_sheet = RestaurantManager.get_restaurant_sheet(restaurant_id)
-    list_measures = restaurant_sheet['restaurant']['list_measures'].split(',')[1:]
+    list_measures = restaurant_sheet['restaurant']['measures'].split(',')[1:]
     if restaurant_sheet is None:
         flash('No restaurant found given the specified id')
         return redirect(url_for('home.index'))
@@ -118,10 +118,10 @@ def details(id_op):
     if not json_data:
         return redirect(url_for('restaurants.add', id_op=id_op))
     restaurant = json_data['restaurant']
-    list_measures = restaurant['list_measures'].split(',')[1:]
+    list_measures = restaurant['measures'].split(',')[1:]
 
     return render_template('add_restaurant_details.html',
-                           restaurant=restaurant, tables=json_data['tables'],
+                           restaurant=restaurant, tables=restaurant['tables'],
                            table_form=table_form, time_form=time_form,
                            times=restaurant['availabilities'], measure_form=measure_form,
                            avg_time_form=avg_time_form, avg_stay=restaurant['avg_stay'],
@@ -221,7 +221,7 @@ def save_avg_stay(id_op, rest_id):
             json_data_to_send = {'hours': hours,
                                 'minutes': minute}
             avg_stay_added = RestaurantManager.put_add_avg_stay(rest_id, json_data_to_send)
-            if avg_stay_added:
+            if not avg_stay_added:
                 flash('Error in saving the average stay time')
 
     return redirect(url_for('restaurants.details', id_op=id_op))

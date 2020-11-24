@@ -171,7 +171,7 @@ class TestUserManager(RaoTest):
         mock_get.return_value = Mock(status_code=200)
         password = TestUserManager.faker.password()
         response = self.user_manager.create_operator(
-            type="operator", email=user.email, password=password
+            email=user.email, password=password
         )
         assert response is not None
 

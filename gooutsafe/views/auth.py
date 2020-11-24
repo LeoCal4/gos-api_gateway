@@ -118,7 +118,7 @@ def operator(op_id):
         if json_data is None:
             restaurant = None
         else:
-            restaurant = json_data['details']['restaurant']
+            restaurant = json_data['restaurant']
 
         return render_template('operator_profile.html',
                                restaurant=restaurant, filter_form=filter_form)

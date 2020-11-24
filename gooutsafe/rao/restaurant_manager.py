@@ -52,7 +52,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/restaurant/by_op_id/%s" % (cls.RESTA_MS_URL, op_id)
+            url = "%s/restaurant/by_operator_id/%s" % (cls.RESTAURANTS_MS_URL, op_id)
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
@@ -246,7 +246,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            res = requests.get('%s/restaurant/get_all' % cls.RESTAURANTS_MS_URL, 
+            res = requests.get('%s/restaurant/all' % cls.RESTAURANTS_MS_URL, 
                                 timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])

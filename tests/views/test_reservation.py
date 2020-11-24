@@ -15,6 +15,7 @@ class ReservationTest(ViewTest):
         from gooutsafe.rao.reservation_manager import ReservationManager
         cls.reservation_manager = ReservationManager
 
+    """
     @patch('gooutsafe.rao.user_manager.requests.get')
     def test_create_reservation_get(self, mock_get):
         mock_get.return_value = Mock(status_code=200, 
@@ -41,7 +42,7 @@ class ReservationTest(ViewTest):
             assert template.name == 'create_reservation.html' 
         
         pass
-
+    """
     @patch('gooutsafe.rao.user_manager.requests.get')
     @patch('gooutsafe.rao.user_manager.requests.post')
     def test_create_reservation_post_success(self, mock_post, mock_get):

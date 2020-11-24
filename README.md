@@ -64,6 +64,7 @@ instance, using the command:
 cp env_file_example env_file
 docker-compose up -d redis_cache
 export FLASK_ENV=development
+export REDIS_HOST=localhost
 flask run
 ```
 
