@@ -6,8 +6,6 @@ from faker import Faker
 from random import randint, choice
 import requests
 
-from gooutsafe.auth.user import User
-
 
 class TestUsers(ViewTest):
     faker = Faker('it_IT')
@@ -18,37 +16,8 @@ class TestUsers(ViewTest):
         from gooutsafe.rao.user_manager import UserManager
         cls.user_manager = UserManager
         
-    def generate_user(self, type):
-        if type == 'customer':
-            extra_data = {
-            'firstname': "Mario",
-            'lastname': "Rossi",
-            'birthdate': self.faker.date(),
-            'social_number': self.faker.ssn(),
-            'health_status': choice([True, False]),
-            'phone': self.faker.phone_number()
-            }
-        else:
-            extra_data = {}
 
-        data = {
-            'id': randint(0,999), 
-            'email': self.faker.email(),
-            'is_active' : choice([True,False]),
-            'authenticated': choice([True,False]),
-            'is_anonymous': False,
-            'type': choice(['customer', 'operator']),
-            'extra': extra_data,
-        }
-        user = User(**data)
-        if type == 'customer':
-            user.type = 'customer'
-        elif type == 'operator':
-            user.type = 'operator'
-            
-        return user
-
-    
+    """
     @patch('gooutsafe.rao.user_manager.requests.get')
     @patch('gooutsafe.rao.user_manager.requests.post')
     def test_create_operator_post_error(self, mock_post, mock_get):
@@ -382,10 +351,18 @@ class TestUsers(ViewTest):
             assert len(templates) == 1
             template, _ = templates[0]
             assert template.name == 'update_customer.html'
-    
-    @patch('gooutsafe.rao.user_manager.requests.put')
-    def test_add_social_number(self, mock_post):
+    """
+    def test_add_social_number(self):
         user = self.generate_user(type='customer')
+        user = self.login_test_customer()
+        data = {'social_number': self.faker.ssn()}
+        rv = self.client.post(
+            '/add_social_number/'+str(user.id), 
+            data=data, 
+            follow_redirects=True
+        )
+        assert rv.status_code == 200
+
         data = { 'social_number': user.social_number }
 
         mock_post.return_value = Mock(status_code=200)
