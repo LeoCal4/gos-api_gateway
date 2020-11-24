@@ -65,7 +65,7 @@ def reservation_all(restaurant_id):
     """
     filter_form = FilterForm()
     response = ReservationManager.get_all_reservation_restaurant(restaurant_id)
-    if response != 200:
+    if response.status_code != 200:
         flash("There are not reservations")
         restaurant = {}
         reservations = {}
