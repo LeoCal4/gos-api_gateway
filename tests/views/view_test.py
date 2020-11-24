@@ -16,15 +16,22 @@ class ViewTest(unittest.TestCase):
         cls.client = cls.app.test_client()
 
     
-    def generate_user(self, type):
-        if type == 'customer':
+    def generate_user(self, user_type):
+        if user_type == 'customer':
             extra_data = {
-            'firstname': "Mario",
-            'lastname': "Rossi",
+            'firstname': self.faker.first_name(),
+            'lastname': self.faker.last_name(),
             'birthdate': self.faker.date(),
             'social_number': self.faker.ssn(),
             'health_status': choice([True, False]),
             'phone': self.faker.phone_number()
+            }
+        elif user_type == 'authority':
+            extra_data = {
+            'name' = self.faker.company(),
+            'city' = self.faker.city(),
+            'address' = self.faker.address(),
+            'phone' = self.faker.phone_number()
             }
         else:
             extra_data = {}
@@ -35,13 +42,9 @@ class ViewTest(unittest.TestCase):
             'is_active' : choice([True,False]),
             'authenticated': choice([True,False]),
             'is_anonymous': False,
-            'type': choice(['customer', 'operator']),
+            'type': user_type,
             'extra': extra_data,
         }
-        user = User(**data)
-        if type == 'customer':
-            user.type = 'customer'
-        elif type == 'operator':
-            user.type = 'operator'
-            
+
+        user = User(**data)            
         return user
