@@ -1,6 +1,8 @@
 import unittest
 from flask import template_rendered
 from contextlib import contextmanager
+from faker import Faker
+from random import randint, choice
 
 from gooutsafe.auth.user import User
 
@@ -28,10 +30,10 @@ class ViewTest(unittest.TestCase):
             }
         elif user_type == 'authority':
             extra_data = {
-            'name' = self.faker.company(),
-            'city' = self.faker.city(),
-            'address' = self.faker.address(),
-            'phone' = self.faker.phone_number()
+            'name': self.faker.company(),
+            'city': self.faker.city(),
+            'address': self.faker.address(),
+            'phone': self.faker.phone_number()
             }
         else:
             extra_data = {}

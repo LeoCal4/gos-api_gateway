@@ -2,8 +2,6 @@ from unittest.mock import Mock, patch
 from .view_test import ViewTest
 from werkzeug.exceptions import HTTPException
 from flask import url_for
-from faker import Faker
-from random import randint, choice
 import requests
 
 
@@ -18,8 +16,6 @@ class TestUsers(ViewTest):
         
 
     """
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.post')
     def test_create_operator_post_error(self, mock_post, mock_get):
         user = self.generate_user(type='operator')
         user_data = {
@@ -52,7 +48,6 @@ class TestUsers(ViewTest):
             template, _ = templates[0]
             assert template.name == 'create_user.html' 
     
-    @patch('gooutsafe.rao.user_manager.requests.get')
     def test_create_operator_get(self, mock_get):
         user = self.generate_user(type='operator')
         user_data = {
@@ -75,8 +70,6 @@ class TestUsers(ViewTest):
             template, _ = templates[0]
             assert template.name == 'create_user.html' 
 
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.post')
     def test_create_customer_post_error(self, mock_post, mock_get):
         user = self.generate_user(type='operator')
         user_data = {
@@ -109,7 +102,6 @@ class TestUsers(ViewTest):
             template, _ = templates[0]
             assert template.name == 'create_user.html' 
 
-    @patch('gooutsafe.rao.user_manager.requests.get')
     def test_create_customer_get(self, mock_get):
         user = self.generate_user(type='customer')
         user_data = {
@@ -132,7 +124,6 @@ class TestUsers(ViewTest):
             template, _ = templates[0]
             assert template.name == 'create_user.html'
 
-    @patch('gooutsafe.rao.user_manager.requests.delete')
     def test_delete_user(self, mock_delete):
         user = self.generate_user(type='generic')
         mock_delete.return_value = Mock(
@@ -150,7 +141,6 @@ class TestUsers(ViewTest):
             assert response is not None
             assert response.status_code == 302  
 
-    @patch('gooutsafe.rao.user_manager.requests.put')
     def test_update_customer_get(self, mock_put):
         user = self.generate_user(type='customer')
         mock_put.return_value = Mock(
@@ -175,9 +165,7 @@ class TestUsers(ViewTest):
             assert len(templates) == 1
             template, _ = templates[0]
             assert template.name == 'update_customer.html' 
-    
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.put')
+   
     def test_update_customer_post(self, mock_put, mock_get):
         user = self.generate_user(type='customer')
         mock_put.return_value = Mock(
@@ -212,8 +200,6 @@ class TestUsers(ViewTest):
             )
             assert response.status_code == 302
 
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.put')
     def test_update_customer_post_error(self, mock_put, mock_get):
         user = self.generate_user(type='customer')
         mock_put.return_value = Mock(
@@ -251,128 +237,55 @@ class TestUsers(ViewTest):
             assert len(templates) == 1
             template, _ = templates[0]
             assert template.name == 'update_customer.html'
-
-    @patch('gooutsafe.rao.user_manager.requests.put')
-    def test_update_operator_get(self, mock_put):
-        user = self.generate_user(type='operator')
-        mock_put.return_value = Mock(
-            status_code=204,
-            json=lambda:{
-                'status': 'success',
-                'message': 'Updated'
-            }
-        )
-        data = { 
-            'email': user.email, 
-            'password': self.faker.password() 
-        }   
-        with self.captured_templates(self.app) as templates:
-            response = self.client.get(
-                '/update_operator/'+str(user.id),
-                json=data,
-                follow_redirects=False
-            )
-            assert response.status_code == 200
-            assert len(templates) == 1
-            template, _ = templates[0]
-            assert template.name == 'update_customer.html' 
-    
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.put')
-    def test_update_operator_post(self, mock_put, mock_get):
-        user = self.generate_user(type='operator')
-        mock_put.return_value = Mock(
-            status_code=204,
-            json=lambda:{
-                'status': 'success',
-                'message': 'Updated'
-            }
-        )
-        user_data = {
-            'id':user.id,
-            'email':user.email,
-            'is_active': False,
-            'authenticated': False,
-            'is_anonymous': False,
-            'type': user.type
-        }
-        mock_get.return_value = Mock(
-            status_code=200,
-            json=lambda : user_data
-        )
-        
-        data = { 
-            'email': user.email, 
-            'password': self.faker.password() 
-        }   
-        with self.captured_templates(self.app) as templates:
-            response = self.client.post(
-                '/update_operator/'+str(user.id),
-                json=data,
-                follow_redirects=False
-            )
-            assert response.status_code == 302
-
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.put')
-    def test_update_operator_post_error(self, mock_put, mock_get):
-        user = self.generate_user(type='operator')
-        mock_put.return_value = Mock(
-            status_code=204,
-            json=lambda:{
-                'status': 'success',
-                'message': 'Updated'
-            }
-        )
-        user_data = {
-            'id':user.id,
-            'email':user.email,
-            'is_active': False,
-            'authenticated': False,
-            'is_anonymous': False,
-            'type': user.type
-        }
-        mock_get.return_value = Mock(
-            status_code=200,
-            json=lambda : user_data
-        )
-        
-        data = { 
-            'email': user.email, 
-            'password': self.faker.password() 
-        }   
-        with self.captured_templates(self.app) as templates:
-            response = self.client.post(
-                '/update_operator/'+str(user.id +1),
-                json=data,
-                follow_redirects=False
-            )
-            assert response.status_code == 200
-            assert len(templates) == 1
-            template, _ = templates[0]
-            assert template.name == 'update_customer.html'
     """
-    def test_add_social_number(self):
-        user = self.generate_user(type='customer')
-        user = self.login_test_customer()
-        data = {'social_number': self.faker.ssn()}
-        rv = self.client.post(
-            '/add_social_number/'+str(user.id), 
-            data=data, 
-            follow_redirects=True
+    def test_update_operator_get(self, mock_put):
+        user = self.generate_user(user_type='operator')
+        #login
+        data = {
+            'email': user.email, 
+            'password': self.faker.password()
+        }
+        rv = self.client.get(
+            self.BASE_URL+'/update_operator/'+str(user.id), 
+            json=data, 
+            follow_redirects=False
         )
-        assert rv.status_code == 200
+        assert rv.status_code == 302
 
-        data = { 'social_number': user.social_number }
+    def test_update_operator_post(self):
+        user = self.generate_user(user_type='operator')
+        #login
+        data = {
+            'email': user.email, 
+            'password': self.faker.password()
+        }
+        rv = self.client.post(
+            self.BASE_URL+'/update_operator/'+str(user.id), 
+            json=data, 
+            follow_redirects=False
+        )
+        assert rv.status_code == 302
 
-        mock_post.return_value = Mock(status_code=200)
-            
-        with self.captured_templates(self.app) as templates:
-            response = self.client.post(
-                '/add_social_number/'+str(user.id),
-                json=data,
-                follow_redirects=False
-            )
-            
-            assert response is not None
-            assert response.status_code == 302           
+    def test_update_operator_post_error(self):
+        user = self.generate_user(user_type='operator')
+        #login
+        data = {
+            'email': user.email, 
+            'password': self.faker.password()
+        }
+        response = self.client.post(
+            self.BASE_URL+'/update_operator/'+str(user.id +1),
+            json=data,
+            follow_redirects=False
+        )
+        assert response.status_code == 200
+
+    def test_add_social_number(self):
+        user = self.generate_user(user_type='customer')
+        #login
+        rv = self.client.post(
+            self.BASE_URL+'/add_social_number/'+str(user.id), 
+            json={ 'social_number': user.social_number }, 
+            follow_redirects=False
+        )
+        assert rv.status_code == 302         
