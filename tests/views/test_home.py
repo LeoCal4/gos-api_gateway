@@ -4,14 +4,28 @@ import requests
 from werkzeug.exceptions import HTTPException
 from flask import url_for
 from faker import Faker
+import requests
 
 class TestHome(ViewTest):
     faker = Faker()
+
+    BASE_URl = 'http://localhost'
 
     @classmethod
     def setUpClass(cls):
         super(TestHome, cls).setUpClass()
 
+    def test_home(self):
+        rv = requests.get(self.BASE_URl + '/')
+        assert rv.status_code == 200
+
+    def test_search_with_keyword(self):
+        data = {'keyword': self.faker.company(), 'filters': ''}
+        rv = requests.get('/search', query_string=data)
+        assert rv.status_code == 200
+
+
+"""
     def test_home(self):
         with self.captured_templates(self.app) as templates:
             rv = self.client.get('/')
@@ -40,3 +54,4 @@ class TestHome(ViewTest):
             assert len(templates) == 1
             template, _ = templates[0]
             assert template.name == 'explore.html'
+"""
