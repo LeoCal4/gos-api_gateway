@@ -227,7 +227,7 @@ class RestaurantManager:
                 the Restaurant MS service 
         """
         try:
-            url = "%s/edit_restaurant/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
+            url = "%s/restaurant/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
