@@ -57,15 +57,32 @@ class TestRestaurantManager(RaoTest):
 
     @patch('gooutsafe.rao.restaurant_manager.requests.post')
     def test_post_add_success(self, mock):
-        mock.return_value = Mock(status_code=200)
-        response = self.restaurant_manager.post_add({})
+        name = 'Pizza da Musca'
+        address = 'Via Pippa'
+        city = 'Pisa'
+        phone = '1234567890'
+        menu_type = 'Italian'
+        data = {
+                'name': name,
+                'address': address,
+                'city': city,
+                'phone': phone,
+                'menu_type': menu_type,
+                'op_id': randint(0, 999)
+            }
+        mock.return_value = Mock(status_code=200,
+            json = lambda :{
+                'restaurant_id':1
+            })
+        response = self.restaurant_manager.post_add(data)
         assert response == True
 
     @patch('gooutsafe.rao.restaurant_manager.requests.post')
     def test_post_add_fail(self, mock):
         mock.return_value = Mock(status_code=400, json=lambda : {'message': 0})
         response = self.restaurant_manager.post_add({})
-        assert response == False
+        print(response)
+        assert response == None
 
     @patch('gooutsafe.rao.restaurant_manager.requests.post')
     def test_post_add_error(self, mock):
