@@ -118,7 +118,7 @@ class ReservationTest(ViewTest):
         self.login_test_operator()
         url = self.BASE_URL + '/my_reservations'
         response = self.client.get(url)
-        assert response.status_code == 200
+        assert response.status_code == 302
 
 #   <------- Helper Methods -------->
 

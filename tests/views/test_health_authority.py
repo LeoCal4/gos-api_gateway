@@ -28,7 +28,7 @@ class HealthAuthority(ViewTest):
         self.login_test_customer()
         url = self.BASE_URL + '/ha/search_customer'
         response = self.client.post(url)
-        assert response.status_code == 200
+        assert response.status_code == 302
 
     def test_search_customer_success(self):
         customer = self.login_test_customer()
