@@ -17,7 +17,7 @@ class ViewTest(unittest.TestCase):
         cls.app = create_app()
         cls.client = cls.app.test_client()
         from gooutsafe.rao.user_manager import UserManager
-        cls.user_manager = UserManager 
+        cls.user_manager = UserManager
     
 
     def login_test_customer(self):
@@ -65,15 +65,16 @@ class ViewTest(unittest.TestCase):
         Simulate the operator login for testing the views with @login_required
         :return: operator
         """
-        authority = self.generate_user('authority')
-        response = self.user_manager.create_authority(
-                authority.get('email'),
-                authority.get('password'),
-                )
-
+        authority = self.user_manager.get_user_by_email("aslpisa@asl.it")
+        #authority exists in users ms db
+        if authority is None:
+            #create authority
+            rv = self.client.get(self.BASE_URL+'/ha/create')
+            authority = self.user_manager.get_user_by_email("aslpisa@asl.it")
+        #login authority
         rv = self.client.post (
             self.BASE_URL+'/login',
-            json=authority
+            json={"email": "aslpisa@asl.it", "password": "aslpisa"}
         )
         return authority
     
@@ -106,8 +107,8 @@ class ViewTest(unittest.TestCase):
         elif user_type == 'authority':
             data = {
                 'id': randint(0,999),
-                'email': self.faker.email(),
-                'password': self.faker.password(),
+                'email': "aslpisa@asl.it",
+                'password': "aslpisa",
                 'is_active' : choice([True,False]),
                 'authenticated': False,
                 'is_anonymous': False,
