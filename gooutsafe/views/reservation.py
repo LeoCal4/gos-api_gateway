@@ -66,7 +66,7 @@ def reservation_all(restaurant_id):
     filter_form = FilterForm()
     response = ReservationManager.get_all_reservation_restaurant(restaurant_id)
     if response.status_code != 200:
-        flash("There are not reservations")
+        flash("There are no reservations")
         restaurant = {}
         reservations = {}
         people = 0
@@ -114,7 +114,7 @@ def reservation_all(restaurant_id):
                                        restaurant=restaurant, reservations=reservations,
                                        filter_form=filter_form, people=people)
             else:
-                flash("The form is not correct")
+                flash("The inserted data are not valid")
     return render_template("restaurant_reservation.html",
                            restaurant=restaurant, reservations=reservations,
                            filter_form=filter_form, people=people)

@@ -173,11 +173,130 @@ paths:
     post:
       tags: [ Health Authority ]
       summary: Lets the authority mark a customer as positive
+      parameters:
+      - name: customer_id
+        in: path
+        description: Customer's unique identifier
+        required: true
+        schema:
+          type: integer
       responses:
         302:
-          description: 
+          description: redirects to the authority profile page filled with the information about the marked user, indicating if the outcome of the operation (success, already positive, error) 
 
+  /ha/contact/{contact_id}:
+    get:
+      tags: [ Health Authority ]
+      summary: Shows the list of contacts had by the customer specified by the contact_id
+      parameters:
+      - name: contact_id
+        in: path
+        description: Positive customer's unique identifier
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Renders the contact_tracing_positive template, filled with all the information regarding the contacts (positive and contact customers, restaurants and dates)
+        302:
+          description: Either redirects to the homepage if the user is not an authority or redirects to the authority profile page
+  
+  /ha/create/:
+    get:
+      tags: [ Health Authority ]
+      summary: Utilty endpoint needed to create a default health authority
+      responses:
+        302:
+          description: Redirects to the homepage after the creation of the HA
 
-components:
-  schemas:
+  /create_reservation/{restaurant_id}:
+    get:
+      tags: [ Reservations ]
+      summary: Shows the page with the forms needed to create a reservation for the restaurant specified by the restaurant_id
+      parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Renders the create_reservation template, with the restaurant name and the reservation form
+        302:
+          description: Redirects to the homepage, in case the user is not a customer 
+    post:
+      tags: [ Reservations ]
+      summary: Creates a new reservations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                  description: The date of the reservation
+                start_time:
+                  type: string
+                  description: The time of the reservation
+                people_number:
+                  type: integer
+                  description: The number of people in the reservation
+              required:
+                - start_date
+                - start_time
+                - people_number
+      responses:
+        302:
+          description: Redirects to the restaurant page in case the reservation could not be created, otherwise it redirects to the customer profile
 
+  /reservations/{restaurant_id}:
+    get:
+      tags: [ Reservations ]
+      summary: Shows the operator all the reservations made on her/his restaurant 
+      parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Renders the restaurant_reservation template, filled with the all the reservation data and the form for the reservation filtering
+    
+    post:
+      tags: [ Reservations ]
+      summary: Issues a query to filter the reservation of the restaurant
+      parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter_date:
+                  type: string
+                  description: The date to be filtered
+                start_time:
+                  type: string
+                  description: The start time of the date to be filtered
+                end_time:
+                  type: string
+                  description: The end time of the date to be filtered
+              required:
+                - filter_date
+                - start_time
+                - end_time
+      responses:
+        200:
+          description: Renders the restaurant_reservation template with the filtered reservations (if any), filled with the all the reservation data and the form for the reservation filtering
