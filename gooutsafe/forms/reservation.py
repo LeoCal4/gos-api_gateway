@@ -11,7 +11,7 @@ class ReservationForm(FlaskForm):
     specifying the date, the time and the number of people
     """
 
-    start_date = DateField('Date', validators=[DataRequired()])
+    start_date = DateField('Date', format='%Y-%m-%d',validators=[DataRequired()])
     start_time = TimeField('Time', format='%H:%M',validators=[DataRequired()])
     people_number = IntegerField('Number of Persons',
                                  validators=[
