@@ -192,7 +192,7 @@ def notifications():
             is_future = notification['timestamp']['$date'] < notification['contagion_datetime']['$date']
             info['is_future'] = is_future
             if is_future:
-                customer_phone_number = UserManager.get_user_by_id(notification.positive_customer_id).phone
+                customer_phone_number = UserManager.get_user_by_id(notification['positive_customer_id'])['phone']
                 info['customer_phone_number'] = customer_phone_number
             processed_notification_info.append(info)
         return render_template('operator_notifications.html', current_user=current_user,
