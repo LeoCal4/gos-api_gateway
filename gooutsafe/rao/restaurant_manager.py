@@ -31,7 +31,6 @@ class RestaurantManager:
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
-                print(json_data['message'])
                 return None
             return json_data['restaurant_sheet']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -56,7 +55,6 @@ class RestaurantManager:
             res = requests.get(url, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
-                print(json_data['message'])
                 return None
             return json_data['restaurant_sheet']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -82,7 +80,6 @@ class RestaurantManager:
             res = requests.put(url, json={'user_id': user_id}, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             json_data = res.json()
             if res.status_code != 200:
-                print(json_data['message'])
                 return False
             return True
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -104,9 +101,7 @@ class RestaurantManager:
         try:
             url = "%s/restaurant" % cls.RESTAURANTS_MS_URL
             res = requests.post(url, json=json_data, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
-            print(res.json())
             if res.status_code != 200:
-                print(res.json()['message'])
                 return None
             return res.json()['restaurant_id']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -131,7 +126,6 @@ class RestaurantManager:
             url = "%s/restaurant/tables/%d" % (cls.RESTAURANTS_MS_URL, restaurant_id)
             res = requests.post(url, json=json_post_data, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
-                print(res.json()['message'])
                 return False
             return True
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -156,7 +150,6 @@ class RestaurantManager:
             url = "%s/restaurant/time/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.post(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
-                print(res.json()['message'])
                 return False
             return True
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -181,7 +174,6 @@ class RestaurantManager:
             url = "%s/restaurant/measure/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
-                print(res.json()['message'])
                 return False
             return True
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -206,7 +198,6 @@ class RestaurantManager:
             url = "%s/restaurant/avg_stay/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
-                print(res.json()['message'])
                 return False
             return True
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -231,7 +222,6 @@ class RestaurantManager:
             url = "%s/restaurant/%d" % (cls.RESTAURANTS_MS_URL, rest_id)
             res = requests.put(url, json=json_data_to_send, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
-                print(res.json()['message'])
                 return False
             return True
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
@@ -250,7 +240,6 @@ class RestaurantManager:
             res = requests.get('%s/restaurant/all' % cls.RESTAURANTS_MS_URL, 
                                 timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
-                print(res.json()['message'])
                 return None
             return res.json()['restaurants']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):

@@ -84,9 +84,9 @@ def reservation_all(restaurant_id):
     people = 0
     if reservations:
         for r in reservations:
-            start_time = datetime.strptime(r['start_time'], "%Y-%m-%dT%H:%M:%SZ")
+            start_time = datetime.strptime(r['start_time'], "%Y-%m-%d %H:%M:%S")
             r['start_time'] = datetime.strftime(start_time, "%Y-%m-%d %H:%M")
-            end_time = datetime.strptime(r['end_time'], "%Y-%m-%dT%H:%M:%SZ")
+            end_time = datetime.strptime(r['end_time'], "%Y-%m-%d %H:%M:%S")
             r['end_time'] = datetime.strftime(end_time, "%Y-%m-%d %H:%M")
             user_dict = {}
             user_id = r['user_id']
@@ -199,6 +199,6 @@ def my_reservations():
     restaurant = RestaurantManager.get_restaurant_by_op_id(current_user.id)
     if restaurant is None:
         from gooutsafe.views.restaurants import add
-        return add(current_user.id)
+        return redirect(url_for('restaurants.add',id_op=current_user.id))
     restaurant_id = restaurant['restaurant']['id']
     return reservation_all(restaurant_id)
