@@ -1,0 +1,183 @@
+openapi: 3.0.1
+info:
+  title: API Gateway service API endpoints
+  description: API Gateway from GoOutSafe with Microservices
+  version: "0.1"
+servers:
+- url: /
+
+paths:
+  /:
+    get:
+      tags: [ Home ]
+      summary: Return the home page of the web app
+      responses:
+        200:
+          description: Renders the index.html template
+  
+  /search/{keyword}/{filters}:
+    get:
+      tags: [ Home ]
+      summary: Allows users to search for restaurants, specifiying search filters and keywords
+      parameters:
+      - name: keyword
+        in: path
+        description: The keywords to be searched in the specified filter
+        required: true
+        schema:
+          type: string
+      - name: filters
+        in: path
+        description: The filter used to specify what attribute of the restaurants needs to be queried
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Renders the explore.html template, filled with the found restaurants
+
+  /login:
+    tags: [ Authentication ]
+    get:
+      summary: Shows the login page and its form
+      responses:
+        200:
+          description: Renders the login.html template
+    post:
+      summary: Handles the login of the user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        200:
+          description: Reloads the login.html page with a warning, in case the user credentials were invalid
+        302:
+          description: Redirects to the correct profile page, depending on the type of the user
+
+  /relogin:
+    get:
+      tags: [ Authentication ]
+      summary: Utility route used to handle the user's session expiration
+      responses:
+        200:
+          description: Calls the login method
+  
+  /profile/{id}:
+    get:
+      tags: [ Profile ]
+      summary: Shows the profile page of the customer specified by the id
+      parameters:
+      - name: id
+        in: path
+        description: Customer's unique identifier
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Renders the customer_profile template, filled with the ssn form and the user's reservations
+        302:
+          description: Redirects to the homepage, in case the user accessing the profile is not its owner
+
+  /operator/{op_id}:
+    get:
+      tags: [ Profile ]
+      summary: Shows the profile page of the operator specified by the id
+      parameters:
+      - name: op_id
+        in: path
+        description: Operator's unique identifier
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Renders the operator_profile template, filled with the reservations filter form and the operator's restaurant
+        302:
+          description: Redirects to the homepage, in case the user accessing the profile is not its owner
+
+  /authority/{id}/{positive_id}:
+    get:
+      tags: [ Profile ]
+      summary: Shows the page of the authority, eventually searching for the user specified by positive_id
+      parameters:
+      - name: id
+        in: path
+        description: Health Authority's unique identifier
+        required: true
+        schema:
+          type: integer
+      - name: positive_id
+        in: path
+        description: Unique identifier of the positive user to be marked (can be 0)
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Renders the authority_profile template, filled with the positive customers, the serched user and the HA form
+        302:
+          description: Redirects to the homepage, in case the user accessing the profile is not its owner
+  
+  /logout:
+    get:
+      tags: [ Authentication ]
+      summary: Logs out the logged user
+      responses:
+        302:
+          description: Redirects to the homepage
+
+  /notifications:
+    get:
+      tags: [ Notifications ]
+      summary: Shows the notifications for the current user
+      responses:
+        200:
+          description: Renders the customer_notifications/operator_notifications template, filled with the current user and the notifications info
+    
+  /ha/search_customer:
+    post:
+      tags: [ Health Authority ]
+      summary: Lets the authority search for a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                track_type:
+                  type: string
+                  description: The attribute of the users to be queried, among SSN, email and phone
+                customer_ident:
+                  type: string
+                  description: The keyword(s) searched by the HA
+              required:
+                - track_type
+                - customer_ident
+      responses:
+        302: either redirects to the homepage if the user is not an authority or redirects to the authority profile page filled with the information about the searched user 
+
+  /ha/mark_positive/{customer_id}:
+    post:
+      tags: [ Health Authority ]
+      summary: Lets the authority mark a customer as positive
+      responses:
+        302:
+          description: 
+
+
+components:
+  schemas:
+

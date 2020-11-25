@@ -9,6 +9,14 @@ class TestAuth(ViewTest):
     @classmethod
     def setUpClass(cls):
         super(TestAuth, cls).setUpClass()
+        from gooutsafe.rao.restaurant_manager import RestaurantManager
+        cls.restaurant_manager = RestaurantManager
+        from .test_restaurants import TestRestaurantViews
+        cls.test_restaurant = TestRestaurantViews()
+        cls.test_restaurant.setUpClass()
+        from .test_reservation import ReservationTest
+        cls.test_reservation = ReservationTest()
+        cls.test_reservation.setUpClass()
 
     def test_login(self):
         #login for a customer
@@ -37,23 +45,28 @@ class TestAuth(ViewTest):
         assert rv.status_code == 200
 
     def test_profile(self):
+        #create customer
         customer = self.login_test_customer()
         customer = self.user_manager.get_user_by_email(customer['email'])
+        #create reservation
+        reservation = self.test_reservation.generate_random_reservation(user_id=customer.id)
         rv = self.client.get('/profile/'+str(customer.id), follow_redirects=True)
         assert rv.status_code == 200
-    #TODO
-    """def test_get_operator_profile(self):
-        #check your profile
+        
+    def test_get_operator_profile(self):
+        #create operator and restaurant
         operator = self.login_test_operator()
         operator = self.user_manager.get_user_by_email(operator['email'])
-        rv = self.client.get('operator/'+str(operator.id), follow_redirects=True)
+        self.test_restaurant.create_random_restaurant(operator.id)
+        #check your profile
+        rv = self.client.get('/operator/'+str(operator.id), follow_redirects=True)
         assert rv.status_code == 200
         #try to check profile of another operator(redirect to your home page)
         self.login_test_operator()
-        rv = self.client.get('operator/'+str(operator.id), follow_redirects=True)
-        assert rv.status_code == 200"""
+        rv = self.client.get('/operator/'+str(operator.id), follow_redirects=True)
+        assert rv.status_code == 200
 
-
+    
     def test_logout(self):
         self.login_test_customer()
         rv = self.client.get('/logout',follow_redirects=True)

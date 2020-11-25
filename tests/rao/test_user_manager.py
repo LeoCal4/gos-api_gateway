@@ -184,9 +184,9 @@ class TestUserManager(RaoTest):
                 self.assertEqual(http_error.exception.code, 500)
 
     @patch('gooutsafe.rao.user_manager.requests.post')
-    def test_create_customer(self, mock_get):
+    def test_create_customer(self, mock_post):
         user = self.generate_user(type='customer')
-        mock_get.return_value = Mock(status_code=200)
+        mock_post.return_value = Mock(status_code=200)
         password = TestUserManager.faker.password()
         response = self.user_manager.create_customer(
             type="customer", email=user.email, password=password,
