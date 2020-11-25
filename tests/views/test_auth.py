@@ -57,6 +57,7 @@ class TestAuth(ViewTest):
         #create operator and restaurant
         operator = self.login_test_operator()
         operator = self.user_manager.get_user_by_email(operator['email'])
+        rv = self.client.get('/operator/'+str(operator.id), follow_redirects=True)
         self.test_restaurant.create_random_restaurant(operator.id)
         #check your profile
         rv = self.client.get('/operator/'+str(operator.id), follow_redirects=True)
@@ -71,14 +72,14 @@ class TestAuth(ViewTest):
         self.login_test_customer()
         rv = self.client.get('/logout',follow_redirects=True)
         assert rv.status_code == 200
-    #TODO
-    """def test_auth_profile(self):
+    
+    def test_auth_profile(self):
         authority = self.login_test_authority()
         rv = self.client.get('/authority/'+str(authority.id)+"/0", follow_redirects=True)
         assert rv.status_code == 200
         self.login_test_authority()
-        rv = self.client.get('/authority/'+str(authority.id)+"/0", follow_redirects=True)
-        assert rv.status_code == 200"""
+        rv = self.client.get('/authority/0/0', follow_redirects=True)
+        assert rv.status_code == 200
     #TODO
     """def test_notifications(self):
         self.login_test_customer()
