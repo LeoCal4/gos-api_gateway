@@ -65,8 +65,6 @@ def mark_positive(customer_id):
                     ntm.trigger_contact_tracing(positive_id=customer.id) 
                 else:
                     flash("Error during the operation")
-                #we have to do this in user microservice
-                #schedule_revert_customer_health_status(customer.id)
     return redirect(url_for('auth.authority', id=current_user.id, positive_id=0))
 
 

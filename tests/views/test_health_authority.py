@@ -28,7 +28,7 @@ class HealthAuthority(ViewTest):
         self.login_test_customer()
         url = self.BASE_URL + '/ha/search_customer'
         response = self.client.post(url)
-        assert response.status_code == 302
+        assert response.status_code == 200
 
     def test_search_customer_success(self):
         customer = self.login_test_customer()
@@ -65,3 +65,20 @@ class HealthAuthority(ViewTest):
         }
         response = self.client.post(url, json = data)
         assert response.status_code == 302
+
+    def test_mark_positive(self):
+        customer = self.login_test_customer()
+        customer = self.user_manager.get_user_by_email(customer['email'])
+        authority = self.login_test_authority()
+        #mark as positive
+        url = self.BASE_URL + '/ha/mark_positive/%s' % str(customer.id)
+        response = self.client.post(url, follow_redirects=True)
+        assert response.status_code == 200
+        #customer is already positive
+        response = self.client.post(url,follow_redirects=True)
+        assert response.status_code == 200
+        #contact tracing
+        url = self.BASE_URL + '/ha/contact/%s' % str(customer.id)
+        response = self.client.get(url,follow_redirects=True)
+        assert response.status_code == 200
+
