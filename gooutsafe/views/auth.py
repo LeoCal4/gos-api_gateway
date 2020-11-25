@@ -110,7 +110,6 @@ def operator(op_id):
     Returns:
         Redirects the view to personal page of the operator
     """
-
     if current_user.id == op_id:
         filter_form = FilterForm()
         json_data = RestaurantManager.get_restaurant_by_op_id(current_user.id)

@@ -158,5 +158,5 @@ class ReservationTest(ViewTest):
         start_time = datetime.datetime(year=2020, month=month, day=day, hour=hour)
         start_time_str = datetime.datetime.strftime(start_time, "%Y-%m-%d %H:%M:%S")
         people_number = self.faker.random_int(min=1, max=4)
-        response = self.reservation_manager.create_reservation(restaurant_id, 1, start_time_str, people_number)
+        response = self.reservation_manager.create_reservation(restaurant_id, user_id, start_time_str, people_number)
         return response
