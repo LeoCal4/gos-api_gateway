@@ -5,6 +5,7 @@ from werkzeug.exceptions import HTTPException
 from flask import url_for
 from faker import Faker
 from random import randint, choice
+import datetime
 
 class ReservationTest(ViewTest):
     faker = Faker('it_IT')
@@ -28,6 +29,8 @@ class ReservationTest(ViewTest):
         assert response.status_code == 302
 
     def test_create_reservation_get_as_customer(self):
+        rsp = self.generate_random_reservation()
+        print(rsp)
         self.login_test_customer()
         data = { 
             'restaurant_name': 'Pizza da Musca',
@@ -125,3 +128,35 @@ class ReservationTest(ViewTest):
         url = self.BASE_URL + '/my_reservations'
         response = self.client.get(url)
         assert response.status_code == 200
+
+#   <------- Helper Methods -------->
+
+    def generate_random_reservation(self, restaurant_id=None, user_id=None):
+        week_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        if restaurant_id is None:
+            restaurant = self.test_restaurant.create_random_restaurant(op_id=1)
+            restaurant_id = restaurant['id']
+            self.restaurant_manager.post_add_tables(restaurant_id, {'number':4,'max_capacity':4})
+            for day in week_days:
+                start_time = '10:00:00'
+                end_time = '20:00:00'
+                ava_dict = {
+                    'day':day,
+                    'start_time':start_time,
+                    'end_time':end_time
+                }
+                self.restaurant_manager.post_add_time(restaurant['id'], ava_dict)
+        else:
+            restaurant_id = restaurant_id
+        if user_id is None:
+            user_id = self.faker.random_int(min=1, max=999)
+        else:
+            user_id = user_id
+        month = self.faker.random_int(min=1, max=12)
+        day = self.faker.random_int(min=1, max=30)
+        hour = self.faker.random_int(min=10, max=20)
+        start_time = datetime.datetime(year=2020, month=month, day=day, hour=hour)
+        start_time_str = datetime.datetime.strftime(start_time, "%Y-%m-%d %H:%M:%S")
+        people_number = self.faker.random_int(min=1, max=4)
+        response = self.reservation_manager.create_reservation(restaurant_id, 1, start_time_str, people_number)
+        return response

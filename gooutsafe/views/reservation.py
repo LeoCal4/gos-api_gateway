@@ -44,6 +44,8 @@ def create_reservation(restaurant_id):
                     return redirect('/restaurants/' + str(restaurant_id))
                 else:
                     return redirect(url_for('auth.profile', id=current_user.id))
+            else:
+                flash("Take a look to the inserted data")
         return render_template('create_reservation.html', restaurant_name=restaurant_name, form=form)
     return redirect(url_for('home.index'))
 
@@ -63,7 +65,6 @@ def reservation_all(restaurant_id):
     """
     filter_form = FilterForm()
     response = ReservationManager.get_all_reservation_restaurant(restaurant_id)
-    print(response.json())
     if response.status_code != 200:
         flash("There are not reservations")
         restaurant = {}
