@@ -65,6 +65,7 @@ def reservation_all(restaurant_id):
     """
     filter_form = FilterForm()
     response = ReservationManager.get_all_reservation_restaurant(restaurant_id)
+    print(response)
     if response.status_code != 200:
         flash("There are not reservations")
         restaurant = {}
@@ -75,6 +76,7 @@ def reservation_all(restaurant_id):
                                 filter_form=filter_form, people=people)
     json_resp = response.json()
     reservations = json_resp['reservations']
+    print(reservations)
     _, _, json_details = ReservationManager.get_restaurant_detatils(restaurant_id)
     restaurant = json_details['restaurant']
     

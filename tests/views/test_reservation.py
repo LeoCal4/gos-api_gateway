@@ -17,6 +17,8 @@ class ReservationTest(ViewTest):
         cls.reservation_manager = ReservationManager
         from gooutsafe.rao.restaurant_manager import RestaurantManager
         cls.restaurant_manager = RestaurantManager
+        from gooutsafe.rao.user_manager import UserManager
+        cls.user_manager = UserManager
         from .test_restaurants import TestRestaurantViews
         cls.test_restaurant = TestRestaurantViews()
         cls.test_restaurant.setUpClass()
@@ -30,7 +32,6 @@ class ReservationTest(ViewTest):
 
     def test_create_reservation_get_as_customer(self):
         rsp = self.generate_random_reservation()
-        print(rsp)
         self.login_test_customer()
         data = { 
             'restaurant_name': 'Pizza da Musca',
@@ -52,30 +53,20 @@ class ReservationTest(ViewTest):
         assert response.status_code == 302
 
 
-    def test_reservation_all_get(self):
-        url = self.BASE_URL + '/reservations/'+ str(1)
+    def test_reservation_all_get_error(self):
+        url = self.BASE_URL + '/reservations/'+ str(0)
+        response = self.client.get(url)
+        assert response.status_code == 200
+        
+    def test_reservation_all_get_success(self):
+        _, _ , restaurant_id = self.generate_random_reservation()
+        url = self.BASE_URL + '/reservations/'+ str(restaurant_id)
         response = self.client.get(url)
         assert response.status_code == 200
 
     def test_reservation_all_post(self):
-        customer = self.login_test_customer()
-        restaurant = self.test_restaurant.create_random_restaurant(op_id=1)
-        restaurant_id = restaurant['id']
-        self.restaurant_manager.post_add_tables(restaurant_id, {'number':1,'max_capacity':4})
-        day = 'Monday'
-        start_time = '10:00:00'
-        end_time = '20:00:00'
-        ava_dict = {
-            'day':day,
-            'start_time':start_time,
-            'end_time':end_time
-        }
-        self.restaurant_manager.post_add_time(restaurant['id'], ava_dict)
-        rest = self.restaurant_manager.get_restaurant_sheet(restaurant_id)
-        start_time = "2020-11-30 14:00:00"
-        people_number = 1
-        response = self.reservation_manager.create_reservation(restaurant_id, 1, start_time, people_number)
-        filter_date = '2020-11-30'
+        rsp, filter_data, restaurant_id = self.generate_random_reservation()
+        filter_date = datetime.datetime.strftime(filter_data.date(), "%Y-%m-%d")
         start_time = '00:00'
         end_time = '23:00'
         data = {
@@ -149,14 +140,16 @@ class ReservationTest(ViewTest):
         else:
             restaurant_id = restaurant_id
         if user_id is None:
-            user_id = self.faker.random_int(min=1, max=999)
+            customer = self.login_test_customer()
+            customer = self.user_manager.get_user_by_email(customer['email'])
+            user_id = customer.id
         else:
             user_id = user_id
         month = self.faker.random_int(min=1, max=12)
         day = self.faker.random_int(min=1, max=30)
-        hour = self.faker.random_int(min=10, max=20)
+        hour = self.faker.random_int(min=10, max=19)
         start_time = datetime.datetime(year=2020, month=month, day=day, hour=hour)
         start_time_str = datetime.datetime.strftime(start_time, "%Y-%m-%d %H:%M:%S")
         people_number = self.faker.random_int(min=1, max=4)
         response = self.reservation_manager.create_reservation(restaurant_id, user_id, start_time_str, people_number)
-        return response
+        return response, start_time, restaurant_id

@@ -39,7 +39,18 @@ class TestReservationManager(RaoTest):
         assert response.status_code == 200
 
     @patch('gooutsafe.rao.reservation_manager.requests.post')
-    def test_create_reservation_error(self, mock):
+    @patch('gooutsafe.rao.reservation_manager.requests.get')
+    def test_create_reservation_error(self, mock_get, mock):
+        mock_get.side_effect = requests.exceptions.ConnectionError()
+        mock_get.return_value = Mock(status_code=200, 
+                                    json = lambda:{
+                                        'restaurant_sheet':{
+                                            'restaurant':{
+                                                'tables':{},
+                                                'availabilities': {},
+                                            },
+                                        },
+                                    })
         mock.side_effect = requests.exceptions.ConnectionError()
         mock.return_value = Mock(status_code=200)
         restaurant_id = 1
