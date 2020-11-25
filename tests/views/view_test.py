@@ -59,6 +59,23 @@ class ViewTest(unittest.TestCase):
             json=operator
         )
         return operator
+    #it has to be fixed
+    def login_test_authority(self):
+        """
+        Simulate the operator login for testing the views with @login_required
+        :return: operator
+        """
+        authority = self.generate_user('authority')
+        response = self.user_manager.create_authority(
+                authority.get('email'),
+                authority.get('password'),
+                )
+
+        rv = self.client.post (
+            self.BASE_URL+'/login',
+            json=authority
+        )
+        return authority
     
     def generate_user(self, user_type):
         """Generates a random user, depending on the type
