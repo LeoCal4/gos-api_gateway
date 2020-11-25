@@ -14,6 +14,11 @@ class ReservationTest(ViewTest):
         super(ReservationTest, cls).setUpClass()
         from gooutsafe.rao.reservation_manager import ReservationManager
         cls.reservation_manager = ReservationManager
+        from gooutsafe.rao.restaurant_manager import RestaurantManager
+        cls.restaurant_manager = RestaurantManager
+        from .test_restaurants import TestRestaurantViews
+        cls.test_restaurant = TestRestaurantViews()
+        cls.test_restaurant.setUpClass()
 
 
     def test_create_reservation_get_as_operator(self):
@@ -50,8 +55,33 @@ class ReservationTest(ViewTest):
         assert response.status_code == 200
 
     def test_reservation_all_post(self):
-        url = self.BASE_URL + '/reservations/'+ str(1)
-        response = self.client.post(url)
+        customer = self.login_test_customer()
+        restaurant = self.test_restaurant.create_random_restaurant(op_id=1)
+        restaurant_id = restaurant['id']
+        self.restaurant_manager.post_add_tables(restaurant_id, {'number':1,'max_capacity':4})
+        day = 'Monday'
+        start_time = '10:00:00'
+        end_time = '20:00:00'
+        ava_dict = {
+            'day':day,
+            'start_time':start_time,
+            'end_time':end_time
+        }
+        self.restaurant_manager.post_add_time(restaurant['id'], ava_dict)
+        rest = self.restaurant_manager.get_restaurant_sheet(restaurant_id)
+        start_time = "2020-11-30 14:00:00"
+        people_number = 1
+        response = self.reservation_manager.create_reservation(restaurant_id, 1, start_time, people_number)
+        filter_date = '2020-11-30'
+        start_time = '00:00'
+        end_time = '23:00'
+        data = {
+            'filter_date':filter_date,
+            'start_time':start_time,
+            'end_time':end_time
+        }
+        url = self.BASE_URL + '/reservations/'+ str(restaurant_id)
+        response = self.client.post(url, json=data)
         assert response.status_code == 200
 
     def test_delete_reservation_customer(self):
