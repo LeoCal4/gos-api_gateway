@@ -14,59 +14,84 @@ class ReservationTest(ViewTest):
         super(ReservationTest, cls).setUpClass()
         from gooutsafe.rao.reservation_manager import ReservationManager
         cls.reservation_manager = ReservationManager
-    """
-    def test_create_reservation_get(self):
+
+
+    def test_create_reservation_get_as_operator(self):
+        self.login_test_operator()
+        url = self.BASE_URL + '/create_reservation/'+ str(1)
+        response = self.client.get(url)
+        assert response.status_code == 302
+
+    def test_create_reservation_get_as_customer(self):
+        self.login_test_customer()
         data = { 
             'restaurant_name': 'Pizza da Musca',
         }
         url = self.BASE_URL + '/create_reservation/'+ str(1)
-        response = requests.get(url, json=data)
+        response = self.client.get(url, json=data)
         assert response.status_code == 200
 
-        
-    
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.post')
-    def test_create_reservation_post_success(self, mock_post, mock_get):
-        pass
+    def test_create_reservation_post(self):
+        self.login_test_customer()
+        start_date = "2020-11-30"
+        start_time = "12:00"
+        people_number = 1
+        data = {'start_date': start_date,
+                'start_time' : start_time,
+                'people_number': people_number}
+        url = self.BASE_URL + '/create_reservation/'+ str(1)
+        response = self.client.post(url, json=data)
+        assert response.status_code == 302
 
-    @patch('gooutsafe.rao.user_manager.requests.get')
-    @patch('gooutsafe.rao.user_manager.requests.post')
-    def test_create_reservation_post_error(self, mock_post, mock_get):
-        pass
-    """
 
     def test_reservation_all_get(self):
         url = self.BASE_URL + '/reservations/'+ str(1)
-        response = requests.get(url)
+        response = self.client.get(url)
         assert response.status_code == 200
 
     def test_reservation_all_post(self):
         url = self.BASE_URL + '/reservations/'+ str(1)
-        response = requests.post(url)
+        response = self.client.post(url)
         assert response.status_code == 200
 
     def test_delete_reservation_customer(self):
-        pass
-
-    """
-    def test_delete_reservation_restaurant(self):
+        self.login_test_customer()
         url = self.BASE_URL + '/reservation/delete/' + str(1) + '/' + str(0) 
-        response = requests.post(url)
-        assert response.status_code == 200
-    """
-    def test_edit_reservation(self):
-        pass
+        response = self.client.get(url)
+        assert response.status_code == 302
 
-    def test_customer_my_reservation(self):
-        pass
+    def test_delete_reservation_restaurant(self):
+        self.login_test_operator()
+        url = self.BASE_URL + '/reservation/delete/' + str(1) + '/' + str(0) 
+        response = self.client.get(url)
+        assert response.status_code == 302
+
+    def test_edit_reservation_get(self):
+        self.login_test_customer()
+        url = self.BASE_URL + '/reservation/edit/' + str(1) + '/' + str(0) 
+        response = self.client.get(url)
+        assert response.status_code == 302
+
+    def test_edit_reservation_post(self):
+        self.login_test_customer()
+        start_date = "2020-11-30"
+        start_time = "12:00"
+        people_number = 1
+        data = {'start_date': start_date,
+                'start_time' : start_time,
+                'people_number': people_number}
+        url = self.BASE_URL + '/reservation/edit/' + str(1) + '/' + str(0) 
+        response = self.client.post(url, json=data)
+        assert response.status_code == 302
+
 
     def test_confirm_reservation_success(self):
         url = self.BASE_URL + '/reservation/confirm/' + str(1) + '/' + str(0) 
-        response = requests.get(url)
-        print(response.url)
-        print(response.status_code)
-        assert response.status_code == 200
+        response = self.client.get(url)
+        assert response.status_code == 302
 
     def test_my_reservations(self):
-        pass
+        self.login_test_operator()
+        url = self.BASE_URL + '/my_reservations'
+        response = self.client.get(url)
+        assert response.status_code == 200

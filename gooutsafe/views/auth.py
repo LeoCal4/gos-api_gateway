@@ -66,7 +66,6 @@ def profile(id):
     Returns:
         Redirects the view to personal page of the customer
     """
-
     if current_user.id == id:
         form = ReservationForm()
         social_form = AddSocialNumberForm()

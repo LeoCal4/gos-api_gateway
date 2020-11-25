@@ -44,8 +44,6 @@ def create_reservation(restaurant_id):
                     return redirect('/restaurants/' + str(restaurant_id))
                 else:
                     return redirect(url_for('auth.profile', id=current_user.id))
-            else:
-                flash("Take a look to the inserted data")
         return render_template('create_reservation.html', restaurant_name=restaurant_name, form=form)
     return redirect(url_for('home.index'))
 
@@ -169,8 +167,6 @@ def edit_reservation(restaurant_id, reservation_id):
                 flash("There aren't free tables for that hour or the restaurant is close")
             else:
                 flash("Reservation successfully updated")
-        else:
-            flash("The form is not correct")
     return redirect(url_for('auth.profile', id=current_user.id))
 
 
@@ -196,12 +192,9 @@ def my_reservations():
     """Given a restaurant operator, this method returns all its reservations
 
     """
-    print(current_user)
     restaurant = RestaurantManager.get_restaurant_by_op_id(current_user.id)
-    restaurant_id = restaurant['restaurant']['id']
-
     if restaurant is None:
         from gooutsafe.views.restaurants import add
         return add(current_user.id)
-
+    restaurant_id = restaurant['restaurant']['id']
     return reservation_all(restaurant_id)

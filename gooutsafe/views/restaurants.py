@@ -33,10 +33,11 @@ def restaurant_sheet(restaurant_id):
         restaurant_id (int): univocal identifier of the restaurant
     """
     restaurant_sheet = RestaurantManager.get_restaurant_sheet(restaurant_id)
-    list_measures = restaurant_sheet['restaurant']['measures'].split(',')[1:]
     if restaurant_sheet is None:
         flash('No restaurant found given the specified id')
         return redirect(url_for('home.index'))
+        
+    list_measures = restaurant_sheet['restaurant']['measures'].split(',')[1:]
 
     return render_template("restaurantsheet.html",
                            restaurant=restaurant_sheet['restaurant'], list_measures=list_measures,
@@ -75,8 +76,7 @@ def add(id_op):
     """
     form = RestaurantForm()
     if request.method == 'POST':
-        print(form.data)
-        if form.validate_on_submit():
+        if form.is_submitted():
             name = form.data['name']
             address = form.data['address']
             city = form.data['city']

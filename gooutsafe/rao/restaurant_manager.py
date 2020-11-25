@@ -96,8 +96,8 @@ class RestaurantManager:
             json_data (dict): the restaurant data to be sent in the request
 
         Returns:
-            False: if the Restaurant MS could not create the restaurant
-            True: the request was accepted successfully
+            None: if the Restaurant MS could not create the restaurant
+            restaurant_id: the request was accepted successfully
             500 error page: in case of timeout or connection error with
                 the Restaurant MS service 
         """
@@ -106,8 +106,8 @@ class RestaurantManager:
             res = requests.post(url, json=json_data, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
                 print(res.json()['message'])
-                return False
-            return True
+                return None
+            return res.json()['restaurant_id']
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
 
