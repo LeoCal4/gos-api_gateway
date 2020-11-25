@@ -84,9 +84,9 @@ def reservation_all(restaurant_id):
     people = 0
     if reservations:
         for r in reservations:
-            start_time = datetime.strptime(r['start_time'], "%Y-%m-%dT%H:%M:%SZ")
+            start_time = datetime.strptime(r['start_time'], "%Y-%m-%d %H:%M:%S")
             r['start_time'] = datetime.strftime(start_time, "%Y-%m-%d %H:%M")
-            end_time = datetime.strptime(r['end_time'], "%Y-%m-%dT%H:%M:%SZ")
+            end_time = datetime.strptime(r['end_time'], "%Y-%m-%d %H:%M:%S")
             r['end_time'] = datetime.strftime(end_time, "%Y-%m-%d %H:%M")
             user_dict = {}
             user_id = r['user_id']

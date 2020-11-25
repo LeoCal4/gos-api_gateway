@@ -80,7 +80,7 @@ def profile(id):
         reservations = json_response['reservations']
         for res in reservations:
             # time reformat
-            start_time = datetime.strptime(res['start_time'], "%Y-%m-%dT%H:%M:%SZ")
+            start_time = datetime.strptime(res['start_time'], "%Y-%m-%d %H:%M:%S")
             res['start_time'] = datetime.strftime(start_time, "%Y-%m-%d %H:%M")
             print()
             # restaurant details extraction

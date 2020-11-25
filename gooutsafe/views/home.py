@@ -42,7 +42,6 @@ def search():
                     json_list.append({"name": r['name'], "lat": r['lat'], "lon": r['lon'] })
             json_list = json.dumps(json_list)
     except Exception as e:
-        print(str(e))
         flash('Search error')
 
     return render_template('explore.html', search_form=form, restaurants=restaurants, json_res=json_list)
