@@ -130,6 +130,7 @@ class RestaurantManager:
             url = "%s/restaurant/tables/%d" % (cls.RESTAURANTS_MS_URL, restaurant_id)
             res = requests.post(url, json=json_post_data, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
             if res.status_code != 200:
+                print(res.json())
                 print(res.json()['message'])
                 return False
             return True

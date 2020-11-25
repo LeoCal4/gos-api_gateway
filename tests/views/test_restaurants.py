@@ -45,7 +45,7 @@ class TestRestaurantViews(ViewTest):
         restaurant = self.create_random_restaurant(owner['id'])
         rv = self.client.get(self.BASE_URL + '/restaurants/like/' + str(restaurant['id']), json=restaurant,
             follow_redirects=False)
-        assert rv.status_code == 302
+        assert rv.status_code == 200
 
     def test_put_toggle_like_error(self):
         owner = self.login_test_operator()
@@ -53,56 +53,58 @@ class TestRestaurantViews(ViewTest):
         rv = self.client.get(self.BASE_URL + '/restaurants/like/' + str(0), json=restaurant)
         assert rv.status_code == 302
 
+    def test_post_details(self):
+        owner = self.login_test_operator()
+        restaurant = self.create_random_restaurant(owner['id'])
+        rv = self.client.get(self.BASE_URL + '/restaurants/details/' + str(owner['id']), json=restaurant)
+        assert rv.status_code == 200
 
-    """
-    # needs the whole resturant dict since it actually renders the page
-    @skip('It fails')
-    @patch('gooutsafe.rao.restaurant_manager.requests.get')
-    def test_restaurant_sheet(self, mock):
-        with self.captured_templates(self.app) as templates:
-            data = {'restaurant_sheet': {'restaurant': {}, 'average_rate': 0, 'max_rate': 0, 'is_open': False}}
-            mock.return_value = Mock(status_code=200, json=lambda : data)
-            rv = self.client.get('/restaurants/' + str(randint(0, 999)))
-            assert rv.status_code == 200
-            assert len(templates) == 1
-            template, _ = templates[0]
-            assert template.name == 'restaurantsheet.html'
+    def test_post_save_details(self):
+        owner = self.login_test_operator()
+        restaurant = self.create_random_restaurant(owner['id'])
+        tables = {'number': 10, 'max_capacity': 10}
+        rv = self.client.post(self.BASE_URL + '/restaurants/save/' + str(owner['id']) + '/' + str(restaurant['id']),
+            json=tables, follow_redirects=False)
+        assert rv.status_code == 302
+        
+    def test_post_save_time(self):
+        owner = self.login_test_operator()
+        restaurant = self.create_random_restaurant(owner['id'])
+        time = {'day': 'Monday', 'start_time': '10:00', 'end_time': '15:00'}
+        rv = self.client.post(self.BASE_URL + '/restaurants/savetime/' + str(owner['id']) + '/' + str(restaurant['id']),
+            json=time, follow_redirects=False)
+        assert rv.status_code == 302
 
-    # uses current_user.id :(
-    @skip('It fails too')
-    @patch('gooutsafe.rao.restaurant_manager.requests.put')
-    def test_like(self, mock):
-        with self.captured_templates(self.app) as templates:
-            mock.return_value = Mock(status_code=200)
-            rv = self.client.get('/restaurants/like/' + str(randint(0, 999)))
-            assert rv.status_code == 302
-            assert len(templates) == 1
-            template, _ = templates[0]
-            assert template.name == 'restaurantsheet.html'
+    def test_post_save_measure(self):
+        owner = self.login_test_operator()
+        restaurant = self.create_random_restaurant(owner['id'])
+        measure = {'measure': 'Monday'}
+        rv = self.client.post(self.BASE_URL + '/restaurants/savemeasure/' + str(owner['id']) + '/' + str(restaurant['id']),
+            json=measure, follow_redirects=False)
+        assert rv.status_code == 302
 
-    def test_add_restaurant_get(self):
-        with self.captured_templates(self.app) as templates:
-            rv = self.client.get('/restaurants/add/' + str(randint(0, 999)))
-            assert rv.status_code == 200
-            assert len(templates) == 1
-            template, _ = templates[0]
-            assert template.name == 'create_restaurant.html'
+    def test_post_avg_stay(self):
+        owner = self.login_test_operator()
+        restaurant = self.create_random_restaurant(owner['id'])
+        stay = {'hours': 1, 'minutes': 30}
+        rv = self.client.post(self.BASE_URL + '/restaurants/avgstay/' + str(owner['id']) + '/' + str(restaurant['id']),
+            json=stay, follow_redirects=False)
+        assert rv.status_code == 302
+    
+    def test_post_edit_restaurant(self):
+        owner = self.login_test_operator()
+        restaurant = self.create_random_restaurant(owner['id'])
+        rv = self.client.post(self.BASE_URL + '/edit_restaurant/' + str(owner['id']) + '/' + str(restaurant['id']),
+            json=restaurant, follow_redirects=False)
+        assert rv.status_code == 302
 
-    @patch('gooutsafe.rao.restaurant_manager.requests.post')
-    def test_add_restaurant_post(self, mock):
-        with self.captured_templates(self.app) as templates:
-            mock.return_value = Mock(status_code=200)
-            restaurant = self.create_random_restaurant()
-            del restaurant['lon']
-            del restaurant['lat']
-            del restaurant['menu_type']
-            restaurant['phone'] = str(restaurant['phone'])
-            rv = self.client.post('/restaurants/add/' + str(randint(0, 999)), data=restaurant)
-            assert rv.status_code == 200
-            assert len(templates) == 1
-            template, _ = templates[0]
-            assert template.name == 'create_restaurant.html'
-    """
+    def test_get_edit_restaurant(self):
+        owner = self.login_test_operator()
+        # restaurant = self.create_random_restaurant(owner['id'])
+        rv = self.client.get(self.BASE_URL + '/edit_restaurant/' + str(owner['id']) + '/' + str(0),
+            follow_redirects=False)
+        assert rv.status_code == 200
+
     ### Helper methods ###
 
     def create_random_restaurant(self, op_id):
