@@ -580,3 +580,368 @@ paths:
       responses:
         200:
           description: Calls the method handling the /reservations/{restaurant_id} endpoint
+
+  /my_restaurant:
+    get:
+      summary: Shows an operator the page containing her/his restaurant
+      tags: [ Restaurants ]
+      responses:
+        200:
+          description: Calls the method handling the /restaurants/details/{id_op} endpoint
+  
+  /restaurants/{restaurant_id}:
+    get:
+      summary: Shows the public page of the restaurant specified by restaurant_id
+      tags: [ Restaurants ]
+      parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Renders the restaurantsheet template, containing all the restaurant's info
+        302:
+          description: Redirects to the homepage, in case no restaurant was found
+
+  /restaurants/like/{restaurant_id}:
+    get:
+      summary: Toggles a like on the restaurant specified by restaurant_id
+      tags: [ Restaurants ]
+      parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Calls the method handling the /restaurants/<restaurant_id> endpoint
+  
+  /restaurants/add/{id_op}:
+    tags: [ Restaurants ]
+    parameters:
+    - name: id_op
+      in: path
+      description: Operator's unique identifier
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Show the page containing the form to create a new restaurant
+      responses:
+        200:
+          description: Renders the create_restaurant template, including the needed form to create a restaurant
+    post:
+      summary: Creates a new restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the restaurant
+                address:
+                  type: string
+                  description: The address of the restaurant
+                city:
+                  type: string
+                  description: The city of the restaurant
+                phone:
+                  type: string
+                  description: The phone of the restaurant
+                menu_type:
+                  type: string
+                  description: The menu_type of the restaurant
+              required:
+                - name
+                - address
+                - city
+                - phone
+                - menu_type
+      responses:
+        302:
+          description: Redirects to the operator profile after succesfully creating the restaurant
+        200:
+          description: Renders the create_restaurant template, including the needed form to create a restaurant, in case of an error with the creation of the restaurant
+      
+  /restaurants/details/{id_op}:
+    get:
+      summary: Shows the page containing the restaurant details for the operator, including all the forms needed to modify the restaurant
+      tags: [ Restaurants ]
+      parameters:
+      - name: id_op
+        in: path
+        description: Operator's unique identifier
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Renders the add_restaurant_details template, including forms to update the availabilities, the tables, the stay time and security measures
+    
+  /restaurants/save/{id_op}/{rest_id}:
+      tags: [ Restaurants ]
+      parameters:
+      - name: id_op
+        in: path
+        description: Operator's unique identifier
+        required: true
+        schema:
+          type: integer
+      - name: rest_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Redirects to the restaurant details page
+      response:
+        302: 
+          description: Redirects to the restaurant details page
+    post:
+      summary: Creates the tables of a restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                number:
+                  type: integer
+                  description: The number of the tables
+                max_capacity:
+                  type: integer
+                  description: The maximum capacity of the tables
+              required:
+                - number
+                - max_capacity
+      responses:
+        302:
+          description: Redirects to the restaurant details page, showing if the operation caused an error
+
+  /restaurants/savetime/{id_op}/{rest_id}:
+      tags: [ Restaurants ]
+      parameters:
+      - name: id_op
+        in: path
+        description: Operator's unique identifier
+        required: true
+        schema:
+          type: integer
+      - name: rest_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Redirects to the restaurant details page
+      response:
+        302: 
+          description: Redirects to the restaurant details page
+    post:
+      summary: Creates a new availability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                day:
+                  type: string
+                  description: The week day of the availability
+                start_time:
+                  type: string
+                  description: The start time of the availability
+                end_time:
+                  type: string
+                  description: The end time of the availability
+              required:
+                - day
+                - start_time
+                - end_time
+      responses:
+        302:
+          description: Redirects to the restaurant details page, showing if the operation caused an error
+
+  /restaurants/savemeasure/{id_op}/{rest_id}:
+      tags: [ Restaurants ]
+      parameters:
+      - name: id_op
+        in: path
+        description: Operator's unique identifier
+        required: true
+        schema:
+          type: integer
+      - name: rest_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Redirects to the restaurant details page
+      response:
+        302: 
+          description: Redirects to the restaurant details page
+    post:
+      summary: Creates a new security measure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                measure:
+                  type: string
+                  description: The security measure to be added
+              required:
+                - measure
+      responses:
+        302:
+          description: Redirects to the restaurant details page, showing if the operation caused an error
+
+  /restaurants/avgstay/{id_op}/{rest_id}:
+      tags: [ Restaurants ]
+      parameters:
+      - name: id_op
+        in: path
+        description: Operator's unique identifier
+        required: true
+        schema:
+          type: integer
+      - name: rest_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Redirects to the restaurant details page
+      response:
+        302: 
+          description: Redirects to the restaurant details page
+    post:
+      summary: Creates/updates the average stay time of the restaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hours:
+                  type: integer
+                  description: The hours of the average stay
+                minutes:
+                  type: integer
+                  description: The minutes of the average stay
+              required:
+                - hours
+                - minutes
+      responses:
+        302:
+          description: Redirects to the restaurant details page, showing if the operation caused an error
+    
+  /edit_restaurant/{id_op}/{rest_id}:
+      tags: [ Restaurants ]
+      parameters:
+      - name: id_op
+        in: path
+        description: Operator's unique identifier
+        required: true
+        schema:
+          type: integer
+      - name: rest_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Shows the page to update the restaurant
+      response:
+        200: 
+          description: Renders the update_restaurant template, with the needed form to perform the operation
+    post:
+      summary: Updates the information of the restaurant specified by rest_id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the restaurant
+                address:
+                  type: string
+                  description: The address of the restaurant
+                city:
+                  type: string
+                  description: The city of the restaurant
+                phone:
+                  type: string
+                  description: The phone of the restaurant
+                menu_type:
+                  type: string
+                  description: The menu_type of the restaurant
+              required:
+                - name
+                - address
+                - city
+                - phone
+                - menu_type
+      responses:
+        200:
+          description: Renders the update_restaurant template, stating that an error has occurred with the operation
+        302:
+          description: Redirects to the operator's profile, in case the operation was successful
+
+  /restaurants/{restaurant_id}/review:
+    tags: [ Restaurants ]
+    parameters:
+      - name: restaurant_id
+        in: path
+        description: Restaurant's unique identifier
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Shows the page to create a new review
+      responses:
+        200:
+          description: Renders the create_review template, with the form needed to create a review
+    post:
+      summary: Creates a new review for the restaurant specified by the restaurant_id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: Integer
+                  description: The rating of the review 
+                review:
+                  type: string
+                  description: The text of the review
+              required:
+                - value
+                - review
+      responses:
+        200:
+          description: Renders the thank_you_review template, specifiying if a review had already been added or not
