@@ -73,7 +73,7 @@ paths:
         200:
           description: Calls the login method
   
-  /profile/{id}:
+  /customer/{id}:
     get:
       tags: [ Profile ]
       summary: Shows the profile page of the customer specified by the id
@@ -89,6 +89,44 @@ paths:
           description: Renders the customer_profile template, filled with the ssn form and the user's reservations
         302:
           description: Redirects to the homepage, in case the user accessing the profile is not its owner
+    
+    put:
+      summary: Updates the fields for the customer depending on its id
+      tags:
+        - Users
+      parameters:
+        - name: id
+          description: User Unique ID
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: the email field for the user
+                password:
+                  type: string
+                  description: the password field for the user
+                phone:
+                  type: string
+                  description: the phone field for the user
+              required:
+                - email
+                - password
+                - phone
+      responses:
+        200:
+          description: Renders the update_customer template, to allow the customer to modify its data
+        302:
+          description: Redirects to the customer profile page
 
   /operator/{op_id}:
     get:
@@ -106,6 +144,40 @@ paths:
           description: Renders the operator_profile template, filled with the reservations filter form and the operator's restaurant
         302:
           description: Redirects to the homepage, in case the user accessing the profile is not its owner
+    
+    put:
+      summary: Updates the fields for the operator depending on its id
+      tags:
+        - Users
+      parameters:
+        - name: id
+          description: User Unique ID
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: the email field for the user
+                password:
+                  type: string
+                  description: the password field for the user
+              required:
+                - email
+                - password
+      responses:
+        200:
+          description: Renders the update_customer template, to allow the operator to modify its data
+        302:
+          description: Redirects to the operator profile page
 
   /authority/{id}/{positive_id}:
     get:
@@ -258,80 +330,6 @@ paths:
         responses:
           302:
             description: User deleted, it redirects to the index page
-          
-  /customer/{id}:
-    put:
-      summary: Updates the fields for the customer depending on its id
-      tags:
-        - Users
-      parameters:
-        - name: id
-          description: User Unique ID
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  description: the email field for the user
-                password:
-                  type: string
-                  description: the password field for the user
-                phone:
-                  type: string
-                  description: the phone field for the user
-              required:
-                - email
-                - password
-                - phone
-      responses:
-        200:
-          description: Renders the update_customer template, to allow the customer to modify its data
-        302:
-          description: Redirects to the customer profile page
-        
-  /operator/{id}:
-    put:
-      summary: Updates the fields for the operator depending on its id
-      tags:
-        - Users
-      parameters:
-        - name: id
-          description: User Unique ID
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  description: the email field for the user
-                password:
-                  type: string
-                  description: the password field for the user
-              required:
-                - email
-                - password
-      responses:
-        200:
-          description: Renders the update_customer template, to allow the operator to modify its data
-        302:
-          description: Redirects to the operator profile page
   
   /social_number/{id}:
     put:
