@@ -199,6 +199,6 @@ def my_reservations():
     restaurant = RestaurantManager.get_restaurant_by_op_id(current_user.id)
     if restaurant is None:
         from gooutsafe.views.restaurants import add
-        return add(current_user.id)
+        return redirect(url_for('restaurants.add',id_op=current_user.id))
     restaurant_id = restaurant['restaurant']['id']
     return reservation_all(restaurant_id)
