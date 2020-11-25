@@ -253,8 +253,8 @@ def edit_restaurant(id_op, rest_id):
                                     'phone': phone,
                                     'menu_type': menu_type}
             restaurant_edited = RestaurantManager.put_edit_restaurant(rest_id, json_data_to_send)
-            if restaurant_edited:
-                flash('Error in saving the average stay time')
+            if not restaurant_edited:
+                flash('Error in editing the restaurant')
             else:
                 return redirect(url_for('auth.operator', op_id=id_op))
 
