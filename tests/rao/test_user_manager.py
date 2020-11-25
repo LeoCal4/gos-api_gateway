@@ -30,6 +30,13 @@ class TestUserManager(RaoTest):
             'health_status': choice([True, False]),
             'phone': TestUserManager.faker.phone_number()
             }
+        elif type == 'authority':
+            extra_data = {
+                'name': self.faker.company(),
+                'city': self.faker.city(),
+                'address': self.faker.address(),
+                'phone': self.faker.phone_number()
+            }
         else:
             extra_data = {}
 
@@ -39,20 +46,15 @@ class TestUserManager(RaoTest):
             'is_active' : choice([True,False]),
             'authenticated': choice([True,False]),
             'is_anonymous': False,
-            'type': choice(['customer', 'operator']),
+            'type': type,
             'extra': extra_data,
         }
-        user = User(**data)
-        if type == 'customer':
-            user.type = 'customer'
-        elif type == 'operator':
-            user.type ='operator'
-            
+        user = User(**data)            
         return user
 
     @patch('gooutsafe.rao.user_manager.requests.get')
     def test_get_user_by_id(self, mock_get):
-        user = self.generate_user(type='generic')
+        user = self.generate_user(type='operator')
         mock_get.return_value = Mock(
             status_code=200,
             json = lambda:{
@@ -67,7 +69,10 @@ class TestUserManager(RaoTest):
         response = self.user_manager.get_user_by_id(id)
         assert response is not None
 
-    def test_get_user_by_id_error(self):
+    @patch('gooutsafe.rao.user_manager.requests.get')
+    def test_get_user_by_id_error(self, mock):
+        mock.side_effect = requests.exceptions.Timeout()
+        mock.return_value = Mock(status_code=400, json=lambda : {'message': 0})
         with self.assertRaises(HTTPException) as http_error:
             self.user_manager.get_user_by_id(randint(0, 999))
             self.assertEqual(http_error.exception.code, 500)
@@ -89,7 +94,10 @@ class TestUserManager(RaoTest):
         response = self.user_manager.get_user_by_email(user.email)
         assert response is not None
     
-    def test_get_user_by_email_error(self):
+    @patch('gooutsafe.rao.user_manager.requests.get')
+    def test_get_user_by_email_error(self, mock):
+        mock.side_effect = requests.exceptions.Timeout()
+        mock.return_value = Mock(status_code=400, json=lambda : {'message': 0})
         email = TestUserManager.faker.email()
         with self.assertRaises(HTTPException) as http_error:
             self.user_manager.get_user_by_email(email)
@@ -111,8 +119,11 @@ class TestUserManager(RaoTest):
         )
         response = self.user_manager.get_user_by_phone(user.phone)
         assert response is not None
-
-    def test_get_user_by_phone_error(self):
+    
+    @patch('gooutsafe.rao.user_manager.requests.get')
+    def test_get_user_by_phone_error(self, mock):
+        mock.side_effect = requests.exceptions.Timeout()
+        mock.return_value = Mock(status_code=400, json=lambda : {'message': 0})
         phone = TestUserManager.faker.phone_number()
         with self.assertRaises(HTTPException) as http_error:
             self.user_manager.get_user_by_phone(phone)
@@ -135,22 +146,42 @@ class TestUserManager(RaoTest):
         response = self.user_manager.get_user_by_social_number(user.social_number)
         assert response is not None
 
-    def test_get_user_by_social_number_error(self):
+    @patch('gooutsafe.rao.user_manager.requests.get')
+    def test_get_user_by_social_number_error(self, mock):
+        mock.side_effect = requests.exceptions.Timeout()
+        mock.return_value = Mock(status_code=400, json=lambda : {'message': 0})
         ssn = TestUserManager.faker.ssn()
         with self.assertRaises(HTTPException) as http_error:
             self.user_manager.get_user_by_social_number(ssn)
             self.assertEqual(http_error.exception.code, 500)
 
     @patch('gooutsafe.rao.user_manager.requests.get')
-    def test_get_all_positive_customer(self, mock_get):
-        pass
+    def test_get_all_positive_customer_error(self, mock_get):
+        mock_get.side_effect = requests.exceptions.Timeout()
+        mock_get.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        with self.app.test_request_context ():
+            with self.assertRaises(HTTPException) as http_error:
+                self.user_manager.get_all_positive_customer()
+                self.assertEqual(http_error.exception.code, 500)
     
     @patch('gooutsafe.rao.user_manager.requests.put')
-    def test_add_social_number(self, mock_get):
+    def test_add_social_number(self, mock_put):
         user = self.generate_user(type='customer')
-        mock_get.return_value = Mock(status_code=200)
+        mock_put.return_value = Mock(status_code=200)
         response = self.user_manager.add_social_number(user.id, user.social_number)
         assert response is not None
+
+    @patch('gooutsafe.rao.user_manager.requests.put')
+    def test_add_social_number_error(self, mock_put):
+        mock_put.side_effect = requests.exceptions.Timeout()
+        mock_put.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        with self.app.test_request_context ():
+            with self.assertRaises(HTTPException) as http_error:
+                self.user_manager.add_social_number(
+                    randint(0,999),
+                    self.faker.ssn(),
+                )
+                self.assertEqual(http_error.exception.code, 500)
 
     @patch('gooutsafe.rao.user_manager.requests.post')
     def test_create_customer(self, mock_get):
@@ -164,15 +195,48 @@ class TestUserManager(RaoTest):
             phone=user.phone
         )
         assert response is not None
+    
+    @patch('gooutsafe.rao.user_manager.requests.post')
+    def test_create_customer_error(self, mock_post):
+        user = self.generate_user(type='customer')
+        password = TestUserManager.faker.password()
+        mock_post.side_effect = requests.exceptions.Timeout()
+        mock_post.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        with self.app.test_request_context ():
+            with self.assertRaises(HTTPException) as http_error:
+                self.user_manager.create_customer(
+                    type="customer", email=user.email, password=password,
+                    social_number=user.social_number, firstname=user.firstname,
+                    lastname=user.lastname, birthdate=user.birthdate,
+                    phone=user.phone
+                )
+                self.assertEqual(http_error.exception.code, 500)
         
     @patch('gooutsafe.rao.user_manager.requests.post')
-    def test_create_operator(self, mock_get):
+    def test_create_operator(self, mock_post):
         user = self.generate_user(type='operator')
-        mock_get.return_value = Mock(status_code=200)
+        mock_post.return_value = Mock(status_code=200)
         password = TestUserManager.faker.password()
         response = self.user_manager.create_operator(
             email=user.email, password=password
         )
+        assert response is not None
+
+    @patch('gooutsafe.rao.user_manager.requests.post')
+    def test_create_operator_error(self, mock_post):
+        mock_post.side_effect = requests.exceptions.Timeout()
+        mock_post.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        with self.assertRaises(HTTPException) as http_error:
+            self.user_manager.create_operator(
+                email=self.faker.email(), 
+                password=self.faker.password()
+            )
+            self.assertEqual(http_error.exception.code, 500)
+    
+    @patch('gooutsafe.rao.user_manager.requests.post')
+    def test_create_authority(self, mock_post):
+        mock_post.return_value = Mock(status_code=200)
+        response = self.user_manager.create_authority()
         assert response is not None
 
     @patch('gooutsafe.rao.user_manager.requests.put')
@@ -191,6 +255,20 @@ class TestUserManager(RaoTest):
         )
 
         assert response is not None
+    
+    @patch('gooutsafe.rao.user_manager.requests.put')
+    def test_update_customer_error(self, mock_put):
+        mock_put.side_effect = requests.exceptions.Timeout()
+        mock_put.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        with self.app.test_request_context ():
+            with self.assertRaises(HTTPException) as http_error:
+                self.user_manager.update_customer(
+                    user_id=randint(0,999),
+                    email=self.faker.email(), 
+                    password=self.faker.password(), 
+                    phone=self.faker.phone_number()
+                )
+                self.assertEqual(http_error.exception.code, 500)
 
     @patch('gooutsafe.rao.user_manager.requests.put')
     def test_update_operator(self, mock_put):
@@ -209,27 +287,50 @@ class TestUserManager(RaoTest):
         assert response is not None
 
     @patch('gooutsafe.rao.user_manager.requests.put')
-    def test_update_health_status(self, mock_get):
-        pass
+    def test_update_operator_error(self, mock_put):
+        mock_put.side_effect = requests.exceptions.Timeout()
+        mock_put.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        with self.app.test_request_context ():
+            with self.assertRaises(HTTPException) as http_error:
+                self.user_manager.update_operator(
+                    user_id=randint(0,999),
+                    email=self.faker.email(), 
+                    password=self.faker.password()
+                )
+                self.assertEqual(http_error.exception.code, 500)
+
+    @patch('gooutsafe.rao.user_manager.requests.put')
+    def test_update_health_status_error(self, mock_put):
+        mock_put.side_effect = requests.exceptions.Timeout()
+        mock_put.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        with self.app.test_request_context ():
+            with self.assertRaises(HTTPException) as http_error:
+                self.user_manager.update_health_status(
+                    user_id=randint(0,999)
+                )
+                self.assertEqual(http_error.exception.code, 500)
     
     @patch('gooutsafe.rao.user_manager.requests.delete')
     def test_delete_user(self, mock_get):
-        user = self.generate_user(type='generic')
+        user = self.generate_user(type='operator')
         mock_get.return_value = Mock(status_code=200)        
 
         with self.app.test_request_context ():
             response = self.user_manager.delete_user(user_id=user.id)            
             assert response is not None
 
-    def test_delete_user_error(self):
+    @patch('gooutsafe.rao.user_manager.requests.delete')
+    def test_delete_user_error(self, mock):
+        mock.side_effect = requests.exceptions.Timeout()
+        mock.return_value = Mock(status_code=400, json=lambda : {'message': 0})
         with self.app.test_request_context ():
             with self.assertRaises(HTTPException) as http_error:
                 self.user_manager.delete_user(user_id=randint(0,999))
                 self.assertEqual(http_error.exception.code, 500)
 
     @patch('gooutsafe.rao.user_manager.requests.post')
-    def test_authenticate_user(self, mock_get):        
-        user = self.generate_user(type='generic')
+    def test_authenticate_user(self, mock_post):        
+        user = self.generate_user(type='operator')
         user_data = {
             'id':user.id,
             'email':user.email,
@@ -238,7 +339,7 @@ class TestUserManager(RaoTest):
             'is_anonymous': False,
             'type': user.type
         }
-        mock_get.return_value = Mock(
+        mock_post.return_value = Mock(
             status_code=200,
             json = lambda:{
                 'user': user_data
@@ -249,3 +350,15 @@ class TestUserManager(RaoTest):
             email=user.email, password=password
         )
         assert response is not None
+
+    @patch('gooutsafe.rao.user_manager.requests.post')
+    def test_authenticate_user_error(self, mock_post):
+        mock_post.side_effect = requests.exceptions.Timeout()
+        mock_post.return_value = Mock(status_code=400, json=lambda : {'message': 0})
+        with self.app.test_request_context ():
+            with self.assertRaises(HTTPException) as http_error:
+                self.user_manager.authenticate_user(
+                    self.faker.email(),
+                    self.faker.password()
+                )
+                self.assertEqual(http_error.exception.code, 500)

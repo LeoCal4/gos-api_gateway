@@ -112,7 +112,6 @@ class UserManager:
             pos_customers = []
 
             if response.status_code == 200:
-                # TODO append in pos_customers all item of the json_payload
                 for json in json_payload:
                     pos_customers.append(User.build_from_json(json))
                 return pos_customers
@@ -322,7 +321,9 @@ class UserManager:
             status_code
         """
         try:
-            response = requests.get('%s/load_authority' % cls.USERS_ENDPOINT, timeout=cls.REQUESTS_TIMEOUT_SECONDS)
+            response = requests.get('%s/load_authority' % cls.USERS_ENDPOINT, 
+                                    timeout=cls.REQUESTS_TIMEOUT_SECONDS
+            )
             return response
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
             return abort(500)
