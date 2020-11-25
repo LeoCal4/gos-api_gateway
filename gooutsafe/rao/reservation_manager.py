@@ -118,7 +118,6 @@ class ReservationManager:
         json_times = {}
         try:
             res = RestaurantManager.get_restaurant_sheet(restaurant_id)
-            print(res)
             json_details = res
             json_tables = res['restaurant']['tables']
             json_times = res['restaurant']['availabilities']

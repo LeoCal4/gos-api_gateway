@@ -106,13 +106,13 @@ def update_customer(id):
     form = UpdateCustomerForm()
     if form.is_submitted():
         email = form.data['email']
+        password = form.data['password']
+        phone = form.data['phone']
         searched_user = UserManager.get_user_by_email(email)
         if searched_user is not None and id != searched_user.id:
             flash("Email already present in the database.")
             return render_template('update_customer.html', form=form)
 
-        password = form.data['password']
-        phone = form.data['phone']
         response = UserManager.update_customer(id, email, password, phone)
 
         if response.status_code != 204:
@@ -138,12 +138,12 @@ def update_operator(id):
     form = LoginForm()
     if form.is_submitted():
         email = form.data['email']
+        password = form.data['password']
         searched_user = UserManager.get_user_by_email(email)
         if searched_user is not None and id != searched_user.id:
             flash("Email already present in the database.")
             return render_template('update_customer.html', form=form)
 
-        password = form.data['password']
         response = UserManager.update_operator(id, email, password)
 
         if response.status_code != 204:
