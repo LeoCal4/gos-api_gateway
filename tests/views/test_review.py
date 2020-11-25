@@ -17,30 +17,30 @@ class TestReview(ViewTest):
         super(TestReview, cls).setUpClass()
         from gooutsafe.rao.restaurant_manager import RestaurantManager
         cls.restaurant_manager = RestaurantManager
+        from .test_restaurants import TestRestaurantViews
+        cls.test_restaurant = TestRestaurantViews()
+        cls.test_restaurant.setUpClass()
 
 
-    @patch('gooutsafe.rao.restaurant_manager.requests.get')
-    def test_write_review_get(self, mock_get):
-        data = {
-            'status': 'Success',
-            'message': 'Review already written',
-            'bounds': {
-                'min_value': 0, 
-                'max_value': 10
-            }
+    def test_write_review_get(self):
+        customer = self.login_test_customer()
+        restaurant = self.test_restaurant.create_random_restaurant(1)
+        response = self.client.get(
+            '/restaurants/'+ str(randint(0,999))+'/review')
+        assert response.status_code == 200
+
+    def test_write_review_post(self):
+        customer = self.login_test_customer()
+        restaurant = self.test_restaurant.create_random_restaurant(1)
+        review = {
+            'customer_id': customer.get('id'),
+            'restaurant_id': restaurant.get('id'),
+            'customer_name': 'Leo',
+            'value': 7,
+            'review': 'Muscas'
         }
-        mock_get.return_value = Mock(
-            status_code=200,
-            json =  lambda : data
-        )
 
-        with self.captured_templates(self.app) as templates:
-            response = self.client.get(
-                '/restaurants/'+ str(randint(0,999))+'/review',
-                follow_redirects=False
-            )
-
-            assert response.status_code == 200
-            assert len(templates) == 1
-            template, _ = templates[0]
-            assert template.name == 'create_review.html'        
+        response = self.client.post(
+            '/restaurants/'+ str(restaurant['id']) +'/review', json=review)
+        
+        assert response.status_code == 200

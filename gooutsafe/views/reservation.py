@@ -44,6 +44,8 @@ def create_reservation(restaurant_id):
                     return redirect('/restaurants/' + str(restaurant_id))
                 else:
                     return redirect(url_for('auth.profile', id=current_user.id))
+            else:
+                flash("Take a look to the inserted data")
         return render_template('create_reservation.html', restaurant_name=restaurant_name, form=form)
     return redirect(url_for('home.index'))
 
