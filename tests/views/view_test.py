@@ -69,7 +69,7 @@ class ViewTest(unittest.TestCase):
         #authority exists in users ms db
         if authority is None:
             #create authority
-            rv = self.client.get(self.BASE_URL+'/ha/create')
+            self.user_manager.create_authority()
             authority = self.user_manager.get_user_by_email("aslpisa@asl.it")
         #login authority
         rv = self.client.post (
