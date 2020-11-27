@@ -98,21 +98,53 @@ for example gunicorn and psycopg2.
 
 **IMPORTANT:** the Docker image uses only the production requirements.
 ### Run tests
-**IMPORTANT**: to run tests for the api-gateway you need to run all the other microservices, in different terminals:
+**IMPORTANT 1**:
+`virtualenv -p python venv`
+
+`source venv/bin/activate`
+
+`pip install -r requirements.dev.txt`
+
+`cp env_file_example env_file`
+
+`docker-compose up -d redis_cache`
+
+`export FLASK_ENV=development`
+
+`export REDIS_HOST=localhost`
+
+**IMPORTANT 2**: to run tests for the api-gateway you need to run all the other microservices, in different terminals:
 - for user:
 `virtualenv -p python venv`
+
+`source venv/bin/activate`
+
 `pip install -r requirements.dev.txt`
+
 `export FLASK_ENV=development`
+
 `flask run -p 5001`
+
 - for restaurant:
 `virtualenv -p python venv`
+
+`source venv/bin/activate`
+
 `pip install -r requirements.dev.txt`
+
 `export FLASK_ENV=development`
+
 `flask run -p 5002`
+
 - for reservation:
 `virtualenv -p python venv`
+
+`source venv/bin/activate`
+
 `pip install -r requirements.dev.txt`
+
 `export FLASK_ENV=development`
+
 `flask run -p 5003`
 
 To run all the tests, execute the following command:
