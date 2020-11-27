@@ -147,6 +147,21 @@ for example gunicorn and psycopg2.
 
 `flask run -p 5003`
 
+- for notification:
+`virtualenv -p python venv`
+
+`source venv/bin/activate`
+
+`pip install -r requirements.dev.txt`
+
+`cp env_file_example env_file`
+
+`docker-compose up -d db rabbit_mq`
+
+`export FLASK_ENV=development`
+
+`flask run -p 5004`
+
 To run all the tests, execute the following command:
 
 `python -m pytest`
